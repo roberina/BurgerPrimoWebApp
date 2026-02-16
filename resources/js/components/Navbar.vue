@@ -7,9 +7,6 @@
           href="/" 
           class="flex items-center gap-3 group"
         >
-          <div class="w-10 h-10 bg-gradient-to-br from-[#D2691E] to-[#B8571A] rounded-lg flex items-center justify-center shadow-lg shadow-[#D2691E]/20 group-hover:shadow-[#D2691E]/40 transition-all duration-300 group-hover:scale-110">
-            <span class="text-xl font-bold text-white">BP</span>
-          </div>
           <span class="text-xl font-bold bg-gradient-to-r from-[#D2691E] to-[#E07A2E] bg-clip-text text-transparent">
             Burger Primo
           </span>
