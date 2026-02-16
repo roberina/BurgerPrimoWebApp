@@ -22,7 +22,26 @@
         </span>
       </div>
 
-      <!-- Plus Button -->
+      <!-- Favorite Button (Top Right) -->
+      <button
+        @click.stop="toggleFavorite"
+        class="absolute top-3 right-3 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-lg flex items-center justify-center transition-all duration-200 z-10"
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          :class="[
+            'h-6 w-6 transition-all',
+            item.is_favorited ? 'fill-red-500 text-red-500' : 'fill-none text-white'
+          ]"
+          viewBox="0 0 24 24" 
+          stroke="currentColor" 
+          stroke-width="2"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      </button>
+
+      <!-- Plus Button (Bottom Right) -->
       <button
         @click="openAddonModal"
         class="absolute bottom-3 right-3 w-12 h-12 bg-[#D2691E] hover:bg-[#E07A2E] text-white rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-[#D2691E]/50 hover:scale-110"
@@ -238,6 +257,12 @@
 import { ref, computed, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 
+const toggleFavorite = () => {
+  router.post(`/menu/${props.item.id}/favorite`, {}, {
+    preserveScroll: true,
+  });
+};
+
 interface MenuItemData {
   id: number;
   name: string;
@@ -249,6 +274,7 @@ interface MenuItemData {
   discount_percentage: number | null;
   size: string | null;
   has_discount: boolean;
+  is_favorited?: boolean;
 }
 
 interface Props {

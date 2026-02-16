@@ -24,6 +24,11 @@ class MenuCategory extends Model
         'sort_order' => 'integer',
     ];
 
+    public function menuItems()
+{
+    return $this->hasMany(MenuItem::class, 'category_id');
+}
+
     protected static function boot()
     {
         parent::boot();
