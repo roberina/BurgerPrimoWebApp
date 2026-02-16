@@ -32,6 +32,12 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function favoriteMenuItems()
+{
+    return $this->belongsToMany(MenuItem::class, 'user_menu_item_favorites')
+        ->withTimestamps();
+}
+
     /**
      * Get the attributes that should be cast.
      *

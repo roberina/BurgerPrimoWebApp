@@ -28,6 +28,7 @@
             v-for="item in category.active_items"
             :key="item.id"
             :item="item"
+            @toggle-favorite="toggleFavorite"
           />
         </div>
         <div v-else class="text-center py-12 text-gray-500 bg-[#121212] rounded-2xl">
@@ -47,9 +48,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Head } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 import Navbar from '@/components/Navbar.vue';
 import MenuItem from '@/components/Menu/MenuItem.vue';
+
+const toggleFavorite = (itemId: number) => {
+  router.post(`/menu/${itemId}/favorite`, {}, {
+    preserveScroll: true,
+  });
+};
 
 interface MenuItemData {
   id: number;
@@ -59,6 +66,7 @@ interface MenuItemData {
   original_price: number | null;
   image_url: string | null;
   is_featured: boolean;
+  is_favorited?: boolean;
   discount_percentage: number | null;
   size: string | null;
   has_discount: boolean;

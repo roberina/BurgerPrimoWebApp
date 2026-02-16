@@ -34,11 +34,15 @@ Route::get('/menu/{slug}', [MenuController::class, 'category'])->name('menu.cate
 
 Route::middleware(['auth'])->group(function () {
 
+    // MENU FAVORITES
+    Route::post('/menu/{menuItem}/favorite', [App\Http\Controllers\MenuFavoriteController::class, 'toggle'])->name('menu.favorite.toggle');
+
     // Burger Builder Routes
     Route::get('/burger-builder', [BurgerBuilderController::class, 'index'])->name('burger-builder.index');
     Route::post('/burger-builder', [BurgerBuilderController::class, 'store'])->name('burger-builder.store');
     Route::put('/burger-builder/{burger}', [BurgerBuilderController::class, 'update'])->name('burger-builder.update');
     Route::delete('/burger-builder/{burger}', [BurgerBuilderController::class, 'destroy'])->name('burger-builder.destroy');
+    Route::post('/burger-builder/{burger}/favorite', [BurgerBuilderController::class, 'toggleFavorite'])->name('burger-builder.favorite');
     Route::post('/burger-builder/{burger}/favorite', [BurgerBuilderController::class, 'toggleFavorite'])->name('burger-builder.favorite');
 
     // Cart Routes
@@ -95,6 +99,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/menu/items/{item}', [MenuItemController::class, 'update'])->name('menu.items.update');
     Route::delete('/menu/items/{item}', [MenuItemController::class, 'destroy'])->name('menu.items.destroy');
     Route::post('/menu/items/update-order', [MenuItemController::class, 'updateOrder'])->name('menu.items.update-order');
+
+    // BURGER INGREDIENTS MANAGEMENT
+    Route::get('/ingredients', [App\Http\Controllers\Admin\IngredientController::class, 'index'])->name('ingredients.index');
+    Route::get('/ingredients/create', [App\Http\Controllers\Admin\IngredientController::class, 'create'])->name('ingredients.create');
+    Route::post('/ingredients', [App\Http\Controllers\Admin\IngredientController::class, 'store'])->name('ingredients.store');
+    Route::get('/ingredients/{ingredient}/edit', [App\Http\Controllers\Admin\IngredientController::class, 'edit'])->name('ingredients.edit');
+    Route::put('/ingredients/{ingredient}', [App\Http\Controllers\Admin\IngredientController::class, 'update'])->name('ingredients.update');
+    Route::delete('/ingredients/{ingredient}', [App\Http\Controllers\Admin\IngredientController::class, 'destroy'])->name('ingredients.destroy');
+    Route::post('/ingredients/{ingredient}/toggle', [App\Http\Controllers\Admin\IngredientController::class, 'toggleAvailability'])->name('ingredients.toggle');
 });
 });
 

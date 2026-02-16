@@ -11,7 +11,12 @@
 
         <!-- Burger Name Input -->
         <div class="mb-8">
-          <label class="block text-sm mb-2 font-semibold">Burgeri nimi</label>
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-sm font-semibold">Burgeri nimi</label>
+            <span v-if="!canCreateMore" class="text-sm text-red-400">
+              ⚠️ Limit saavutatud ({{ customBurgers.length }}/{{ maxBurgers }})
+            </span>
+          </div>
           <input
             v-model="burgerName"
             type="text"
@@ -20,56 +25,56 @@
           />
         </div>
 
-        <!-- Ingredients Grid -->
+       <!-- Ingredients Grid -->
         <div class="space-y-12">
-          <!-- Vöi Section -->
+          <!-- Buns Section -->
           <IngredientSection
-            v-if="ingredients['vöi']"
-            title="Vöi"
-            subtitle="Vali endale sobiv kastee"
-            :items="ingredients['vöi']"
-            :selected="selectedIngredients['vöi'] || []"
-            @update="(items) => updateIngredients('vöi', items)"
+            v-if="ingredients['buns']"
+            title="Saiakesed"
+            subtitle="Vali endale sobiv saiake"
+            :items="ingredients['buns']"
+            :selected="selectedIngredients['buns'] || []"
+            @update="(items) => updateIngredients('buns', items)"
           />
 
-          <!-- Pitav Section -->
+          <!-- Patties Section -->
           <IngredientSection
-            v-if="ingredients.pitav"
-            title="Pitav"
-            subtitle="Vali endale sobiv pitav"
-            :items="ingredients.pitav"
-            :selected="selectedIngredients.pitav || []"
-            @update="(items) => updateIngredients('pitav', items)"
+            v-if="ingredients.patties"
+            title="Lihakotletid"
+            subtitle="Vali endale sobiv kotlet"
+            :items="ingredients.patties"
+            :selected="selectedIngredients.patties || []"
+            @update="(items) => updateIngredients('patties', items)"
           />
 
-          <!-- Juust Section -->
+          <!-- Vegetables Section -->
           <IngredientSection
-            v-if="ingredients.juust"
-            title="Juust"
-            subtitle="Vali endale sobiv juust"
-            :items="ingredients.juust"
-            :selected="selectedIngredients.juust || []"
-            @update="(items) => updateIngredients('juust', items)"
+            v-if="ingredients.vegetables"
+            title="Köögiviljad"
+            subtitle="Vali endale sobivad köögiviljad"
+            :items="ingredients.vegetables"
+            :selected="selectedIngredients.vegetables || []"
+            @update="(items) => updateIngredients('vegetables', items)"
           />
 
-          <!-- Salat Section -->
+          <!-- Sauces Section -->
           <IngredientSection
-            v-if="ingredients.salat"
-            title="Salat"
-            subtitle="Vali endale sobiv salat"
-            :items="ingredients.salat"
-            :selected="selectedIngredients.salat || []"
-            @update="(items) => updateIngredients('salat', items)"
+            v-if="ingredients.sauces"
+            title="Kastmed"
+            subtitle="Vali endale sobiv kaste"
+            :items="ingredients.sauces"
+            :selected="selectedIngredients.sauces || []"
+            @update="(items) => updateIngredients('sauces', items)"
           />
 
-          <!-- Lisand Section -->
+          <!-- Extras Section -->
           <IngredientSection
-            v-if="ingredients.lisand"
-            title="Lisand"
-            subtitle="Vali endale sobiv lisand"
-            :items="ingredients.lisand"
-            :selected="selectedIngredients.lisand || []"
-            @update="(items) => updateIngredients('lisand', items)"
+            v-if="ingredients.extras"
+            title="Lisandid"
+            subtitle="Vali endale sobivad lisandid"
+            :items="ingredients.extras"
+            :selected="selectedIngredients.extras || []"
+            @update="(items) => updateIngredients('extras', items)"
           />
         </div>
 
@@ -90,7 +95,7 @@
             Lisa lemmikutesse
           </button>
           <button
-            @click="orderBurger"
+            @click="() => orderBurger()"
             :disabled="!canSave"
             class="bg-green-600 hover:bg-green-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg font-semibold transition"
           >
@@ -103,16 +108,23 @@
           Kogusumma: <span class="text-[#D2691E]">{{ totalPrice.toFixed(2) }}€</span>
         </div>
 
-        <!-- Favorites Section -->
-        <div v-if="favorites.length > 0" class="mt-16">
-          <h3 class="text-2xl font-bold mb-6">Lemmik burgerid</h3>
+       <!-- My Custom Burgers Section -->
+        <div v-if="customBurgers && customBurgers.length > 0" class="mt-16">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="text-2xl font-bold">Minu burgerid</h3>
+              <p class="text-gray-400">Sinu loodud burgerid ({{ customBurgers.length }}/{{ maxBurgers }})</p>
+            </div>
+          </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <FavoriteBurgerCard
-              v-for="burger in favorites"
+            <CustomBurgerCard
+              v-for="burger in customBurgers"
               :key="burger.id"
               :burger="burger"
               @load="loadBurger"
-              @order="orderFavorite"
+              @order="orderSavedBurger"
+              @toggle-favorite="toggleBurgerFavorite"
+              @delete="deleteBurger"
             />
           </div>
         </div>
@@ -126,23 +138,31 @@ import MainLayout from '@/layouts/MainLayout.vue';
 import { ref, computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 import IngredientSection from '@/components/IngredientSection.vue';
-import FavoriteBurgerCard from '@/components/FavoriteBurgerCard.vue';
+import CustomBurgerCard from '@/components/CustomBurgerCard.vue';
 import type { Ingredient, SelectedIngredient, CustomBurger } from '@/types/burger-types';
 
 interface Props {
   ingredients: Record<string, Ingredient[]>;
-  favorites: CustomBurger[];
+  customBurgers: CustomBurger[];
+  canCreateMore: boolean;
+  maxBurgers: number;
 }
+
+const toggleBurgerFavorite = (burgerId: number) => {
+  router.post(`/burger-builder/${burgerId}/favorite`, {}, {
+    preserveScroll: true,
+  });
+};
 
 const props = defineProps<Props>();
 
 const burgerName = ref('');
 const selectedIngredients = ref<Record<string, SelectedIngredient[]>>({
-  'vöi': [],
-  pitav: [],
-  juust: [],
-  salat: [],
-  lisand: [],
+  buns: [],
+  patties: [],
+  vegetables: [],
+  sauces: [],
+  extras: [],
 });
 
 const updateIngredients = (category: string, items: SelectedIngredient[]) => {
@@ -178,6 +198,11 @@ const getAllSelectedIngredients = (): SelectedIngredient[] => {
 };
 
 const saveBurger = (isFavorite: boolean) => {
+  if (!props.canCreateMore) {
+    alert(`Oled jõudnud maksimaalse burgeri limiidini (${props.maxBurgers}). Kustuta mõni olemasolev burger, et luua uus.`);
+    return;
+  }
+
   router.post('/burger-builder', {
     name: burgerName.value,
     ingredients: getAllSelectedIngredients(),
@@ -196,15 +221,33 @@ const orderBurger = () => {
   });
 };
 
+const orderSavedBurger = (burgerId: number) => {
+  router.post('/cart/add', {
+    burger_id: burgerId,
+    quantity: 1,
+  } as any, {
+    onSuccess: () => {
+      router.visit('/cart');
+    },
+  });
+};
+
+const deleteBurger = (burgerId: number) => {
+  router.delete(`/burger-builder/${burgerId}`, {
+    preserveScroll: true,
+  });
+};
+
 const loadBurger = (burger: CustomBurger) => {
   burgerName.value = burger.name;
   selectedIngredients.value = {
-    'vöi': [],
-    pitav: [],
-    juust: [],
-    salat: [],
-    lisand: [],
+    buns: [],
+    patties: [],
+    vegetables: [],
+    sauces: [],
+    extras: [],
   };
+  
   burger.ingredients.forEach((ingredient) => {
     const category = ingredient.category;
     if (selectedIngredients.value[category]) {

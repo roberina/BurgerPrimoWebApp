@@ -72,42 +72,41 @@ class CartController extends Controller
      * Add custom burger to cart (from burger builder)
      */
     public function add(Request $request)
-    {
-        $validated = $request->validate([
-            'burger_id' => 'required|exists:custom_burgers,id',
-            'quantity' => 'integer|min:1|max:10',
-        ]);
+{
+    $validated = $request->validate([
+        'burger_id' => 'required|exists:custom_burgers,id',
+        'quantity' => 'required|integer|min:1|max:10',
+    ]);
 
-        $burger = CustomBurger::findOrFail($validated['burger_id']);
-        
-        // Check authorization
-        if ($burger->user_id !== auth()->id()) {
-            abort(403, 'Unauthorized');
-        }
+    $burger = CustomBurger::with('ingredients')->findOrFail($validated['burger_id']);
 
-        $cart = session()->get('cart', []);
-        
-        // Check if burger already in cart
-        $found = false;
-        foreach ($cart as &$item) {
-            if (isset($item['burger_id']) && $item['burger_id'] == $validated['burger_id']) {
-                $item['quantity'] += $validated['quantity'] ?? 1;
-                $found = true;
-                break;
-            }
-        }
-        
-        if (!$found) {
-            $cart[] = [
-                'burger_id' => $validated['burger_id'],
-                'quantity' => $validated['quantity'] ?? 1,
-            ];
-        }
-        
-        session()->put('cart', $cart);
-        
-        return redirect()->back()->with('success', 'Burger added to cart!');
+    // Check if burger belongs to current user
+    if ($burger->user_id !== auth()->id()) {
+        return redirect()->back()->with('error', 'See burger ei kuulu sulle!');
     }
+
+    // Check if all ingredients are available
+    foreach ($burger->ingredients as $ingredient) {
+        if (!$ingredient->is_available) {
+            return redirect()->back()->with('error', 'Mõned burgeri koostisosad ei ole enam saadaval!');
+        }
+    }
+
+    $cart = session()->get('cart', []);
+
+    $cartId = 'burger_' . $burger->id . '_' . time();
+
+    $cart[$cartId] = [
+        'type' => 'custom_burger',
+        'burger_id' => $burger->id,
+        'quantity' => $validated['quantity'],
+        'subtotal' => $burger->total_price * $validated['quantity'],
+    ];
+
+    session()->put('cart', $cart);
+
+    return redirect()->route('cart.index')->with('success', 'Burger lisatud ostukorvi!');
+}
 
     /**
      * Add menu item to cart (from menu page)

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class MenuItem extends Model
 {
@@ -35,6 +36,20 @@ class MenuItem extends Model
 
     protected $appends = ['image_url', 'has_discount'];
 
+    public function favoritedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_menu_item_favorites')
+            ->withTimestamps();
+    }
+
+    public function isFavoritedBy($user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+        return $this->favoritedByUsers()->where('user_id', $user->id)->exists();
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(MenuCategory::class, 'category_id');
@@ -51,6 +66,15 @@ class MenuItem extends Model
     public function getHasDiscountAttribute(): bool
     {
         return $this->discount_percentage > 0 || ($this->original_price && $this->original_price > $this->price);
+    }
+
+    // Add this new accessor for is_favorited
+    public function getIsFavoritedAttribute(): bool
+    {
+        if (!auth()->check()) {
+            return false;
+        }
+        return $this->isFavoritedBy(auth()->user());
     }
 
     public function scopeActive($query)

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { 
@@ -12,7 +12,8 @@ import {
   ChefHat,
   AlertCircle,
   User,
-  Filter
+  Filter,
+  RefreshCw
 } from 'lucide-vue-next';
 
 interface User {
@@ -65,7 +66,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const orderStatuses = reactive<Record<number, string>>({});
-const activeFilter = ref<string>('all'); // 'all', 'pending', 'confirmed', 'preparing', 'ready'
+const activeFilter = ref<string>('all');
+const audioContext = ref<AudioContext | null>(null);
+const previousOrderCount = ref<number>(props.orders.data.filter(o => o.status === 'pending').length);
+const refreshInterval = ref<number | null>(null);
+const isRefreshing = ref<boolean>(false);
 
 // Initialize order statuses
 props.orders.data.forEach(order => {
@@ -103,6 +108,108 @@ const preparingOrders = computed(() =>
 const readyOrders = computed(() => 
   props.orders.data.filter(o => o.status === 'ready')
 );
+
+// Play notification sound
+const playNotificationSound = () => {
+  try {
+    // Create AudioContext if not exists
+    if (!audioContext.value) {
+      audioContext.value = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+
+    const ctx = audioContext.value;
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    // Create a pleasant notification sound
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.5);
+    
+    // Second beep
+    setTimeout(() => {
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.frequency.value = 1000;
+      osc2.type = 'sine';
+      gain2.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      osc2.start(ctx.currentTime);
+      osc2.stop(ctx.currentTime + 0.5);
+    }, 200);
+  } catch (error) {
+    console.error('Error playing notification sound:', error);
+  }
+};
+
+// Auto-refresh orders
+const refreshOrders = () => {
+  isRefreshing.value = true;
+  
+  router.reload({
+    only: ['orders'],
+    onSuccess: (page: any) => {
+      const newPendingCount = page.props.orders.data.filter((o: Order) => o.status === 'pending').length;
+      
+      // Check if there are new pending orders
+      if (newPendingCount > previousOrderCount.value) {
+        playNotificationSound();
+        
+        // Show browser notification if permitted
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('Uus tellimus! 🍔', {
+            body: `${newPendingCount} uut tellimust ootab kinnitamist`,
+            icon: '/favicon.svg',
+            tag: 'new-order',
+          });
+        }
+      }
+      
+      previousOrderCount.value = newPendingCount;
+      isRefreshing.value = false;
+    },
+    onError: () => {
+      isRefreshing.value = false;
+    },
+  });
+};
+
+// Request notification permission
+const requestNotificationPermission = () => {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+};
+
+// Start auto-refresh on mount
+onMounted(() => {
+  requestNotificationPermission();
+  
+  // Refresh every 10 seconds
+  refreshInterval.value = window.setInterval(() => {
+    refreshOrders();
+  }, 10000);
+});
+
+// Clear interval on unmount
+onUnmounted(() => {
+  if (refreshInterval.value) {
+    clearInterval(refreshInterval.value);
+  }
+  if (audioContext.value) {
+    audioContext.value.close();
+  }
+});
 
 const confirmOrder = (orderId: number) => {
   router.post(`/admin/orders/${orderId}/confirm`, {}, {
@@ -164,6 +271,22 @@ const setFilter = (filter: string) => {
         </div>
       </div>
     </template>
+
+    <!-- Auto-refresh Indicator -->
+    <div class="mb-4 flex items-center justify-between bg-[#111111] border border-gray-800 rounded-lg px-4 py-3">
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+        <span class="text-sm text-gray-400">Automaatne uuendamine (iga 10 sek)</span>
+      </div>
+      <button
+        @click="refreshOrders"
+        :disabled="isRefreshing"
+        class="text-sm text-orange-500 hover:text-orange-400 font-semibold transition flex items-center gap-2 disabled:opacity-50"
+      >
+        <RefreshCw :size="16" :class="{ 'animate-spin': isRefreshing }" />
+        {{ isRefreshing ? 'Uuendamine...' : 'Uuenda kohe' }}
+      </button>
+    </div>
 
     <!-- Quick Stats & Filters -->
     <div class="bg-[#111111] rounded-xl border border-gray-800 p-6 mb-6">

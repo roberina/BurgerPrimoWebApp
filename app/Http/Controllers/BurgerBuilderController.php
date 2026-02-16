@@ -7,9 +7,13 @@ use App\Models\Ingredient;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class BurgerBuilderController extends Controller
 {
+    use AuthorizesRequests;
+    const MAX_BURGERS_PER_USER = 3;
+
     public function index(): Response
     {
         $ingredients = Ingredient::where('is_available', true)
@@ -18,20 +22,36 @@ class BurgerBuilderController extends Controller
             ->get()
             ->groupBy('category');
 
-        $favorites = auth()->user()
+        // Get custom burgers with availability check
+        $customBurgers = auth()->user()
             ->customBurgers()
-            ->where('is_favorite', true)
-            ->with('ingredients')
+            ->with(['ingredients' => function($query) {
+                $query->select('ingredients.id', 'ingredients.name', 'ingredients.category', 'ingredients.price', 'ingredients.is_available');
+            }])
+            ->orderByDesc('is_favorite')
+            ->orderByDesc('created_at')
             ->get();
+
+        // Check if user has reached the limit
+        $canCreateMore = $customBurgers->count() < self::MAX_BURGERS_PER_USER;
 
         return Inertia::render('BurgerBuilder/Index', [
             'ingredients' => $ingredients,
-            'favorites' => $favorites,
+            'customBurgers' => $customBurgers,
+            'canCreateMore' => $canCreateMore,
+            'maxBurgers' => self::MAX_BURGERS_PER_USER,
         ]);
     }
 
     public function store(Request $request)
     {
+        // Check burger limit
+        $userBurgersCount = auth()->user()->customBurgers()->count();
+        
+        if ($userBurgersCount >= self::MAX_BURGERS_PER_USER) {
+            return redirect()->back()->with('error', 'Oled jõudnud maksimaalse burgeri limiidini (' . self::MAX_BURGERS_PER_USER . '). Kustuta mõni olemasolev burger, et luua uus.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -45,7 +65,7 @@ class BurgerBuilderController extends Controller
             'user_id' => auth()->id(),
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,
-            'total_price' => 0, // Will be calculated
+            'total_price' => 0,
             'is_favorite' => $validated['is_favorite'] ?? false,
         ]);
 
@@ -60,7 +80,7 @@ class BurgerBuilderController extends Controller
         $totalPrice = $burger->calculateTotalPrice();
         $burger->update(['total_price' => $totalPrice]);
 
-        return redirect()->back()->with('success', 'Burger created successfully!');
+        return redirect()->back()->with('success', 'Burger loodud edukalt!');
     }
 
     public function update(Request $request, CustomBurger $burger)
@@ -93,7 +113,7 @@ class BurgerBuilderController extends Controller
         $totalPrice = $burger->calculateTotalPrice();
         $burger->update(['total_price' => $totalPrice]);
 
-        return redirect()->back()->with('success', 'Burger updated successfully!');
+        return redirect()->back()->with('success', 'Burger uuendatud edukalt!');
     }
 
     public function destroy(CustomBurger $burger)
@@ -102,7 +122,7 @@ class BurgerBuilderController extends Controller
 
         $burger->delete();
 
-        return redirect()->back()->with('success', 'Burger deleted successfully!');
+        return redirect()->back()->with('success', 'Burger kustutatud edukalt!');
     }
 
     public function toggleFavorite(CustomBurger $burger)
