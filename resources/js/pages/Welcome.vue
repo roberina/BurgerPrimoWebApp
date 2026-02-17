@@ -65,9 +65,9 @@ const content = ref({
     galleryTitle: 'Galerii',
     galleryTitleColor: '#F5DEB3',
     galleryImages: [
-      '/img/pool2.jpg',
-      '/img/pool1.jpg',
-      '/img/pool3.jpg',
+      '/img/pool25.jpg',
+      '/img/pool15.jpg',
+      '/img/pool35.jpg',
     ]
   }
 });
@@ -124,20 +124,35 @@ const currentSlide = ref(0)
 function nextSlide() {
   const images = content.value.entertain.galleryImages
   if (!images || images.length === 0) return
-
-  currentSlide.value =
-    (currentSlide.value + 1) % images.length
+  currentSlide.value = (currentSlide.value + 1) % images.length
 }
 
 function prevSlide() {
   const images = content.value.entertain.galleryImages
   if (!images || images.length === 0) return
-
-  currentSlide.value =
-    (currentSlide.value - 1 + images.length) % images.length
+  currentSlide.value = (currentSlide.value - 1 + images.length) % images.length
 }
 
+const popularSlide = ref(0)
+const popularCount = 3
 
+function nextPopularSlide() {
+  popularSlide.value = (popularSlide.value + 1) % popularCount
+}
+
+function prevPopularSlide() {
+  popularSlide.value = (popularSlide.value - 1 + popularCount) % popularCount
+}
+
+const reviewSlide = ref(0)
+
+function nextReviewSlide() {
+  reviewSlide.value = (reviewSlide.value + 1) % reviews.length
+}
+
+function prevReviewSlide() {
+  reviewSlide.value = (reviewSlide.value - 1 + reviews.length) % reviews.length
+}
 </script>
 
 <template>
@@ -155,7 +170,7 @@ function prevSlide() {
             
             <div class="absolute inset-0 w-full h-full">
               <img 
-                src="/img/main2.jpg" 
+                src="/img/main25.jpg" 
                 alt="Burger Primo Interior" 
                 class="w-full h-full object-cover"
               />
@@ -166,7 +181,7 @@ function prevSlide() {
 
               <div class="mb-6 flex flex-col items-center">
                   <img 
-                    src="/img/Logo4.png" 
+                    src="/img/Logo45.png" 
                     alt="Burger Primo Logo" 
                     class="w-64 h-64 md:w-96 md:h-96 object-contain"
                     style="filter: drop-shadow(0 25px 25px rgba(0, 0, 0, 0.6));"
@@ -319,11 +334,57 @@ function prevSlide() {
             ></textarea>
           </div>
 
-          <div class="grid md:grid-cols-3 gap-8 mb-12">
+          <div class="hidden md:grid md:grid-cols-3 gap-8 mb-12">
             <div v-for="i in 3" :key="i" class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition">
               <div class="aspect-square bg-gray-200 flex items-center justify-center">
                 <span class="text-6xl font-bold text-gray-400">Pilt</span>
               </div>
+            </div>
+          </div>
+
+          <div class="md:hidden relative mb-12">
+            <div class="overflow-hidden rounded-lg">
+              <div
+                class="flex transition-transform duration-500 ease-in-out"
+                :style="{ transform: `translateX(-${popularSlide * 100}%)` }"
+              >
+                <div
+                  v-for="i in popularCount"
+                  :key="i"
+                  class="w-full flex-shrink-0"
+                >
+                  <div class="bg-white rounded-lg overflow-hidden shadow-lg mx-1">
+                    <div class="aspect-square bg-gray-200 flex items-center justify-center">
+                      <span class="text-6xl font-bold text-gray-400">Pilt</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              v-if="popularCount > 1"
+              @click="prevPopularSlide"
+              class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center text-2xl hover:bg-black/80 transition z-10"
+            >
+              ‹
+            </button>
+            <button
+              v-if="popularCount > 1"
+              @click="nextPopularSlide"
+              class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center text-2xl hover:bg-black/80 transition z-10"
+            >
+              ›
+            </button>
+
+            <div class="flex justify-center gap-2 mt-4">
+              <button
+                v-for="i in popularCount"
+                :key="i"
+                @click="popularSlide = i - 1"
+                class="w-3 h-3 rounded-full transition-colors"
+                :class="popularSlide === i - 1 ? 'bg-white' : 'bg-white/40'"
+              />
             </div>
           </div>
 
@@ -602,7 +663,7 @@ function prevSlide() {
           <button
             v-if="content.entertain.galleryImages.length > 1"
             @click="prevSlide"
-            class="absolute left-3 top-1/2 -translate-y-1/2 text-white px-3 py-2 rounded-full hover:cursor-pointer"
+            class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center text-2xl hover:bg-black/80 transition hover:cursor-pointer z-10"
           >
             ‹
           </button>
@@ -610,7 +671,7 @@ function prevSlide() {
           <button
             v-if="content.entertain.galleryImages.length > 1"
             @click="nextSlide"
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-white px-3 py-2 rounded-full hover:cursor-pointer"
+            class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center text-2xl hover:bg-black/80 transition hover:cursor-pointer z-10"
           >
             ›
           </button>
@@ -623,8 +684,8 @@ function prevSlide() {
               v-for="(img, i) in content.entertain.galleryImages"
               :key="i"
               @click="currentSlide = i"
-              class="w-3 h-3 rounded-full hover:cursor-pointer"
-              :class="i === currentSlide ? 'bg-white' : 'bg-white/40' "
+              class="w-3 h-3 rounded-full transition-colors hover:cursor-pointer"
+              :class="i === currentSlide ? 'bg-white' : 'bg-white/40'"
             />
           </div>
         
@@ -792,8 +853,8 @@ function prevSlide() {
               Mida meie kliendid Burger Primo kogemuse kohta ütlevad
             </p>
           </div>
-          
-          <div class="grid md:grid-cols-3 gap-6">
+
+          <div class="hidden md:grid md:grid-cols-3 gap-6">
             <div v-for="(review, i) in reviews" :key="i" class="bg-[#1a1a1a] p-8 rounded-lg">
               <div class="flex gap-1 mb-4">
                 <span v-for="j in 5" :key="j" class="text-yellow-500 text-xl">★</span>
@@ -805,6 +866,59 @@ function prevSlide() {
                 </div>
                 <p class="text-sm text-gray-300 font-medium">{{ review.name }}</p>
               </div>
+            </div>
+          </div>
+
+          <div class="md:hidden relative">
+            <div class="overflow-hidden rounded-lg">
+              <div
+                class="flex transition-transform duration-500 ease-in-out"
+                :style="{ transform: `translateX(-${reviewSlide * 100}%)` }"
+              >
+                <div
+                  v-for="(review, i) in reviews"
+                  :key="i"
+                  class="w-full flex-shrink-0 px-1"
+                >
+                  <div class="bg-[#1a1a1a] p-8 rounded-lg">
+                    <div class="flex gap-1 mb-4">
+                      <span v-for="j in 5" :key="j" class="text-yellow-500 text-xl">★</span>
+                    </div>
+                    <p class="text-gray-200 mb-6 text-base leading-relaxed">{{ review.text }}</p>
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center">
+                        <span class="text-white font-semibold">{{ review.initial }}</span>
+                      </div>
+                      <p class="text-sm text-gray-300 font-medium">{{ review.name }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              v-if="reviews.length > 1"
+              @click="prevReviewSlide"
+              class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center text-2xl hover:bg-black/80 transition z-10"
+            >
+              ‹
+            </button>
+            <button
+              v-if="reviews.length > 1"
+              @click="nextReviewSlide"
+              class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center text-2xl hover:bg-black/80 transition z-10"
+            >
+              ›
+            </button>
+
+            <div class="flex justify-center gap-2 mt-4">
+              <button
+                v-for="(review, i) in reviews"
+                :key="i"
+                @click="reviewSlide = i"
+                class="w-3 h-3 rounded-full transition-colors"
+                :class="reviewSlide === i ? 'bg-white' : 'bg-white/40'"
+              />
             </div>
           </div>
         </template>
