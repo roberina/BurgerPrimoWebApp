@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\MenuItemController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\ContactController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +37,8 @@ Route::get('/', function () {
 // PUBLIC MENU ROUTE (No authentication required - anyone can view)
 Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
 Route::get('/menu/{slug}', [MenuController::class, 'category'])->name('menu.category');
+
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
 // Authentication routes already included by Breeze/Jetstream
 
@@ -114,6 +118,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/ingredients/{ingredient}', [App\Http\Controllers\Admin\IngredientController::class, 'update'])->name('ingredients.update');
     Route::delete('/ingredients/{ingredient}', [App\Http\Controllers\Admin\IngredientController::class, 'destroy'])->name('ingredients.destroy');
     Route::post('/ingredients/{ingredient}/toggle', [App\Http\Controllers\Admin\IngredientController::class, 'toggleAvailability'])->name('ingredients.toggle');
+
+
 });
 });
 

@@ -7,6 +7,7 @@ import PopularSection from '@/components/sections/PopularSection.vue'
 import ContactSection from '@/components/sections/ContactSection.vue'
 import EntertainmentSection from '@/components/sections/EntertainmentSection.vue'
 import ReviewsSection from '@/components/sections/ReviewsSection.vue'
+import ContactFormSection from '@/components/sections/ContactFormSection.vue'
 import Footer from '@/components/Footer.vue'
 
 interface MenuItem {
@@ -41,6 +42,7 @@ const cartItems = ref([])
     <ContactSection />
     <EntertainmentSection />
     <ReviewsSection />
+    <ContactFormSection />
 
   </div>
 
