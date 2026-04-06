@@ -15,6 +15,11 @@ import {
   Filter,
   RefreshCw
 } from 'lucide-vue-next';
+import { useToast } from '@/composables/useToast';
+
+const { success, error } = useToast();
+const confirmModal = reactive({ show: false, title: '', message: '', confirmLabel: 'Kinnita', onConfirm: () => {} });
+const openConfirmModal = (opts: Omit<typeof confirmModal, 'show'>) => { Object.assign(confirmModal, { show: true, ...opts }); };
 
 interface User {
   id: number;
@@ -270,7 +275,28 @@ const setFilter = (filter: string) => {
           <p class="text-sm text-gray-400 mt-1">Reaalajas tellimuste haldamine</p>
         </div>
       </div>
-    </template>
+    
+    <!-- Confirm Modal -->
+    <Teleport to="body">
+      <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100">
+        <div v-if="confirmModal.show" class="fixed inset-0 z-[100] flex items-center justify-center p-4" @click.self="confirmModal.show = false">
+          <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div class="relative bg-[#161616] border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div class="h-1 w-full bg-gradient-to-r from-[#D2691E] to-[#B8571A]" />
+            <div class="p-6">
+              <h3 class="text-lg font-bold text-white mb-1">{{ confirmModal.title }}</h3>
+              <p class="text-sm text-gray-400">{{ confirmModal.message }}</p>
+              <div class="flex gap-3 mt-6">
+                <button @click="confirmModal.show = false" class="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition font-semibold text-sm">Tühista</button>
+                <button @click="confirmModal.onConfirm(); confirmModal.show = false" class="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition">{{ confirmModal.confirmLabel }}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+</template>
 
     <!-- Auto-refresh Indicator -->
     <div class="mb-4 flex items-center justify-between bg-[#111111] border border-gray-800 rounded-lg px-4 py-3">

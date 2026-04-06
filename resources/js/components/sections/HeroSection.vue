@@ -1,101 +1,118 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { Link, router } from '@inertiajs/vue3'
-import EditableSection from '@/components/EditableSection.vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { Link } from '@inertiajs/vue3'
+import { useCountUp } from '@/composables/useScrollAnimation'
 
-const content = ref({
-  title: 'Kirega valmistatud preemium burgerid, mida serveeritakse unkusega',
-  titleColor: '#FFFFFF',
-  subtitle: 'Kurssaare südames',
-  subtitleColor: '#FFFFFF',
-  buttonText: 'Avasta menüüd',
-  buttonLink: '/menu',
-  buttonBgColor: '#D2691E',
-})
+const logoX = ref(0)
+const logoY = ref(0)
+const titleRef = ref<HTMLElement | null>(null)
 
-const editContent = reactive(JSON.parse(JSON.stringify(content.value)))
+const { elRef: statRatingRef, displayValue: statRating } = useCountUp(4.8, { decimals: 1, duration: 1400, delay: 300 })
 
-const save = () => {
-  content.value = { ...editContent }
-  router.post('/admin/page-content', { page: 'welcome', section: 'hero', content: content.value })
+function onMouseMove(e: MouseEvent) {
+  const cx = window.innerWidth / 2
+  const cy = window.innerHeight / 2
+  logoX.value = (e.clientX - cx) * 0.014
+  logoY.value = (e.clientY - cy) * 0.014
 }
 
-const cancel = () => {
-  Object.assign(editContent, content.value)
+onMounted(() => {
+  window.addEventListener('mousemove', onMouseMove, { passive: true })
+  setTimeout(() => titleRef.value?.classList.add('words-visible'), 450)
+})
+onUnmounted(() => window.removeEventListener('mousemove', onMouseMove))
+
+function scrollTo(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 </script>
 
 <template>
-  <section class="w-full h-screen overflow-hidden">
-    <EditableSection section-id="hero" container-class="h-full" @save="save" @cancel="cancel">
-      <template #default="{ isEditing }">
-        <div class="w-full h-full flex items-center justify-center">
-          <div v-if="isEditing" class="fixed top-4 left-4 z-[999] bg-red-500 text-white px-4 py-2 rounded font-bold">
-            EDIT MODE ACTIVE - HERO
-          </div>
+  <section class="relative flex items-center justify-center" style="min-height: 100svh; padding-top: 5rem; padding-bottom: 3rem;">
 
-          <div class="absolute inset-0 w-full h-full">
-            <img src="/img/main25.jpg" alt="Burger Primo Interior" class="w-full h-full object-cover blur-md" />
-            <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black z-0 bg-black/60"></div>
-          </div>
+    <div class="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6">
+      <div class="px-2 py-10 md:px-14 md:py-12 flex flex-col items-center text-center">
 
-          <div class="relative max-w-4xl mx-auto px-6 text-center w-full z-10 flex flex-col justify-center min-h-[calc(100vh-8rem)]">
-            <div class="mb-6 flex flex-col items-center">
-              <img
-                src="/img/Logo45.png"
-                alt="Burger Primo Logo"
-                class="w-64 h-64 md:w-96 md:h-96 object-contain"
-                style="filter: drop-shadow(0 25px 25px rgba(0, 0, 0, 0.6));"
-              />
-            </div>
-
-            <h1
-              v-if="!isEditing"
-              class="text-xl md:text-2xl font-light mb-8 leading-tight max-w-2xl mx-auto"
-              :style="{ color: content.titleColor }"
-            >
-              {{ content.title }}
-            </h1>
-            <div v-else class="mb-8 space-y-2">
-              <textarea
-                v-model="editContent.title"
-                placeholder="Enter title..."
-                class="w-full max-w-2xl mx-auto p-3 bg-gray-800 text-white rounded border-2 border-white"
-                rows="2"
-              ></textarea>
-              <div class="flex gap-2 justify-center items-center">
-                <label class="text-sm">Title color:</label>
-                <input v-model="editContent.titleColor" type="color" class="p-2 bg-gray-800 rounded border-2 border-white" />
-              </div>
-            </div>
-
-            <div v-if="!isEditing">
-              <Link
-                :href="content.buttonLink"
-                class="inline-block px-10 py-4 rounded-md font-semibold transition hover:opacity-90 text-white uppercase tracking-wide"
-                :style="{ backgroundColor: content.buttonBgColor }"
-              >
-                {{ content.buttonText }}
-              </Link>
-            </div>
-            <div v-else class="space-y-2">
-              <input v-model="editContent.buttonText" type="text" placeholder="Button text..." class="w-full max-w-md mx-auto p-2 bg-gray-800 text-white rounded border-2 border-white" />
-              <input v-model="editContent.buttonLink" type="text" placeholder="Button link..." class="w-full max-w-md mx-auto p-2 bg-gray-800 text-white rounded border-2 border-white" />
-              <div class="flex gap-2 justify-center">
-                <label class="text-sm">Button color:</label>
-                <input v-model="editContent.buttonBgColor" type="color" class="p-1 bg-gray-800 rounded border-2 border-white" />
-              </div>
-            </div>
-          </div>
-
-          <div class="absolute bottom-18 left-1/2 -translate-x-1/2 flex flex-col items-center text-white animate-bounce z-20">
-            <span class="text-sm tracking-widest uppercase mb-2">Keri alla</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
+        <!-- Logo parallax -->
+        <div
+          class="mb-5 transition-transform duration-75 ease-linear"
+          :style="{ transform: `translate(${logoX}px, ${logoY}px)` }"
+        >
+          <img
+            src="/img/Logo45.png"
+            alt="Burger Primo"
+            class="w-24 h-24 md:w-36 md:h-36 object-contain"
+            style="filter: drop-shadow(0 16px 40px rgba(0,0,0,0.8));"
+          />
         </div>
-      </template>
-    </EditableSection>
+
+        <!-- Eyebrow -->
+        <div class="hero-eyebrow inline-flex items-center gap-3 mb-4">
+          <div class="h-px w-8 bg-gradient-to-r from-transparent to-[#D2691E]/60" />
+          <span class="inline-flex items-center gap-1.5 text-[#D2691E] text-xs font-semibold uppercase tracking-[0.3em]">
+            <span class="live-dot w-1.5 h-1.5 rounded-full bg-[#D2691E] inline-block" />
+            Kuressaare · Saaremaa
+          </span>
+          <div class="h-px w-8 bg-gradient-to-l from-transparent to-[#D2691E]/60" />
+        </div>
+
+        <!-- Word-reveal title -->
+        <h1
+          ref="titleRef"
+          class="word-reveal-parent text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.15] tracking-tight mb-4"
+          aria-label="Kirega valmistatud Primo burgerid"
+        >
+          <span class="word text-white"><span class="word-inner">Kirega </span></span>
+          <span class="word text-white"><span class="word-inner">valmistatud </span></span>
+          <span class="word text-[#D2691E]"><span class="word-inner">Primo </span></span>
+          <span class="word text-white"><span class="word-inner">burgerid</span></span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="hero-subtitle text-base md:text-lg text-gray-300 font-light max-w-lg leading-relaxed mb-7">
+          Unikaalsed maitsed, kõrgekvaliteetsed koostisosad ja
+          sõbralik õhkkond Kuressaare südames.
+        </p>
+
+        <!-- CTAs -->
+        <div class="hero-cta flex flex-col sm:flex-row gap-3 mb-8">
+          <Link
+            href="/menu"
+            class="btn-magnetic group inline-flex items-center gap-2.5 px-8 py-4 bg-[#D2691E] text-white font-bold rounded-2xl text-sm uppercase tracking-wider shadow-lg shadow-[#D2691E]/25"
+          >
+            Avasta Menüüd
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+          <button
+            @click="scrollTo('popular')"
+            class="btn-magnetic inline-flex items-center gap-2 px-8 py-4 bg-white/8 border border-white/15 text-white font-semibold rounded-2xl text-sm uppercase tracking-wider"
+          >
+            Populaarsed
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="hero-scroll absolute bottom-7 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 z-10">
+      <span class="text-[9px] tracking-[0.35em] uppercase">Keri alla</span>
+      <div class="relative w-px h-9 overflow-hidden bg-white/10 rounded-full">
+        <div class="absolute top-0 left-0 w-full bg-[#D2691E] rounded-full" style="height:40%; animation: scroll-line 1.8s ease-in-out infinite;" />
+      </div>
+    </div>
+
   </section>
 </template>
+
+<style scoped>
+@keyframes scroll-line {
+  0%   { top: -40%; opacity: 1; }
+  70%  { top: 100%;  opacity: 1; }
+  71%  { top: -40%;  opacity: 0; }
+  80%  { top: -40%;  opacity: 0.3; }
+  100% { top: -40%;  opacity: 1; }
+}
+</style>

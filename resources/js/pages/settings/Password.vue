@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { useToast } from '@/composables/useToast';
+
+const { success, error } = useToast();
 import { ref, computed } from 'vue';
 import Navbar from '@/components/Navbar.vue';
 
@@ -15,14 +18,11 @@ const form = useForm({
 const submit = () => {
     form.put('/settings/password', {
         preserveScroll: true,
-        onSuccess: () => form.reset(),
+        onSuccess: () => { form.reset(); success('Parool edukalt muudetud ✓'); },
         onError: () => {
-            if (form.errors.password) {
-                form.reset('password', 'password_confirmation');
-            }
-            if (form.errors.current_password) {
-                form.reset('current_password');
-            }
+            error('Parooli muutmine ebaõnnestus');
+            if (form.errors.password) form.reset('password', 'password_confirmation');
+            if (form.errors.current_password) form.reset('current_password');
         },
     });
 };

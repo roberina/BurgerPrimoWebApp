@@ -213,3 +213,69 @@ html {
     scrollbar-color: #1a1a1a #0B0B0B;
 }
 }
+
+/* ─────────────────────────────────────────────
+   Scroll-triggered animations (useScrollAnimation)
+   ───────────────────────────────────────────── */
+[data-anim] {
+  transition-property: opacity, transform, filter;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  transition-duration: 650ms;
+}
+[data-anim='fade-up']       { opacity: 0; transform: translateY(32px); }
+[data-anim='fade-up-hard']  { opacity: 0; transform: translateY(56px); }
+[data-anim='fade-down']     { opacity: 0; transform: translateY(-32px); }
+[data-anim='fade-left']     { opacity: 0; transform: translateX(32px); }
+[data-anim='fade-right']    { opacity: 0; transform: translateX(-32px); }
+[data-anim='fade-in']       { opacity: 0; }
+[data-anim='scale-up']      { opacity: 0; transform: scale(0.88); }
+[data-anim='scale-down']    { opacity: 0; transform: scale(1.08); }
+[data-anim='blur-in']       { opacity: 0; filter: blur(12px); }
+[data-anim='rotate-in']     { opacity: 0; transform: rotate(-6deg) scale(0.92); }
+[data-anim='slide-clip-up'] { opacity: 0; transform: translateY(24px); clip-path: inset(0 0 100% 0); }
+[data-anim][data-anim-visible='true'] { opacity: 1; transform: none; filter: none; clip-path: none; }
+
+/* Navbar glass */
+.navbar-scrolled {
+  background: rgba(8,8,8,0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.5);
+}
+
+/* Magnetic button */
+.btn-magnetic { transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease; }
+.btn-magnetic:hover { transform: translateY(-1px); }
+
+/* Offset anchor scroll for fixed navbar (h-16 mobile / h-20 desktop) */
+[id] {
+  scroll-margin-top: 5rem;
+}
+@media (min-width: 1024px) {
+  [id] {
+    scroll-margin-top: 6rem;
+  }
+}
+
+/* Glass card */
+.glass {
+  background: rgba(10, 10, 10, 0.72);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 24px;
+}
+
+.glass-card {
+  background: rgba(18, 18, 18, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+}
+
+/* Underline sweep */
+.underline-sweep { position: relative; }
+.underline-sweep::after { content:''; position:absolute; bottom:-1px; left:0; width:0; height:1px; background:#D2691E; transition:width 0.3s cubic-bezier(0.22,1,0.36,1); }
+.underline-sweep:hover::after { width:100%; }

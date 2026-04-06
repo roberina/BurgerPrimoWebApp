@@ -107,6 +107,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useToast } from '@/composables/useToast';
+
+const { success, error: showError } = useToast();
 import { router } from '@inertiajs/vue3';
 import Navbar from '@/components/Navbar.vue';
 
@@ -233,15 +236,13 @@ const handleSubmit = async () => {
         throw new Error(processData.error || 'Tellimuse töötlemine ebaõnnestus');
       }
 
-      // Redirect to order confirmation
-      router.visit(`/orders/${processData.order_id}`, {
-        onSuccess: () => {
-          alert(`Makse õnnestus! Tellimuse number: ${processData.order_number}`);
-        },
-      });
+      // Show success toast and redirect
+      success(`Makse õnnestus! Tellimus #${processData.order_number} esitatud ✓`);
+      router.visit(`/orders/${processData.order_id}`);
     }
   } catch (err: any) {
     cardError.value = err.message || 'Makse ebaõnnestus. Palun proovige uuesti.';
+    showError(cardError.value);
   } finally {
     processing.value = false;
   }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
-import { Link, router } from '@inertiajs/vue3'
-import EditableSection from '@/components/EditableSection.vue'
+import { ref, computed, onMounted } from 'vue'
+import { Link } from '@inertiajs/vue3'
+import { useScrollAnimation, useStaggerAnimation } from '@/composables/useScrollAnimation'
 
 interface MenuItem {
   id: number
@@ -12,210 +12,174 @@ interface MenuItem {
   image: string | null
   image_url: string | null
   is_featured: boolean
-  category: {
-    id: number
-    name: string
-  }
+  discount_percentage: number | null
+  category: { id: number; name: string }
 }
 
-const props = defineProps<{
-  featuredItems?: MenuItem[]
-}>()
+const props = defineProps<{ featuredItems?: MenuItem[] }>()
 
-const content = ref({
-  title: 'Populaarsed',
-  titleColor: '#D2691E',
-  subtitle: 'Primos enim tuntud ja rohkelt tellitud toidud',
-  buttonText: 'Avasta Kogu Menüüd',
-  buttonLink: '/menu',
-  buttonBgColor: '#D2691E',
-})
-
-const editContent = reactive(JSON.parse(JSON.stringify(content.value)))
+const { elRef: badgeRef }   = useScrollAnimation('scale-up',      { delay: 0   })
+const { elRef: headingRef } = useScrollAnimation('fade-up',       { delay: 80  })
+const { elRef: subRef }     = useScrollAnimation('fade-up',       { delay: 160 })
+const { containerRef }      = useStaggerAnimation('fade-up-hard', { staggerMs: 130, childSelector: '[data-stagger]' })
+const { elRef: ctaRef }     = useScrollAnimation('fade-up',       { delay: 0   })
 
 const displayedItems = ref<MenuItem[]>([])
 
-const shuffleArray = <T,>(array: T[]): T[] => {
-  const shuffled = [...array]
-  for (let i = shuffled.length - 1; i > 0; i--) {
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    [a[i], a[j]] = [a[j], a[i]]
   }
-  return shuffled
+  return a
 }
 
 onMounted(() => {
-  if (props.featuredItems && props.featuredItems.length > 0) {
-    const shuffled = shuffleArray(props.featuredItems)
-    displayedItems.value = shuffled.slice(0, Math.min(3, shuffled.length))
-  }
+  if (props.featuredItems?.length)
+    displayedItems.value = shuffleArray(props.featuredItems).slice(0, 3)
 })
 
-const popularSlide = ref(0)
-const popularCount = computed(() => displayedItems.value.length || 3)
+function onCardMouseMove(e: MouseEvent) {
+  const card = e.currentTarget as HTMLElement
+  const rect = card.getBoundingClientRect()
+  const x = ((e.clientX - rect.left) / rect.width  - 0.5) * 14
+  const y = ((e.clientY - rect.top)  / rect.height - 0.5) * -14
+  card.style.transform = `perspective(800px) rotateY(${x}deg) rotateX(${y}deg) translateY(-8px) scale(1.02)`
+}
+function onCardMouseLeave(e: MouseEvent) {
+  (e.currentTarget as HTMLElement).style.transform = ''
+}
 
-function nextPopularSlide() {
-  popularSlide.value = (popularSlide.value + 1) % popularCount.value
-}
-function prevPopularSlide() {
-  popularSlide.value = (popularSlide.value - 1 + popularCount.value) % popularCount.value
-}
-
-const save = () => {
-  content.value = { ...editContent }
-  router.post('/admin/page-content', { page: 'welcome', section: 'popular', content: content.value })
-}
-const cancel = () => {
-  Object.assign(editContent, content.value)
+const slide = ref(0)
+const total = computed(() => displayedItems.value.length || 3)
+const next  = () => { slide.value = (slide.value + 1) % total.value }
+const prev  = () => { slide.value = (slide.value - 1 + total.value) % total.value }
+let touchX = 0
+const onTouchStart = (e: TouchEvent) => { touchX = e.touches[0].clientX }
+const onTouchEnd   = (e: TouchEvent) => {
+  const d = touchX - e.changedTouches[0].clientX
+  if (Math.abs(d) > 40) d > 0 ? next() : prev()
 }
 </script>
 
 <template>
-  <section class="max-w-7xl mx-auto px-6 py-20">
-    <EditableSection section-id="popular" @save="save" @cancel="cancel">
-      <template #default="{ isEditing }">
-        <div v-if="isEditing" class="fixed top-4 left-4 z-[999] bg-blue-500 text-white px-4 py-2 rounded font-bold">
-          EDIT MODE ACTIVE - POPULAR
-        </div>
+  <section id="popular" class="section-py relative z-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="glass px-6 py-12 md:px-12 md:py-14">
 
-        <div class="text-center mb-16">
-
-          <h3 v-if="!isEditing" class="text-4xl md:text-5xl font-bold mb-4" :style="{ color: content.titleColor }">
-            {{ content.title }}
-          </h3>
-          <div v-else class="mb-4 space-y-2">
-            <input v-model="editContent.title" type="text" placeholder="Title..." class="w-full max-w-md mx-auto p-3 bg-gray-800 text-white rounded border-2 border-white" />
-            <div class="flex gap-2 justify-center items-center">
-              <label class="text-sm">Title color:</label>
-              <input v-model="editContent.titleColor" type="color" class="p-1 bg-gray-800 rounded border-2 border-white" />
-            </div>
+        <!-- Heading -->
+        <div class="text-center mb-12 space-y-4">
+          <div :ref="(el) => badgeRef = el as any" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D2691E]/30 bg-[#D2691E]/10 text-[#D2691E] text-xs font-bold uppercase tracking-[0.22em]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 icon-hover-spin" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            Populaarsed Valikud
           </div>
-
-          <p v-if="!isEditing" class="text-white text-lg">{{ content.subtitle }}</p>
-          <textarea v-else v-model="editContent.subtitle" placeholder="Subtitle..." class="w-full max-w-md mx-auto p-3 bg-gray-800 text-white rounded border-2 border-white mb-4" rows="2"></textarea>
+          <h2 :ref="(el) => headingRef = el as any" class="text-3xl md:text-5xl font-bold text-white">
+            Enim tellitud <span class="text-[#D2691E]">toidud</span>
+          </h2>
+          <p :ref="(el) => subRef = el as any" class="text-gray-400 text-base max-w-md mx-auto">
+            Klientide poolt korduvalt valitud absoluutsed lemmikud
+          </p>
         </div>
 
-        <div class="hidden md:grid md:grid-cols-3 gap-8 mb-12">
+        <!-- Desktop grid -->
+        <div :ref="(el) => containerRef = el as any" class="hidden md:grid md:grid-cols-3 gap-5 mb-10">
           <Link
             v-for="item in displayedItems"
             :key="item.id"
-            :href="`/menu`"
-            class="bg-[#1a1a1a] rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition group"
+            data-stagger
+            :href="`/menu?highlight=${item.id}`"
+            class="group glass-card overflow-hidden cursor-pointer transition-all duration-300 hover:border-[#D2691E]/30"
+            style="transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s ease, border-color 0.25s ease;"
+            @mousemove="onCardMouseMove"
+            @mouseleave="onCardMouseLeave"
           >
-            <div class="aspect-square bg-gray-200 overflow-hidden relative">
-              <img
-                v-if="item.image_url"
-                :src="item.image_url"
-                :alt="item.name"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
-                <span class="text-6xl font-bold text-gray-400">{{ item.name.charAt(0) }}</span>
+            <div class="relative aspect-[4/3] overflow-hidden bg-black/30">
+              <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div v-else class="w-full h-full flex items-center justify-center">
+                <span class="text-6xl font-black text-white/20">{{ item.name.charAt(0) }}</span>
               </div>
+              <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
+              <div v-if="item.discount_percentage" class="absolute top-3 right-3 px-2.5 py-1 bg-[#D2691E] text-white text-xs font-black rounded-xl shadow-lg overflow-hidden">
+                <span class="relative z-10">-{{ item.discount_percentage }}%</span>
+                <div class="absolute inset-0 shimmer" />
+              </div>
+              <div class="absolute bottom-3 left-3 px-2 py-0.5 bg-black/60 backdrop-blur-sm text-gray-300 text-[10px] font-medium rounded-md uppercase tracking-wider">{{ item.category?.name }}</div>
             </div>
-            <div class="p-4">
-              <h4 class="text-xl font-bold text-[#F5DEB3] mb-2">{{ item.name }}</h4>
-              <p class="text-gray-500 text-sm mb-3 line-clamp-2">{{ item.description }}</p>
+            <div class="p-5">
+              <h3 class="text-base font-bold text-white mb-1.5 group-hover:text-[#F5DEB3] transition-colors duration-300">{{ item.name }}</h3>
+              <p class="text-gray-500 text-xs line-clamp-2 mb-4 leading-relaxed">{{ item.description }}</p>
               <div class="flex items-center justify-between">
-                <div>
-                  <span class="text-2xl font-bold text-[#D2691E]">€{{ item.price }}</span>
-                  <span v-if="item.original_price" class="ml-2 text-sm text-gray-400 line-through">€{{ item.original_price }}</span>
+                <div class="flex items-baseline gap-2">
+                  <span class="text-xl font-black text-[#D2691E]">€{{ Number(item.price).toFixed(2) }}</span>
+                  <span v-if="item.original_price && Number(item.original_price) > Number(item.price)" class="text-xs text-gray-600 line-through">€{{ Number(item.original_price).toFixed(2) }}</span>
+                </div>
+                <div class="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:bg-[#D2691E] group-hover:border-[#D2691E] group-hover:scale-110">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-gray-500 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                  </svg>
                 </div>
               </div>
             </div>
           </Link>
 
-          <div v-if="displayedItems.length === 0" v-for="i in 3" :key="`placeholder-${i}`" class="bg-white rounded-lg overflow-hidden shadow-lg">
-            <div class="aspect-square bg-gray-200 flex items-center justify-center">
-              <span class="text-6xl font-bold text-gray-400">Pilt</span>
+          <template v-if="displayedItems.length === 0">
+            <div v-for="i in 3" :key="`ph-${i}`" class="glass-card overflow-hidden animate-pulse">
+              <div class="aspect-[4/3] bg-white/5" />
+              <div class="p-5 space-y-3">
+                <div class="h-4 bg-white/5 rounded w-3/4" />
+                <div class="h-3 bg-white/4 rounded w-full" />
+                <div class="h-6 bg-white/5 rounded w-1/3" />
+              </div>
             </div>
-            <div class="p-4">
-              <div class="h-6 bg-gray-200 rounded mb-2"></div>
-              <div class="h-4 bg-gray-100 rounded mb-3"></div>
-              <div class="h-8 bg-gray-200 rounded w-20"></div>
-            </div>
-          </div>
+          </template>
         </div>
 
-        <div class="md:hidden relative mb-12">
-          <div class="overflow-hidden rounded-lg">
-            <div class="flex transition-transform duration-500 ease-in-out" :style="{ transform: `translateX(-${popularSlide * 100}%)` }">
-              <Link
-                v-for="item in displayedItems"
-                :key="item.id"
-                :href="`/menu`"
-                class="w-full flex-shrink-0 px-1"
-              >
-                <div class="bg-[#1a1a1a] rounded-lg overflow-hidden shadow-lg">
-                  <div class="aspect-square bg-gray-200 overflow-hidden relative">
-                    <img
-                      v-if="item.image_url"
-                      :src="item.image_url"
-                      :alt="item.name"
-                      class="w-full h-full object-cover"
-                    />
-                    <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
-                      <span class="text-6xl font-bold text-gray-400">{{ item.name.charAt(0) }}</span>
-                    </div>
+        <!-- Mobile slider -->
+        <div class="md:hidden mb-10 relative px-1">
+          <div class="overflow-hidden rounded-2xl" @touchstart="onTouchStart" @touchend="onTouchEnd">
+            <div class="flex transition-transform duration-500 ease-in-out" :style="{ transform: `translateX(-${slide * 100}%)` }">
+              <Link v-for="item in displayedItems" :key="item.id" :href="`/menu?highlight=${item.id}`" class="w-full flex-shrink-0">
+                <div class="glass-card overflow-hidden">
+                  <div class="aspect-[4/3] overflow-hidden relative bg-black/30">
+                    <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover" />
+                    <div v-if="item.discount_percentage" class="absolute top-3 right-3 px-2.5 py-1 bg-[#D2691E] text-white text-xs font-black rounded-xl">-{{ item.discount_percentage }}%</div>
                   </div>
-                  <div class="p-4">
-                    <h4 class="text-xl font-bold text-[#F5DEB3] mb-2">{{ item.name }}</h4>
-                    <p class="text-gray-500 text-sm mb-3 line-clamp-2">{{ item.description }}</p>
-                    <div class="flex items-center justify-between">
-                      <div>
-                        <span class="text-2xl font-bold text-[#D2691E]">€{{ item.price }}</span>
-                        <span v-if="item.original_price" class="ml-2 text-sm text-gray-400 line-through">€{{ item.original_price }}</span>
-                      </div>
-                    </div>
+                  <div class="p-5">
+                    <h3 class="text-base font-bold text-white mb-1.5">{{ item.name }}</h3>
+                    <p class="text-gray-500 text-xs line-clamp-2 mb-4">{{ item.description }}</p>
+                    <span class="text-xl font-black text-[#D2691E]">€{{ Number(item.price).toFixed(2) }}</span>
                   </div>
                 </div>
               </Link>
-
-              <div v-if="displayedItems.length === 0" v-for="i in 3" :key="`placeholder-mobile-${i}`" class="w-full flex-shrink-0 px-1">
-                <div class="bg-white rounded-lg overflow-hidden shadow-lg">
-                  <div class="aspect-square bg-gray-200 flex items-center justify-center">
-                    <span class="text-6xl font-bold text-gray-400">Pilt</span>
-                  </div>
-                  <div class="p-4">
-                    <div class="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div class="h-4 bg-gray-100 rounded mb-3"></div>
-                    <div class="h-8 bg-gray-200 rounded w-20"></div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
-          <button v-if="popularCount > 1" @click="prevPopularSlide" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center text-2xl hover:bg-black/80 transition z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
+          <button v-if="total > 1" @click="prev" class="absolute -left-2 top-1/3 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <button v-if="popularCount > 1" @click="nextPopularSlide" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center text-2xl hover:bg-black/80 transition z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
+          <button v-if="total > 1" @click="next" class="absolute -right-2 top-1/3 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
           </button>
           <div class="flex justify-center gap-2 mt-4">
-            <button v-for="i in popularCount" :key="i" @click="popularSlide = i - 1" class="w-3 h-3 rounded-full transition-colors" :class="popularSlide === i - 1 ? 'bg-white' : 'bg-white/40'" />
+            <button v-for="i in total" :key="i" @click="slide = i - 1" class="h-1.5 rounded-full transition-all duration-300" :class="slide === i - 1 ? 'w-6 bg-[#D2691E]' : 'w-1.5 bg-white/20'" />
           </div>
         </div>
 
-        <div class="text-center">
-          <div v-if="!isEditing">
-            <Link :href="content.buttonLink" class="inline-block px-10 py-4 rounded-md font-semibold transition hover:opacity-90 text-white uppercase tracking-wide" :style="{ backgroundColor: content.buttonBgColor }">
-              {{ content.buttonText }}
-            </Link>
-          </div>
-          <div v-else class="space-y-2">
-            <input v-model="editContent.buttonText" type="text" placeholder="Button text..." class="w-full max-w-md mx-auto p-2 bg-gray-800 text-white rounded border-2 border-white" />
-            <input v-model="editContent.buttonLink" type="text" placeholder="Button link..." class="w-full max-w-md mx-auto p-2 bg-gray-800 text-white rounded border-2 border-white" />
-            <div class="flex gap-2 justify-center">
-              <label class="text-sm">Button color:</label>
-              <input v-model="editContent.buttonBgColor" type="color" class="p-1 bg-gray-800 rounded border-2 border-white" />
-            </div>
-          </div>
+        <!-- CTA -->
+        <div :ref="(el) => ctaRef = el as any" class="text-center">
+          <Link href="/menu" class="btn-magnetic group inline-flex items-center gap-3 px-9 py-3.5 border border-[#D2691E]/40 text-[#D2691E] font-bold rounded-2xl text-sm uppercase tracking-wider hover:bg-[#D2691E] hover:text-white hover:border-[#D2691E] transition-colors duration-200">
+            Avasta Kogu Menüü
+            <span class="w-6 h-6 rounded-full border border-current flex items-center justify-center group-hover:bg-white/15 transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+          </Link>
         </div>
-      </template>
-    </EditableSection>
+
+      </div>
+    </div>
   </section>
 </template>

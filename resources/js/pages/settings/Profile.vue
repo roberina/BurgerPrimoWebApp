@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { useToast } from '@/composables/useToast';
+
+const { success, error } = useToast();
 import { ref, computed } from 'vue';
 import Navbar from '@/components/Navbar.vue';
 
@@ -38,13 +41,16 @@ const deletePassword = ref('');
 const submitProfile = () => {
     profileForm.patch('/settings/profile', {
         preserveScroll: true,
+        onSuccess: () => success('Profiil edukalt uuendatud ✓'),
+        onError: () => error('Profiili uuendamine ebaõnnestus'),
     });
 };
 
 const submitPassword = () => {
     passwordForm.put('/settings/password', {
         preserveScroll: true,
-        onSuccess: () => passwordForm.reset(),
+        onSuccess: () => { passwordForm.reset(); success('Parool edukalt muudetud ✓'); },
+        onError: () => error('Parooli muutmine ebaõnnestus'),
     });
 };
 

@@ -1,123 +1,168 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
-import EditableSection from '@/components/EditableSection.vue'
+import { useScrollAnimation, useStaggerAnimation } from '@/composables/useScrollAnimation'
+import { Clock, Mail, MapPin, Phone } from 'lucide-vue-next'
 
-const content = ref({
-  label: 'Külasta Burger Primot Kuressaare südames',
-  labelColor: '#ffffff',
-  title: 'Külastage Meid',
-  titleColor: '#D2691E',
-  addressTitle: 'Meie Asukoht',
-  address: ['Kauba tn 5/2', 'Kuressaare, Saaremaa 93819', 'Eesti', '', 'Telefon: +372 5743 8483', 'Email: info@burgerprimo.ee'],
-  hoursTitle: 'Lahtiolekuajad',
-  hours: ['Esmaspäev - Neljapäev: 11:00 - 22:00', 'Reede - Laupäev: 11:00 - 23:00', 'Pühapäev: 12:00 - 21:00'],
-})
+const { elRef: badgeRef }        = useScrollAnimation('scale-up',   { delay: 0   })
+const { elRef: headingRef }      = useScrollAnimation('fade-up',    { delay: 80  })
+const { elRef: subRef }          = useScrollAnimation('fade-up',    { delay: 160 })
+const { elRef: leftRef }         = useScrollAnimation('fade-right', { delay: 0,   threshold: 0.12 })
+const { elRef: rightRef }        = useScrollAnimation('fade-left',  { delay: 180, threshold: 0.12 })
+const { containerRef: hoursRef } = useStaggerAnimation('fade-right', { staggerMs: 80, childSelector: '[data-stagger]' })
 
-const editContent = reactive(JSON.parse(JSON.stringify(content.value)))
+const form         = ref({ name: '', email: '', subject: 'other' as string, message: '' })
+const isSubmitting = ref(false)
+const submitState  = ref<'idle' | 'success' | 'error'>('idle')
+const focusedField = ref<string | null>(null)
 
-const save = () => {
-  content.value = { ...editContent }
-  router.post('/admin/page-content', { page: 'welcome', section: 'contact', content: content.value })
-}
-const cancel = () => {
-  Object.assign(editContent, content.value)
+const subjects = [
+  { value: 'reservation', label: 'Laua broneerimine' },
+  { value: 'catering',    label: 'Catering teenus'   },
+  { value: 'feedback',    label: 'Tagasiside'         },
+  { value: 'other',       label: 'Muu'                },
+]
+
+const hours = [
+  { days: 'Esmaspäev – Neljapäev', time: '11:00 – 22:00' },
+  { days: 'Reede – Laupäev',       time: '11:00 – 23:00' },
+  { days: 'Pühapäev',              time: '12:00 – 21:00' },
+]
+
+function submitContact() {
+  if (!form.value.name || !form.value.email || !form.value.message) return
+  isSubmitting.value = true
+  router.post('/contact', form.value, {
+    preserveScroll: true,
+    onSuccess: () => { submitState.value = 'success'; form.value = { name: '', email: '', subject: 'other', message: '' } },
+    onError:   () => { submitState.value = 'error' },
+    onFinish:  () => { isSubmitting.value = false },
+  })
 }
 </script>
 
 <template>
-  <section class="bg-[#121212] py-20">
-    <div class="max-w-7xl mx-auto px-6">
-      <EditableSection section-id="contact" @save="save" @cancel="cancel">
-        <template #default="{ isEditing }">
-          <div v-if="isEditing" class="fixed top-4 left-4 z-[999] bg-purple-500 text-white px-4 py-2 rounded font-bold">
-            EDIT MODE ACTIVE - CONTACT
+  <section id="contact" class="section-py relative z-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="glass px-6 py-12 md:px-12 md:py-14">
+
+        <div class="text-center mb-12 space-y-4">
+          <div :ref="(el) => badgeRef = el as any" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/12 bg-white/6 text-gray-300 text-xs font-bold uppercase tracking-[0.22em]">
+            Kontakt
           </div>
+          <h2 :ref="(el) => headingRef = el as any" class="text-3xl md:text-5xl font-bold text-white">
+            Külastage <span class="text-[#D2691E]">meid</span>
+          </h2>
+          <p :ref="(el) => subRef = el as any" class="text-gray-400 text-base max-w-md mx-auto">
+            Leidke meid Kuressaare südamest — või kirjutage meile
+          </p>
+        </div>
 
-          <div class="text-center mb-12">
-            <h3 v-if="!isEditing" class="text-4xl md:text-5xl font-bold" :style="{ color: content.titleColor }">
-              {{ content.title }}
-            </h3>
-            <div v-else class="space-y-2">
-              <input v-model="editContent.title" type="text" placeholder="Title..." class="w-full max-w-md mx-auto p-3 bg-gray-800 text-white rounded border-2 border-white" />
-              <div class="flex gap-2 justify-center items-center">
-                <label class="text-sm">Title color:</label>
-                <input v-model="editContent.titleColor" type="color" class="p-1 bg-gray-800 rounded border-2 border-white" />
+        <div class="grid md:grid-cols-2 gap-8 lg:gap-12">
+
+          <div :ref="(el) => leftRef = el as any" class="space-y-4">
+
+            <div class="glass-card p-5 group hover:border-[#D2691E]/22 transition-colors duration-300 relative overflow-hidden">
+              <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none shimmer" />
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-xl bg-[#D2691E]/12 flex items-center justify-center text-lg group-hover:scale-110 transition-transform duration-300">
+                  <MapPin class="size-5 stroke-1" />
+                </div>
+                <h3 class="text-sm font-bold text-[#F5DEB3]">Meie asukoht</h3>
               </div>
-            </div>
-
-            <h2 v-if="!isEditing" class="text-sm uppercase mt-4 tracking-widest font-semibold" :style="{ color: content.labelColor }">
-              {{ content.label }}
-            </h2>
-            <div v-else class="mb-3 space-y-2">
-              <input v-model="editContent.label" type="text" placeholder="Label..." class="w-full max-w-md mx-auto p-2 bg-gray-800 text-white rounded border-2 border-white" />
-              <div class="flex gap-2 justify-center items-center">
-                <label class="text-sm">Label color:</label>
-                <input v-model="editContent.labelColor" type="color" class="p-1 bg-gray-800 rounded border-2 border-white" />
-              </div>
-            </div>
-          </div>
-
-          <div class="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-            <div>
-              <h4 v-if="!isEditing" class="text-xl font-bold mb-6 text-[#F5DEB3]">{{ content.addressTitle }}</h4>
-              <input v-else v-model="editContent.addressTitle" type="text" placeholder="Address title..." class="w-full p-2 bg-gray-800 text-white rounded border-2 border-white mb-6" />
-
-              <div v-if="!isEditing" class="text-gray-300 text-base">
-                <p v-for="(line, i) in content.address" :key="i">{{ line }}</p>
-              </div>
-              <div v-else class="space-y-2">
-                <input
-                  v-for="(line, i) in editContent.address"
-                  :key="i"
-                  v-model="editContent.address[i]"
-                  type="text"
-                  :placeholder="`Address line ${(i as number) + 1}`"
-                  class="w-full p-2 bg-gray-800 text-white rounded border-2 border-white"
-                />
-              </div>
-
-              <div class="rounded-lg overflow-hidden h-64 mt-6 shadow-lg">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d8397.343520194667!2d22.483251!3d58.252736999999996!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46f26ce2774f2b63%3A0xea0f9eafb8fa644c!2sPrimo%20Burger!5e0!3m2!1sen!2see!4v1770927348729!5m2!1sen!2see"
-                  width="100%" height="100%" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
-                </iframe>
-              </div>
-            </div>
-
-            <div>
-              <h4 v-if="!isEditing" class="text-xl font-bold mb-6 text-[#F5DEB3]">{{ content.hoursTitle }}</h4>
-              <input v-else v-model="editContent.hoursTitle" type="text" placeholder="Hours title..." class="w-full p-2 bg-gray-800 text-white rounded border-2 border-white mb-6" />
-
-              <div v-if="!isEditing" class="space-y-4 text-base">
-                <div v-for="(line, i) in content.hours" :key="i" class="flex justify-between items-center">
-                  <span class="text-gray-300">{{ line.split(':')[0] }}</span>
-                  <span class="text-white font-medium">{{ line.split(':').slice(1).join(':').trim() }}</span>
+              <div class="space-y-1 text-sm">
+                <p class="text-white font-semibold">Kauba tn 5/2</p>
+                <p class="text-gray-500">Kuressaare, Saaremaa 93819</p>
+                <p class="text-gray-600">Eesti</p>
+                <div class="pt-3 border-t border-white/6 mt-3 space-y-1.5">
+                  <a href="tel:+37257438483" class="flex items-center gap-2 text-gray-500 hover:text-[#D2691E] transition-colors underline-sweep w-fit text-sm"><Phone class="size-4 stroke-1" /> +372 5743 8483</a>
+                  <a href="mailto:info@burgerprimo.ee" class="flex items-center gap-2 text-gray-500 hover:text-[#D2691E] transition-colors underline-sweep w-fit text-sm"><Mail class="size-4 stroke-1" /> info@burgerprimo.ee</a>
                 </div>
               </div>
-              <div v-else class="space-y-2">
-                <input
-                  v-for="(line, i) in editContent.hours"
-                  :key="i"
-                  v-model="editContent.hours[i]"
-                  type="text"
-                  :placeholder="`Hours line ${(i as number) + 1}`"
-                  class="w-full p-2 bg-gray-800 text-white rounded border-2 border-white"
-                />
-              </div>
+            </div>
 
-              <div v-if="!isEditing" class="mt-8 p-4 bg-[#1a1a1a] rounded-lg">
-                <p class="text-sm text-gray-300 mb-2">Toidu kohaletoimetamine</p>
-                <p class="text-sm text-gray-400">Toitu toimetab kohale Bolt Food ja Wolt, restorani lahtiolekuaegadel</p>
-                <div class="mt-3 flex gap-3">
-                  <a href="https://wolt.com/en/est/kuressaare/restaurant/primo-burger?srsltid=AfmBOoou9cug0gwJK-jJ-cEYiEtXBpvTEVDKnMaQkcQmfLMcCPv-CaLl" class="px-3 py-1 bg-[#12dcff] text-white rounded-full text-sm hover:scale-105 transition-transform">Wolt</a>
-                  <a href="https://food.bolt.eu/en-US/164/p/90859-primo-burger" class="px-3 py-1 bg-[#21c93d] text-white rounded-full text-sm hover:scale-105 transition-transform">Bolt Food</a>
+            <div class="glass-card p-5 group hover:border-[#D2691E]/22 transition-colors duration-300 relative overflow-hidden">
+              <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none shimmer" />
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-xl bg-[#D2691E]/12 flex items-center justify-center text-lg group-hover:scale-110 transition-transform duration-300"><Clock class="size-5 stroke-1" /></div>
+                <h3 class="text-sm font-bold text-[#F5DEB3]">Lahtiolekuajad</h3>
+              </div>
+              <div :ref="(el) => hoursRef = el as any" class="space-y-2.5">
+                <div v-for="item in hours" :key="item.days" data-stagger class="flex justify-between items-center py-2 border-b border-white/6 last:border-0">
+                  <span class="text-gray-500 text-xs">{{ item.days }}</span>
+                  <span class="text-white text-xs font-bold">{{ item.time }}</span>
                 </div>
               </div>
             </div>
           </div>
-        </template>
-      </EditableSection>
+
+          <div :ref="(el) => rightRef = el as any">
+            <div class="glass-card overflow-hidden relative">
+              <div class="h-0.5 bg-gradient-to-r from-transparent via-[#D2691E]/50 to-transparent" />
+              <div class="p-5 lg:p-7">
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="w-9 h-9 rounded-xl bg-[#D2691E]/12 flex items-center justify-center text-lg"><Mail class="size-5 stroke-1" /></div>
+                  <div><h3 class="text-sm font-bold text-[#F5DEB3]">Kirjuta meile</h3><p class="text-xs text-gray-600 mt-0.5">Vastame 24 tunni jooksul</p></div>
+                </div>
+
+                <Transition enter-active-class="transition duration-400 ease-out" enter-from-class="opacity-0 scale-90 translate-y-4" enter-to-class="opacity-100 scale-100 translate-y-0">
+                  <div v-if="submitState === 'success'" class="text-center py-10">
+                    <p class="text-5xl mb-5 animate-bob inline-block">🎉</p>
+                    <p class="text-green-400 font-bold text-xl">Sõnum saadetud!</p>
+                    <p class="text-gray-500 text-sm mt-2">Võtame teiega ühendust peagi.</p>
+                    <button @click="submitState = 'idle'" class="mt-6 px-6 py-2.5 text-sm bg-white/6 text-gray-400 rounded-xl hover:bg-white/10 transition-all font-semibold">Saada uus sõnum</button>
+                  </div>
+                </Transition>
+
+                <form v-if="submitState !== 'success'" @submit.prevent="submitContact" class="space-y-4">
+                  <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0 -translate-y-2" enter-to-class="opacity-100 translate-y-0">
+                    <div v-if="submitState === 'error'" class="px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl"><p class="text-red-400 text-sm">Midagi läks valesti. Proovige uuesti.</p></div>
+                  </Transition>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">Nimi <span class="text-[#D2691E]">*</span></label>
+                    <div class="relative">
+                      <input v-model="form.name" type="text" required placeholder="Teie täisnimi" @focus="focusedField = 'name'" @blur="focusedField = null" class="primo-input w-full px-4 py-3 text-sm bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-700" />
+                      <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0 scale-90" enter-to-class="opacity-100 scale-100">
+                        <span v-if="focusedField === 'name' && form.name" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#D2691E] text-sm">✓</span>
+                      </Transition>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">E-post <span class="text-[#D2691E]">*</span></label>
+                    <div class="relative">
+                      <input v-model="form.email" type="email" required placeholder="teie@email.com" @focus="focusedField = 'email'" @blur="focusedField = null" class="primo-input w-full px-4 py-3 text-sm bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-700" />
+                      <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0 scale-90" enter-to-class="opacity-100 scale-100">
+                        <span v-if="focusedField === 'email' && form.email.includes('@')" class="absolute right-3 top-1/2 -translate-y-1/2 text-[#D2691E] text-sm">✓</span>
+                      </Transition>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">Teema</label>
+                    <select v-model="form.subject" class="primo-input w-full px-4 py-3 text-sm bg-black/40 border border-white/10 rounded-xl text-white appearance-none cursor-pointer">
+                      <option v-for="s in subjects" :key="s.value" :value="s.value">{{ s.label }}</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">Sõnum <span class="text-[#D2691E]">*</span></label>
+                    <textarea v-model="form.message" required rows="4" placeholder="Kirjutage oma sõnum siia..." @focus="focusedField = 'message'" @blur="focusedField = null" class="primo-input w-full px-4 py-3 text-sm bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-700 resize-none" />
+                  </div>
+
+                  <button type="submit" :disabled="isSubmitting" class="btn-magnetic w-full py-4 text-sm bg-[#D2691E] text-white font-bold rounded-xl hover:bg-[#B8511A] transition-all shadow-lg shadow-[#D2691E]/15 disabled:opacity-40 flex items-center justify-center gap-2.5">
+                    <svg v-if="isSubmitting" class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    {{ isSubmitting ? 'Saadan...' : 'Saada sõnum' }}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </section>
 </template>

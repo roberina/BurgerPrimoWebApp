@@ -135,6 +135,9 @@
 
 <script setup lang="ts">
 import MainLayout from '@/layouts/MainLayout.vue';
+import { useToast } from '@/composables/useToast';
+
+const { success, error, warning } = useToast();
 import { ref, computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 import IngredientSection from '@/components/IngredientSection.vue';
@@ -199,7 +202,7 @@ const getAllSelectedIngredients = (): SelectedIngredient[] => {
 
 const saveBurger = (isFavorite: boolean) => {
   if (!props.canCreateMore) {
-    alert(`Oled jõudnud maksimaalse burgeri limiidini (${props.maxBurgers}). Kustuta mõni olemasolev burger, et luua uus.`);
+    warning(`Oled jõudnud maksimaalse burgeri limiidini (${props.maxBurgers}). Kustuta mõni olemasolev burger.`);
     return;
   }
 
@@ -207,7 +210,10 @@ const saveBurger = (isFavorite: boolean) => {
     name: burgerName.value,
     ingredients: getAllSelectedIngredients(),
     is_favorite: isFavorite,
-  } as any);
+  } as any, {
+    onSuccess: () => { success('Burger salvestatud! 🍔'); burgerName.value = ''; },
+    onError: () => error('Salvestamine ebaõnnestus'),
+  });
 };
 
 const orderBurger = () => {
@@ -215,9 +221,8 @@ const orderBurger = () => {
     name: burgerName.value,
     ingredients: getAllSelectedIngredients(),
   } as any, {
-    onSuccess: () => {
-      router.visit('/cart');
-    },
+    onSuccess: () => { success('Burger lisatud ostukorvi! 🛒'); router.visit('/cart'); },
+    onError: () => error('Korvi lisamine ebaõnnestus'),
   });
 };
 

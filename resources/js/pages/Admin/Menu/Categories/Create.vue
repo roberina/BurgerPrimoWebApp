@@ -1,17 +1,16 @@
 <template>
-  <div class="min-h-screen bg-black text-white">
-    <!-- Header -->
-    <header class="border-b border-gray-800 px-6 py-4">
-      <div class="max-w-7xl mx-auto flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-orange-500">
-          {{ isEdit ? 'Muuda kategooriat' : 'Lisa kategooria' }}
-        </h1>
-        <Link href="/admin/menu/categories" class="text-gray-400 hover:text-white transition">← Tagasi</Link>
+  <AdminLayout>
+    <template #header>
+      <div class="flex items-center justify-between w-full">
+        <h2 class="text-xl lg:text-2xl font-bold">{{ isEdit ? 'Muuda kategooriat' : 'Lisa kategooria' }}</h2>
+        <Link href="/admin/menu/categories" class="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+          ← Tagasi
+        </Link>
       </div>
-    </header>
+    </template>
 
-    <main class="max-w-3xl mx-auto px-6 py-12">
-      <form @submit.prevent="submit" class="bg-gray-900 rounded-lg border border-gray-800 p-8">
+    <div class="max-w-4xl">
+      <form @submit.prevent="submit" class="bg-[#121212] rounded-lg border border-[#1e1e1e] p-8">
         <!-- Name -->
         <div class="mb-6">
           <label class="block text-sm font-semibold mb-2">Nimi *</label>
@@ -19,7 +18,7 @@
             v-model="form.name"
             type="text"
             required
-            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transition"
+            class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
             placeholder="nt. BURGERID"
           />
           <p v-if="errors.name" class="text-red-400 text-sm mt-1">{{ errors.name }}</p>
@@ -33,7 +32,7 @@
           <input
             v-model="form.slug"
             type="text"
-            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transition"
+            class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
             placeholder="nt. burgerid"
           />
           <p class="text-gray-500 text-sm mt-1">URL-i sõbralik nimi (kasutab automaatselt nime)</p>
@@ -46,7 +45,7 @@
           <textarea
             v-model="form.description"
             rows="3"
-            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transition"
+            class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
             placeholder="Kategooria lühikirjeldus..."
           ></textarea>
           <p v-if="errors.description" class="text-red-400 text-sm mt-1">{{ errors.description }}</p>
@@ -59,7 +58,7 @@
             v-model.number="form.sort_order"
             type="number"
             min="0"
-            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-orange-500 focus:ring-2 focus:ring-orange-500 focus:ring-opacity-50 transition"
+            class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
             placeholder="0"
           />
           <p class="text-gray-500 text-sm mt-1">Väiksem number = kõrgem positsioon menüüs</p>
@@ -72,7 +71,7 @@
             <input
               v-model="form.is_active"
               type="checkbox"
-              class="w-5 h-5 rounded border-gray-600 bg-gray-700 text-orange-500 focus:ring-orange-500 focus:ring-offset-gray-900 cursor-pointer"
+              class="w-5 h-5 rounded border-[#333] bg-[#1a1a1a] text-[#D2691E] focus:ring-[#D2691E]/30 focus:ring-offset-gray-900 cursor-pointer"
             />
             <span class="ml-3 font-semibold">Kategooria on aktiivne</span>
           </label>
@@ -84,25 +83,26 @@
           <button
             type="submit"
             :disabled="processing"
-            class="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition"
+            class="flex-1 bg-[#D2691E] hover:bg-[#D2691E] disabled:opacity-40 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition"
           >
             {{ processing ? 'Salvestamine...' : (isEdit ? 'Salvesta muudatused' : 'Lisa kategooria') }}
           </button>
           <Link
             href="/admin/menu/categories"
-            class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition text-center"
+            class="flex-1 bg-[#121212] border border-[#1e1e1e] hover:bg-[#1a1a1a] hover:border-[#D2691E]/30 text-gray-300 hover:text-white px-6 py-3 rounded-lg font-semibold transition text-center"
           >
             Tühista
           </Link>
         </div>
       </form>
-    </main>
-  </div>
+    </div>
+  </AdminLayout>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts">import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Link, useForm } from '@inertiajs/vue3';
-import { computed, withDefaults } from 'vue';
+import { computed } from 'vue';
+
 
 interface Category {
   id: number;

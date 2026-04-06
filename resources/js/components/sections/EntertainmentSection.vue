@@ -1,169 +1,149 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { router } from '@inertiajs/vue3'
-import EditableSection from '@/components/EditableSection.vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useScrollAnimation } from '@/composables/useScrollAnimation'
 
-const content = ref({
-  label: 'Nautige sõpradega piljardimängu, nautides samal ajal meie maitsvaid toite ja jooke.',
-  labelColor: '#ffffff',
-  title: 'Mängi piljardit',
-  sectionTitle: 'Piljardilaud',
-  titleColor: '#D2691E',
-  sectionTitleColor: '#F5DEB3',
-  description: 'Nautige piljardilauda koos vastupidava villase segukanga ja pallikomplektiga. Ideaalne algajatele ja ka edasijõudnutele mänginiseks, nautides samal ajal oma lemmik Primo burgereid ja jooke.',
-  pricingTitle: 'Hinnakiri',
-  pricingTitleColor: '#F5DEB3',
-  pricingItems: [
-    { label: '8-palli mäng', price: '2€ mäng' },
-  ],
-  galleryImages: [
-    '/img/pool25.jpg',
-    '/img/pool15.jpg',
-    '/img/pool35.jpg',
-  ]
-})
+const { elRef: badgeRef }   = useScrollAnimation('scale-up',   { delay: 0   })
+const { elRef: headingRef } = useScrollAnimation('fade-up',    { delay: 80  })
+const { elRef: subRef }     = useScrollAnimation('fade-up',    { delay: 160 })
+const { elRef: imgRef }     = useScrollAnimation('fade-left',  { delay: 0,   threshold: 0.15 })
+const { elRef: textRef }    = useScrollAnimation('fade-right', { delay: 150, threshold: 0.15 })
+const { elRef: priceRef }   = useScrollAnimation('scale-up',   { delay: 400 })
 
-const editContent = reactive(JSON.parse(JSON.stringify(content.value)))
 const currentSlide = ref(0)
+const isAnimating  = ref(false)
+const images = ['/img/pool25.jpg', '/img/pool15.jpg', '/img/pool35.jpg']
 
-function nextSlide() {
-  const images = content.value.galleryImages
-  if (!images?.length) return
-  currentSlide.value = (currentSlide.value + 1) % images.length
+function goTo(i: number) {
+  if (isAnimating.value || i === currentSlide.value) return
+  isAnimating.value = true
+  currentSlide.value = i
+  setTimeout(() => { isAnimating.value = false }, 550)
 }
-function prevSlide() {
-  const images = content.value.galleryImages
-  if (!images?.length) return
-  currentSlide.value = (currentSlide.value - 1 + images.length) % images.length
+const next = () => goTo((currentSlide.value + 1) % images.length)
+const prev = () => goTo((currentSlide.value - 1 + images.length) % images.length)
+
+let touchX = 0
+const onTouchStart = (e: TouchEvent) => { touchX = e.touches[0].clientX }
+const onTouchEnd   = (e: TouchEvent) => {
+  const d = touchX - e.changedTouches[0].clientX
+  if (Math.abs(d) > 40) d > 0 ? next() : prev()
 }
 
-const save = () => {
-  content.value = { ...editContent, pricingItems: [...editContent.pricingItems], galleryImages: [...editContent.galleryImages] }
-  router.post('/admin/page-content', { page: 'welcome', section: 'entertainment', content: content.value })
-}
-const cancel = () => {
-  Object.assign(editContent, JSON.parse(JSON.stringify(content.value)))
-}
+const featureListRef = ref<HTMLElement | null>(null)
+let timer: ReturnType<typeof setInterval>
+
+onMounted(() => {
+  timer = setInterval(next, 4500)
+  if (featureListRef.value) {
+    const items = featureListRef.value.querySelectorAll<HTMLElement>('li')
+    items.forEach((el) => {
+      el.style.opacity = '0'
+      el.style.transform = 'translateX(20px)'
+      el.style.transition = 'all 0.5s cubic-bezier(0.22,1,0.36,1)'
+    })
+    const obs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        items.forEach((el, i) => {
+          window.setTimeout(() => { el.style.opacity = '1'; el.style.transform = 'none' }, 300 + i * 110)
+        })
+        obs.disconnect()
+      }
+    }, { threshold: 0.2 })
+    obs.observe(featureListRef.value)
+  }
+})
+onUnmounted(() => clearInterval(timer))
 </script>
 
 <template>
-  <section class="bg-[#121212] py-20">
-    <div class="max-w-7xl mx-auto px-6">
-      <EditableSection section-id="entertainment" @save="save" @cancel="cancel">
-        <template #default="{ isEditing }">
-          <div v-if="isEditing" class="fixed top-4 left-4 z-[999] bg-purple-500 text-white px-4 py-2 rounded font-bold">
-            EDIT MODE ACTIVE - ENTERTAINMENT
+  <section id="entertainment" class="section-py relative z-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6">
+      <div class="glass px-6 py-12 md:px-12 md:py-14">
+
+        <div class="text-center mb-12 space-y-4">
+          <div :ref="(el) => badgeRef = el as any" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/12 bg-white/6 text-gray-300 text-xs font-bold uppercase tracking-[0.22em]">
+            Meelelahutus
+          </div>
+          <h2 :ref="(el) => headingRef = el as any" class="text-3xl md:text-5xl font-bold text-white">
+            Mängi <span class="text-[#D2691E]">piljardit</span>
+          </h2>
+          <p :ref="(el) => subRef = el as any" class="text-gray-400 text-base max-w-xl mx-auto">
+            Nautige sõpradega piljardimängu, nautides samal ajal meie maitsvaid toite ja jooke
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+          <div
+            :ref="(el) => imgRef = el as any"
+            class="relative rounded-2xl overflow-hidden aspect-[4/3] bg-black/40 border border-white/8 shadow-2xl shadow-black/50"
+          >
+            <div class="relative w-full h-full" @touchstart="onTouchStart" @touchend="onTouchEnd">
+              <Transition v-for="(img, i) in images" :key="i" name="slide-fade">
+                <img v-show="currentSlide === i" :src="img" :alt="`Pool table ${i + 1}`" class="absolute inset-0 w-full h-full object-cover" />
+              </Transition>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-10" />
+            <button @click="prev" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center hover:bg-[#D2691E] transition-all duration-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <button @click="next" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center hover:bg-[#D2691E] transition-all duration-200">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+            </button>
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+              <button v-for="(_, i) in images" :key="i" @click="goTo(i)" class="rounded-full transition-all duration-300" :class="i === currentSlide ? 'w-6 h-2 bg-[#D2691E]' : 'w-2 h-2 bg-white/35 hover:bg-white/60'" />
+            </div>
           </div>
 
-          <div class="text-center mb-12">
-            <h3 v-if="!isEditing" class="text-4xl md:text-5xl font-bold" :style="{ color: content.titleColor }">
-              {{ content.title }}
-            </h3>
-            <div v-else class="space-y-2">
-              <input v-model="editContent.title" type="text" placeholder="Title..." class="w-full max-w-md mx-auto p-3 bg-gray-800 text-white rounded border-2 border-white" />
-              <div class="flex gap-2 justify-center items-center">
-                <label class="text-sm">Title color:</label>
-                <input v-model="editContent.titleColor" type="color" class="p-1 bg-gray-800 rounded border-2 border-white" />
-              </div>
-            </div>
-
-            <h2 v-if="!isEditing" class="text-sm uppercase mt-4 tracking-widest font-semibold" :style="{ color: content.labelColor }">
-              {{ content.label }}
-            </h2>
-            <div v-else class="mb-3 space-y-2">
-              <input v-model="editContent.label" type="text" placeholder="Label..." class="w-full max-w-md mx-auto p-2 bg-gray-800 text-white rounded border-2 border-white" />
-              <div class="flex gap-2 justify-center items-center">
-                <label class="text-sm">Label color:</label>
-                <input v-model="editContent.labelColor" type="color" class="p-1 bg-gray-800 rounded border-2 border-white" />
-              </div>
-            </div>
-          </div>
-
-          <div class="grid md:grid-cols-2 gap-8 items-start">
-            <!-- Gallery slider -->
-            <div class="relative rounded-lg overflow-hidden">
-              <div class="w-full aspect-[4/3] overflow-hidden">
-                <div
-                  class="flex h-full transition-transform duration-500 ease-in-out"
-                  :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
-                >
-                  <div
-                    v-for="(image, i) in content.galleryImages"
-                    :key="i"
-                    class="w-full flex-shrink-0 h-full relative"
-                  >
-                    <img :src="image" class="absolute inset-0 w-full h-full object-cover" alt="Billiard image" />
-                  </div>
-                </div>
-              </div>
-
-              <button v-if="content.galleryImages.length > 1" @click="prevSlide" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center text-2xl hover:bg-black/80 transition hover:cursor-pointer z-10">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                  </svg>
-              </button>
-              <button v-if="content.galleryImages.length > 1" @click="nextSlide" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 text-white w-9 h-9 rounded-full flex items-center justify-center text-2xl hover:bg-black/80 transition hover:cursor-pointer z-10">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-              </button>
-
-              <div v-if="content.galleryImages.length > 1" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-                <button
-                  v-for="(img, i) in content.galleryImages"
-                  :key="i"
-                  @click="currentSlide = i"
-                  class="w-3 h-3 rounded-full transition-colors hover:cursor-pointer"
-                  :class="i === currentSlide ? 'bg-white' : 'bg-white/40'"
-                />
-              </div>
-            </div>
-
-            <!-- Info panel -->
+          <div :ref="(el) => textRef = el as any" class="space-y-6">
             <div>
-              <h2 v-if="!isEditing" class="text-3xl md:text-4xl font-bold mb-6" :style="{ color: content.sectionTitleColor }">
-                {{ content.sectionTitle }}
-              </h2>
-              <div v-else class="space-y-2 mb-6">
-                <input v-model="editContent.sectionTitle" type="text" placeholder="Section title..." class="w-full p-3 bg-gray-800 text-white rounded border-2 border-white" />
-                <div class="flex gap-2 items-center">
-                  <label class="text-sm">Title color:</label>
-                  <input v-model="editContent.sectionTitleColor" type="color" class="p-1 bg-gray-800 rounded border-2 border-white" />
+              <h3 class="text-2xl md:text-3xl font-bold text-[#F5DEB3] mb-3">Piljardilaud</h3>
+              <p class="text-gray-400 text-sm leading-relaxed">
+                Nautige piljardilauda koos vastupidava villase segukanga ja pallikomplektiga.
+                Ideaalne nii algajatele kui ka edasijõudnutele — Primo toidud ja joogid käeulatuses.
+              </p>
+            </div>
+
+            <ul ref="featureListRef" class="space-y-3">
+              <li v-for="(feat, i) in ['Professionaalne piljardilaud', 'Restorani lahtiolekuaegadel võimalik kasutada']" :key="i" class="flex items-center gap-3 text-gray-300 text-sm">
+                <span class="w-5 h-5 rounded-full bg-[#D2691E]/15 flex items-center justify-center flex-shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-[#D2691E]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                </span>
+                {{ feat }}
+              </li>
+            </ul>
+
+            <div :ref="(el) => priceRef = el as any" class="glass-card p-5 hover:border-[#D2691E]/25 transition-colors duration-300 relative overflow-hidden">
+              <div class="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none shimmer" />
+              <div class="flex items-center gap-3 mb-4">
+                <div>
+                  <p class="text-[#F5DEB3] font-bold text-sm">Hinnakiri</p>
                 </div>
               </div>
-
-              <p v-if="!isEditing" class="text-gray-300 text-base leading-relaxed mb-8">{{ content.description }}</p>
-              <textarea v-else v-model="editContent.description" rows="4" class="w-full p-3 bg-gray-800 text-white rounded border-2 border-white mb-8"></textarea>
-
-              <div class="bg-[#1a1a1a] rounded-lg p-6 border border-gray-800">
-                <h3 v-if="!isEditing" class="text-xl font-bold mb-4" :style="{ color: content.pricingTitleColor }">
-                  {{ content.pricingTitle }}
-                </h3>
-                <div v-else class="space-y-2 mb-4">
-                  <input v-model="editContent.pricingTitle" type="text" placeholder="Pricing title..." class="w-full p-2 bg-gray-800 text-white rounded border-2 border-white" />
-                  <div class="flex gap-2 items-center">
-                    <label class="text-sm">Pricing title color:</label>
-                    <input v-model="editContent.pricingTitleColor" type="color" class="p-1 bg-gray-800 rounded border-2 border-white" />
-                  </div>
+              <div class="flex items-center justify-between py-3 border-t border-white/8">
+                <div>
+                  <p class="text-white font-semibold text-sm">8-palli mäng</p>
                 </div>
-
-                <div v-if="!isEditing" class="space-y-3">
-                  <div v-for="(item, i) in content.pricingItems" :key="i" class="flex justify-between items-center">
-                    <span class="text-gray-300">{{ item.label }}</span>
-                    <span class="text-white font-semibold text-lg">{{ item.price }}</span>
-                  </div>
-                </div>
-                <div v-else class="space-y-2">
-                  <div v-for="(item, i) in editContent.pricingItems" :key="i" class="flex gap-2">
-                    <input v-model="editContent.pricingItems[i].label" type="text" class="flex-1 p-2 bg-gray-800 text-white rounded border-2 border-white" />
-                    <input v-model="editContent.pricingItems[i].price" type="text" class="w-32 p-2 bg-gray-800 text-white rounded border-2 border-white" />
-                  </div>
+                <div class="text-right">
+                  <span class="text-3xl font-black text-[#D2691E]">2€</span>
+                  <p class="text-gray-600 text-xs">/ mäng</p>
                 </div>
               </div>
             </div>
           </div>
-        </template>
-      </EditableSection>
+
+        </div>
+      </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+.slide-fade-enter-active, .slide-fade-leave-active {
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22,1,0.36,1);
+  position: absolute; inset: 0;
+}
+.slide-fade-enter-from { opacity: 0; transform: scale(1.04); }
+.slide-fade-leave-to   { opacity: 0; transform: scale(0.97); }
+.slide-fade-enter-to, .slide-fade-leave-from { opacity: 1; transform: scale(1); }
+</style>
