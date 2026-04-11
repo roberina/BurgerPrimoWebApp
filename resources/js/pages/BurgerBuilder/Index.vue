@@ -2,7 +2,6 @@
   <MainLayout>
     <div class="bb-root">
 
-      <!-- PAGE HEADER -->
       <div class="bb-page-header">
         <div class="bb-page-header-inner">
           <p class="bb-eyebrow">Burger Primo</p>
@@ -11,71 +10,115 @@
         </div>
       </div>
 
-            <!-- ═══════════ BUILDER ═══════════ -->
       <section id="bb-builder" class="bb-builder">
-
-        <!-- Vasakul: sticky burger preview -->
         <div class="bb-left">
           <div class="bb-burger-panel">
-
             <div class="bb-burger-title">
               <span class="bb-eyebrow">Sinu burger</span>
               <span class="bb-burger-name-display" v-if="burgerName">{{ burgerName }}</span>
             </div>
 
-            <!-- Burger visuaal -->
-            <div class="bb-burger-visual" ref="burgerVisualRef">
-              <div class="bb-burger-glow"></div>
-              <div class="bb-burger-stack" ref="burgerStackRef" :style="{ transform: burgerScale }">
+            <div class="bb-burger-visual">
+              <svg :viewBox="`0 0 260 ${svgH}`" width="240" :height="svgH*240/260"
+                xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;overflow:visible">
+                <defs>
+                  <radialGradient id="gTB" cx="34%" cy="18%" r="74%">
+                    <stop offset="0%"   stop-color="#F8B040"/>
+                    <stop offset="32%"  stop-color="#D06818"/>
+                    <stop offset="65%"  stop-color="#A04808"/>
+                    <stop offset="100%" stop-color="#582004"/>
+                  </radialGradient>
+                  <radialGradient id="gBB" cx="34%" cy="20%" r="70%">
+                    <stop offset="0%"   stop-color="#E09030"/>
+                    <stop offset="44%"  stop-color="#B86018"/>
+                    <stop offset="100%" stop-color="#4E1C04"/>
+                  </radialGradient>
+                  <radialGradient id="gSd" cx="28%" cy="25%" r="66%">
+                    <stop offset="0%"   stop-color="#F5EEB5"/>
+                    <stop offset="58%"  stop-color="#CCBA3A"/>
+                    <stop offset="100%" stop-color="#8A6A14"/>
+                  </radialGradient>
+                  <filter id="fds">
+                    <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.42)"/>
+                  </filter>
+                  <filter id="fds2">
+                    <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="rgba(0,0,0,0.32)"/>
+                  </filter>
+                </defs>
 
-                <!-- Shadow -->
-                <div class="bb-burger-shadow" :style="{ opacity: totalLayers > 0 ? 0.7 : 0.2, transform: `translateX(-50%) scaleX(${0.4 + totalLayers * 0.08})` }"></div>
+                <ellipse cx="130" :cy="svgH-4" rx="108" ry="7" fill="rgba(0,0,0,0.3)"/>
 
-                <!-- Top bun — alati -->
-                <div class="bb-layer bb-layer-topbun">
-                  <canvas ref="cvTopBun" width="240" height="72"></canvas>
-                </div>
+                <!-- TOP BUN -->
+                <g filter="url(#fds)">
+                  <rect x="28" :y="svgTopRim" width="204" height="11" rx="5" fill="#4A1802"/>
+                  <path :d="`M28,${svgTopRim} C28,${svgTopRim-BUN_DOME} 232,${svgTopRim-BUN_DOME} 232,${svgTopRim} Z`" fill="url(#gTB)"/>
+                  <ellipse cx="96" :cy="svgTopRim-BUN_DOME*0.48" rx="54" :ry="BUN_DOME*0.22" fill="rgba(255,238,158,0.17)"/>
+                  <g v-for="s in seeds" :key="s.x">
+                    <ellipse :cx="s.x" :cy="svgTopRim-s.d+1.5" :rx="s.w" :ry="s.h" :transform="`rotate(${s.r},${s.x},${svgTopRim-s.d})`" fill="rgba(16,5,0,0.28)"/>
+                    <ellipse :cx="s.x" :cy="svgTopRim-s.d"     :rx="s.w" :ry="s.h" :transform="`rotate(${s.r},${s.x},${svgTopRim-s.d})`" fill="url(#gSd)"/>
+                    <line :x1="s.x-s.w+1" :y1="svgTopRim-s.d" :x2="s.x+s.w-1" :y2="svgTopRim-s.d" stroke="rgba(88,48,4,0.32)" stroke-width="0.8"/>
+                  </g>
+                </g>
 
-                <!-- 2 PIHVI: ülemine pihv kohe saia all -->
-                <div v-if="pitavCount > 1" class="bb-layer bb-layer-animate" :style="{ top: topPattyTop + 'px' }">
-                  <canvas :ref="el => { if(el) pattyCanvases[0] = el as HTMLCanvasElement }" width="228" height="46"></canvas>
-                </div>
+                <!-- LAYERS -->
+                <g v-for="(L,i) in layers3" :key="i" filter="url(#fds2)">
+                  <g v-if="L.t==='p'">
+                    <rect x="24" :y="L.y+L.h*0.58" width="212" :height="L.h*0.46+2" rx="7" :fill="L.s"/>
+                    <rect x="24" :y="L.y" width="212" :height="L.h" rx="8" :fill="L.c"/>
+                    <clipPath :id="`cp${i}`"><rect x="24" :y="L.y" width="212" :height="L.h" rx="8"/></clipPath>
+                    <g :clip-path="`url(#cp${i})`">
+                      <rect v-for="g in [48,80,112,145,178]" :key="g" :x="g" :y="L.y-1" width="5" :height="L.h+2" rx="2.5" fill="rgba(4,1,0,0.52)"/>
+                      <rect v-for="g in [50,82,114,147,180]" :key="`h${g}`" :x="g" :y="L.y-1" width="2.5" :height="L.h+2" rx="1.5" fill="rgba(210,65,5,0.14)"/>
+                    </g>
+                  </g>
+                  <g v-else-if="L.t==='c'">
+                    <ellipse v-for="d in [30,65,104,140,176,210]" :key="d" :cx="d" :cy="L.y+L.h+5" rx="4" ry="5.5" :fill="L.c"/>
+                    <rect x="8" :y="L.y+5" width="244" height="5" rx="2" :fill="L.s"/>
+                    <rect x="8" :y="L.y" width="244" :height="L.h+1" rx="2" :fill="L.c"/>
+                    <rect x="8" :y="L.y" width="244" height="3" rx="1.5" fill="rgba(255,248,185,0.24)"/>
+                  </g>
+                  <g v-else-if="L.t==='l'">
+                    <path :d="lp(L.y,true)"  :fill="L.s"/>
+                    <path :d="lp(L.y,false)" :fill="L.c"/>
+                  </g>
+                  <g v-else-if="L.t==='t'">
+                    <rect x="18" :y="L.y+L.h*0.58" width="224" :height="L.h*0.46" rx="3" :fill="L.s"/>
+                    <rect x="18" :y="L.y" width="224" :height="L.h" rx="5" :fill="L.c"/>
+                    <line v-for="x in [70,112,154,196]" :key="x" :x1="x" :y1="L.y+1" :x2="x" :y2="L.y+L.h-1" stroke="rgba(255,158,140,0.28)" stroke-width="1.2"/>
+                    <ellipse v-for="x in [56,98,136,175]" :key="x" :cx="x" :cy="L.y+L.h/2" rx="4.5" ry="2" fill="rgba(255,242,220,0.28)"/>
+                  </g>
+                  <g v-else-if="L.t==='k'">
+                    <rect x="16" :y="L.y+L.h*0.58" width="228" :height="L.h*0.46" rx="3" fill="#1E5808"/>
+                    <rect x="16" :y="L.y" width="228" :height="L.h" rx="4" :fill="L.c"/>
+                    <line v-for="n in 6" :key="n" :x1="20+n*32" :y1="L.y+1" :x2="19+n*32" :y2="L.y+L.h-1" stroke="rgba(15,65,5,0.28)" stroke-width="1"/>
+                  </g>
+                  <g v-else-if="L.t==='o'">
+                    <ellipse cx="70"  :cy="L.y+L.h/2" rx="50" :ry="L.h/2+1" fill="rgba(185,65,205,0.1)" stroke="#CC68E0" stroke-width="3.5"/>
+                    <ellipse cx="70"  :cy="L.y+L.h/2" rx="33" :ry="L.h/2-1" fill="none" stroke="#AA50C0" stroke-width="2.5"/>
+                    <ellipse cx="190" :cy="L.y+L.h/2" rx="50" :ry="L.h/2+1" fill="rgba(185,65,205,0.1)" stroke="#CC68E0" stroke-width="3.5"/>
+                    <ellipse cx="190" :cy="L.y+L.h/2" rx="33" :ry="L.h/2-1" fill="none" stroke="#AA50C0" stroke-width="2.5"/>
+                  </g>
+                  <g v-else-if="L.t==='a'">
+                    <rect x="16" :y="L.y+L.h*0.58" width="228" :height="L.h*0.46" rx="3" fill="#304E08"/>
+                    <rect x="16" :y="L.y" width="228" :height="L.h" rx="4" :fill="L.c"/>
+                  </g>
+                  <g v-else-if="L.t==='s'">
+                    <rect x="20" :y="L.y+L.h*0.6" width="220" :height="L.h*0.45" rx="2" :fill="L.s"/>
+                    <rect x="20" :y="L.y" width="220" :height="L.h" rx="3" :fill="L.c"/>
+                    <rect x="20" :y="L.y" width="220" height="2" rx="1" fill="rgba(255,255,255,0.14)"/>
+                  </g>
+                </g>
 
-                <!-- Köögiviljad -->
-                <template v-for="(item, idx) in selectedIngredients['salat'] || []" :key="'salat-' + item.id">
-                  <div class="bb-layer bb-layer-animate" :style="layerStyle('salat', idx)">
-                    <canvas :ref="el => setVegCanvas(el, idx)" width="248" height="24"></canvas>
-                  </div>
-                </template>
-
-                <!-- Juust -->
-                <template v-for="(item, idx) in selectedIngredients['juust'] || []" :key="'juust-' + item.id">
-                  <div class="bb-layer bb-layer-animate" :style="layerStyle('juust', idx)">
-                    <canvas :ref="el => setCheeseCanvas(el, idx)" width="236" height="18"></canvas>
-                  </div>
-                </template>
-
-                <!-- Kastmed -->
-                <template v-for="(item, idx) in selectedIngredients['lisand'] || []" :key="'lisand-' + item.id">
-                  <div class="bb-layer bb-layer-animate" :style="layerStyle('lisand', idx)">
-                    <canvas :ref="el => setSauceCanvas(el, idx)" width="224" height="14"></canvas>
-                  </div>
-                </template>
-
-                <!-- ALUMINE PIHV (1 pihvi puhul ainus, 2 puhul teine) -->
-                <div v-if="pitavCount > 0" class="bb-layer bb-layer-animate" :style="{ top: bottomPattyTop + 'px' }">
-                  <canvas :ref="el => { if(el) pattyCanvases[pitavCount > 1 ? 1 : 0] = el as HTMLCanvasElement }" width="228" height="46"></canvas>
-                </div>
-
-                <!-- Bottom bun — alati -->
-                <div class="bb-layer bb-layer-botbun" :style="{ top: bottomBunTop + 'px' }">
-                  <canvas ref="cvBotBun" width="240" height="38"></canvas>
-                </div>
-
-              </div>
+                <!-- BOTTOM BUN -->
+                <g filter="url(#fds)">
+                  <rect x="28" :y="svgBotY+18" width="204" height="8" rx="3" fill="#361002"/>
+                  <rect x="28" :y="svgBotY"    width="204" height="22" rx="9" fill="url(#gBB)"/>
+                  <ellipse cx="102" :cy="svgBotY+8" rx="46" ry="6" fill="rgba(255,208,115,0.17)"/>
+                  <ellipse v-for="s in bseeds" :key="s.x" :cx="s.x" :cy="svgBotY+s.d" :rx="s.w" :ry="s.h" :transform="`rotate(${s.r},${s.x},${svgBotY+s.d})`" fill="url(#gSd)"/>
+                </g>
+              </svg>
             </div>
 
-            <!-- Valitud koostisosad list -->
             <div class="bb-ingredient-list" v-if="totalLayers > 0">
               <div v-for="item in allSelectedFlat" :key="item.id" class="bb-ing-row">
                 <div class="bb-ing-dot" :style="{ background: categoryColor(item.category) }"></div>
@@ -84,37 +127,23 @@
                 <span class="bb-ing-price">{{ (item.price * item.quantity).toFixed(2) }}€</span>
               </div>
             </div>
-            <div class="bb-ing-empty" v-else>
-              Vali paremal koostisosad →
-            </div>
+            <div class="bb-ing-empty" v-else>Vali paremal koostisosad →</div>
 
-            <!-- Koguhind -->
             <div class="bb-price-row" v-if="totalLayers > 0">
               <span>Kokku</span>
               <span class="bb-price-total">{{ totalPrice.toFixed(2) }}€</span>
             </div>
-
           </div>
         </div>
 
-        <!-- Paremal: valikud -->
         <div class="bb-right">
-
-          <!-- Burgeri nimi -->
           <div class="bb-section">
             <div class="bb-section-header">
               <span class="bb-section-num">01</span>
               <h2 class="bb-section-title">Burgeri nimi</h2>
             </div>
-            <input
-              v-model="burgerName"
-              type="text"
-              placeholder="nt. Robby's Special..."
-              class="bb-name-input"
-            />
+            <input v-model="burgerName" type="text" placeholder="nt. Robby's Special..." class="bb-name-input"/>
           </div>
-
-          <!-- Kotlet -->
           <div class="bb-section" v-if="normalizedIngredients['pitav']?.length">
             <div class="bb-section-header">
               <span class="bb-section-num">02</span>
@@ -122,13 +151,7 @@
               <span class="bb-section-hint">vali kuni 2</span>
             </div>
             <div class="bb-grid">
-              <div
-                v-for="ing in normalizedIngredients['pitav']"
-                :key="ing.id"
-                class="bb-card"
-                :class="{ 'bb-card--active': isSelected('pitav', ing.id) }"
-                @click="togglePatty(ing.id)"
-              >
+              <div v-for="ing in normalizedIngredients['pitav']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('pitav', ing.id) }" @click="togglePatty(ing.id)">
                 <div class="bb-card-icon">🥩</div>
                 <div class="bb-card-name">{{ ing.name }}</div>
                 <div class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</div>
@@ -136,8 +159,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Köögiviljad -->
           <div class="bb-section" v-if="normalizedIngredients['salat']?.length">
             <div class="bb-section-header">
               <span class="bb-section-num">03</span>
@@ -145,13 +166,7 @@
               <span class="bb-section-hint">vali mitu</span>
             </div>
             <div class="bb-grid">
-              <div
-                v-for="ing in normalizedIngredients['salat']"
-                :key="ing.id"
-                class="bb-card"
-                :class="{ 'bb-card--active': isSelected('salat', ing.id) }"
-                @click="toggleMulti('salat', ing.id)"
-              >
+              <div v-for="ing in normalizedIngredients['salat']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('salat', ing.id) }" @click="toggleMulti('salat', ing.id)">
                 <div class="bb-card-icon">🥬</div>
                 <div class="bb-card-name">{{ ing.name }}</div>
                 <div class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</div>
@@ -159,8 +174,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Kastmed -->
           <div class="bb-section" v-if="normalizedIngredients['lisand']?.length">
             <div class="bb-section-header">
               <span class="bb-section-num">04</span>
@@ -168,13 +181,7 @@
               <span class="bb-section-hint">vali mitu</span>
             </div>
             <div class="bb-grid">
-              <div
-                v-for="ing in normalizedIngredients['lisand']"
-                :key="ing.id"
-                class="bb-card"
-                :class="{ 'bb-card--active': isSelected('lisand', ing.id) }"
-                @click="toggleMulti('lisand', ing.id)"
-              >
+              <div v-for="ing in normalizedIngredients['lisand']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('lisand', ing.id) }" @click="toggleMulti('lisand', ing.id)">
                 <div class="bb-card-icon">🫙</div>
                 <div class="bb-card-name">{{ ing.name }}</div>
                 <div class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</div>
@@ -182,8 +189,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Juust -->
           <div class="bb-section" v-if="normalizedIngredients['juust']?.length">
             <div class="bb-section-header">
               <span class="bb-section-num">05</span>
@@ -191,13 +196,7 @@
               <span class="bb-section-hint">vali mitu</span>
             </div>
             <div class="bb-grid">
-              <div
-                v-for="ing in normalizedIngredients['juust']"
-                :key="ing.id"
-                class="bb-card"
-                :class="{ 'bb-card--active': isSelected('juust', ing.id) }"
-                @click="toggleMulti('juust', ing.id)"
-              >
+              <div v-for="ing in normalizedIngredients['juust']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('juust', ing.id) }" @click="toggleMulti('juust', ing.id)">
                 <div class="bb-card-icon">🧀</div>
                 <div class="bb-card-name">{{ ing.name }}</div>
                 <div class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</div>
@@ -205,8 +204,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Tegevused -->
           <div class="bb-actions">
             <div class="bb-actions-price" v-if="totalLayers > 0">
               <span class="bb-actions-price-label">Kogusumma</span>
@@ -215,54 +212,29 @@
             <div class="bb-actions-btns">
               <button @click="saveBurger(false)" :disabled="!canSave" class="bb-btn-secondary">Salvesta</button>
               <button @click="saveBurger(true)"  :disabled="!canSave" class="bb-btn-secondary">♥ Lemmik</button>
-              <button @click="saveAndSubmit()" :disabled="!canSave" class="bb-btn-review">
-                Saada adminile ↗
-              </button>
-
+              <button @click="saveAndSubmit()"   :disabled="!canSave" class="bb-btn-review">Saada adminile ↗</button>
             </div>
           </div>
-
         </div>
       </section>
 
-      <!-- ═══════════ MINU BURGERID ═══════════ -->
       <section v-if="customBurgers?.length > 0" class="bb-saved">
         <div class="bb-saved-inner">
           <div class="bb-saved-grid">
             <div v-for="burger in customBurgers" :key="burger.id" class="bb-saved-card">
-              <!-- Staatus badge -->
               <div class="bb-saved-card-header">
                 <span class="bb-saved-card-name">{{ burger.name }}</span>
-                <span class="bb-status-badge" :class="'bb-status-' + (burger.status || 'draft')">
-                  {{ statusLabel(burger.status) }}
-                </span>
+                <span class="bb-status-badge" :class="'bb-status-' + (burger.status || 'draft')">{{ statusLabel(burger.status) }}</span>
               </div>
-
-              <!-- Hind -->
               <p class="bb-saved-card-price">{{ Number(burger.total_price).toFixed(2) }}€</p>
-
-              <!-- Admin note kui tagasi lükatud -->
-              <div v-if="burger.status === 'rejected' && burger.admin_note" class="bb-rejected-note">
-                💬 {{ burger.admin_note }}
-              </div>
-
-              <!-- Nupud -->
+              <div v-if="burger.status === 'rejected' && burger.admin_note" class="bb-rejected-note">💬 {{ burger.admin_note }}</div>
               <div class="bb-saved-card-btns">
+                <button @click="toggleBurgerFavorite(burger.id, burger.is_favorite)" class="bb-saved-btn bb-saved-btn-fav" :class="{ 'bb-saved-btn-fav--active': burger.is_favorite }">{{ burger.is_favorite ? '♥' : '♡' }}</button>
                 <button @click="loadBurger(burger)" class="bb-saved-btn">Muuda</button>
-                <button v-if="burger.status === 'draft' || burger.status === 'rejected'"
-                  @click="submitForReviewById(burger.id)" class="bb-saved-btn bb-saved-btn-orange">
-                  Saada adminile ↗
-                </button>
-                <span v-if="burger.status === 'pending'" class="bb-saved-pending-hint">
-                  Ootab admini kinnitust...
-                </span>
-                <button v-if="burger.status === 'approved'"
-                  @click="orderSavedBurger(burger.id)" class="bb-saved-btn bb-saved-btn-green">
-                  🛒 Lisa ostukorvi
-                </button>
-                <button @click="deleteBurger(burger.id)" class="bb-saved-btn bb-saved-btn-red">
-                  Kustuta
-                </button>
+                <button @click="quickOrder(burger)" class="bb-saved-btn bb-saved-btn-green">🛒 Telli</button>
+                <button v-if="burger.status === 'draft' || burger.status === 'rejected'" @click="submitForReviewById(burger.id)" class="bb-saved-btn bb-saved-btn-orange">Saada adminile ↗</button>
+                <span v-if="burger.status === 'pending'" class="bb-saved-pending-hint">Ootab kinnitust...</span>
+                <button @click="deleteBurger(burger.id)" class="bb-saved-btn bb-saved-btn-red">✕</button>
               </div>
             </div>
           </div>
@@ -371,36 +343,8 @@ const juustCount = computed(() => selectedIngredients.value['juust']?.length ?? 
 const pitavCount = computed(() => selectedIngredients.value['pitav']?.length ?? 0);
 const lisandCount = computed(() => selectedIngredients.value['lisand']?.length ?? 0);
 
-// 2 pihvi: ülemine pihv kohe saia all (46px)
-// 1 pihv: täidised ülal, pihv all
-const BUNTOP_H = 58;
-const topPattyTop    = computed(() => BUNTOP_H);
-const fillingStart   = computed(() => pitavCount.value > 1 ? BUNTOP_H + 32 : BUNTOP_H);
-const fillingHeight  = computed(() => salatCount.value * 12 + juustCount.value * 9 + lisandCount.value * 9);
 
-const layerStyle = (cat: string, idx: number) => {
-  let top = fillingStart.value;
-  if (cat === 'salat')       top = fillingStart.value + idx * 12;
-  else if (cat === 'juust')  top = fillingStart.value + salatCount.value * 12 + idx * 9;
-  else if (cat === 'lisand') top = fillingStart.value + salatCount.value * 12 + juustCount.value * 9 + idx * 9;
-  return { top: top + 'px' };
-};
 
-const bottomPattyTop = computed(() => fillingStart.value + fillingHeight.value + 6);
-
-const burgerScale = computed(() => {
-  const totalH = bottomBunTop.value + 36;
-  if (totalH > 248) {
-    const scale = Math.max(0.48, 248 / totalH);
-    return `scale(${scale.toFixed(2)})`;
-  }
-  return 'scale(1)';
-});
-
-const bottomBunTop = computed(() => {
-  if (pitavCount.value === 0) return fillingStart.value + fillingHeight.value + 4;
-  return bottomPattyTop.value + 32;
-});
 
 // Router
 const getAllSelected = (): SelectedIngredient[] => {
@@ -494,277 +438,124 @@ const loadBurger = (burger: CustomBurger) => {
 };
 
 // Canvas refs
-const cvTopBun = ref<HTMLCanvasElement | null>(null);
-const cvBotBun = ref<HTMLCanvasElement | null>(null);
-const vegCanvases = ref<HTMLCanvasElement[]>([]);
-const cheeseCanvases = ref<HTMLCanvasElement[]>([]);
-const pattyCanvases = ref<HTMLCanvasElement[]>([]);
-const sauceCanvases = ref<HTMLCanvasElement[]>([]);
 
-const setVegCanvas    = (el: any, idx: number) => { if (el) vegCanvases.value[idx] = el; };
-const setCheeseCanvas = (el: any, idx: number) => { if (el) cheeseCanvases.value[idx] = el; };
-const setPattyCanvas  = (el: any, idx: number) => { if (el) pattyCanvases.value[idx] = el; };
-const setSauceCanvas  = (el: any, idx: number) => { if (el) sauceCanvases.value[idx] = el; };
 
-// ═══ CANVAS DRAWING ═══
-function rnd(a: number, b: number) { return a + Math.random() * (b - a); }
 
-function drawTopBun(cv: HTMLCanvasElement) {
-  const c = cv.getContext('2d')!; const w = cv.width, h = cv.height, cx = w / 2;
-  c.clearRect(0, 0, w, h);
-  const by = h - 14; // bottom of bun ellipse
 
-  // Shadow
-  c.beginPath(); c.ellipse(cx, h - 3, w/2 - 4, 7, 0, 0, Math.PI * 2);
-  c.fillStyle = 'rgba(0,0,0,0.45)'; c.fill();
+// ═══ SVG BURGER ═══
+const BUN_DOME = 62  // top bun dome height
+const BOT_H    = 22  // bottom bun height
+const RIM_H    = 10  // top bun rim thickness
+const START_Y  = 8   // top of SVG content
+const GAP      = 2
 
-  // Bottom flat part (thickness)
-  c.beginPath(); c.ellipse(cx, by, w/2 - 6, 11, 0, 0, Math.PI * 2);
-  c.fillStyle = '#7A3D0A'; c.fill();
+interface SL { t:string; y:number; h:number; c:string; s:string; }
 
-  // Dome shape - nice rounded top
-  c.beginPath();
-  c.moveTo(8, by);
-  c.bezierCurveTo(8, 6, w - 8, 6, w - 8, by);
-  c.ellipse(cx, by, w/2 - 6, 11, 0, 0, Math.PI);
-  c.closePath();
-  const g = c.createRadialGradient(cx - 24, 18, 2, cx, 34, 100);
-  g.addColorStop(0, '#F5A840');
-  g.addColorStop(0.35, '#D97020');
-  g.addColorStop(0.75, '#B05018');
-  g.addColorStop(1, '#7A3008');
-  c.fillStyle = g; c.fill();
+function mkL(): SL[] {
+  const out: SL[] = []
+  const li = selectedIngredients.value['lisand']??[]
+  const sa = selectedIngredients.value['salat']??[]
+  const ju = selectedIngredients.value['juust']??[]
+  const pi = selectedIngredients.value['pitav']??[]
+  const push = (t:string,h:number,c:string,s:string) => out.push({t,y:0,h,c,s})
 
-  // Shine
-  const sg = c.createRadialGradient(cx - 20, 14, 1, cx - 10, 22, 50);
-  sg.addColorStop(0, 'rgba(255,235,160,0.45)');
-  sg.addColorStop(1, 'rgba(255,180,80,0)');
-  c.beginPath(); c.ellipse(cx - 10, 22, 52, 18, -.15, 0, Math.PI * 2);
-  c.fillStyle = sg; c.fill();
-
-  // Seeds - positioned on dome
-  const seeds: [number, number, number][] = [
-    [cx - 52, by - 20, -.3],
-    [cx - 18, by - 30, .04],
-    [cx + 20, by - 28, .18],
-    [cx + 54, by - 18, .26],
-    [cx - 28, by - 14, -.12],
-    [cx + 34, by - 14, .1],
-    [cx + 2, by - 26, -.05],
-  ];
-  seeds.forEach(([sx, sy, rot]) => {
-    c.save(); c.translate(sx, sy); c.rotate(rot);
-    const s = c.createRadialGradient(-1, -1.5, 1, 0, 0, 7);
-    s.addColorStop(0, '#F8E8B0'); s.addColorStop(1, '#A07820');
-    c.beginPath(); c.ellipse(0, 0, 7.5, 4.5, 0, 0, Math.PI * 2);
-    c.fillStyle = s; c.fill();
-    c.restore();
-  });
-}
-
-function drawBotBun(cv: HTMLCanvasElement) {
-  const c = cv.getContext('2d')!; const w = cv.width, h = cv.height, cx = w / 2;
-  c.clearRect(0, 0, w, h);
-  c.beginPath(); c.ellipse(cx, h - 3, 135, 7, 0, 0, Math.PI * 2);
-  c.fillStyle = 'rgba(0,0,0,0.45)'; c.fill();
-  const g = c.createRadialGradient(cx - 16, 10, 2, cx, 18, 88);
-  g.addColorStop(0, '#E89838'); g.addColorStop(0.5, '#C07020'); g.addColorStop(1, '#6E3008');
-  c.beginPath(); c.ellipse(cx, 18, 133, 18, 0, 0, Math.PI * 2); c.fillStyle = g; c.fill();
-  const dg = c.createLinearGradient(0, 26, 0, h - 4);
-  dg.addColorStop(0, 'rgba(0,0,0,0)'); dg.addColorStop(1, 'rgba(0,0,0,0.35)');
-  c.beginPath(); c.ellipse(cx, 18, 133, 18, 0, 0, Math.PI * 2); c.fillStyle = dg; c.fill();
-  const sg = c.createRadialGradient(cx - 22, 10, 1, cx - 8, 14, 44);
-  sg.addColorStop(0, 'rgba(255,210,120,0.28)'); sg.addColorStop(1, 'transparent');
-  c.beginPath(); c.ellipse(cx - 8, 14, 48, 10, -.18, 0, Math.PI * 2); c.fillStyle = sg; c.fill();
-  [[cx - 40, 12, -.18], [cx + 10, 9, .12], [cx + 50, 14, .26]].forEach(([sx, sy, rot]) => {
-    c.save(); c.translate(sx, sy); c.rotate(rot);
-    const s = c.createRadialGradient(-1, -1, 1, 0, 0, 7);
-    s.addColorStop(0, '#F0E098'); s.addColorStop(1, '#A88828');
-    c.beginPath(); c.ellipse(0, 0, 7, 4, 0, 0, Math.PI * 2); c.fillStyle = s; c.fill();
-    c.restore();
-  });
-}
-
-function drawVeg(cv: HTMLCanvasElement, id: number) {
-  const c = cv.getContext('2d')!; const w = cv.width, h = cv.height;
-  c.clearRect(0, 0, w, h);
-  const ing = getAllIngredients().find(i => i.id === id);
-  const name = ing?.name?.toLowerCase() ?? '';
-
-  if (name.includes('tomat')) {
-    [[68, 13, 56], [192, 13, 56]].forEach(([cx, cy, rx]) => {
-      const g = c.createRadialGradient(cx - 10, cy - 4, 3, cx, cy, rx);
-      g.addColorStop(0, '#FF7060'); g.addColorStop(0.5, '#E03030'); g.addColorStop(1, '#8C1010');
-      c.beginPath(); c.ellipse(cx, cy, rx, 11, 0, 0, Math.PI * 2); c.fillStyle = g; c.fill();
-      [-14, 0, 14].forEach(ox => { c.fillStyle = 'rgba(255,210,200,0.55)'; c.beginPath(); c.ellipse(cx + ox, cy + 1, 5, 3, .15, 0, Math.PI * 2); c.fill(); });
-      c.beginPath(); c.ellipse(cx - 12, cy - 4, 16, 6, -.3, 0, Math.PI * 2); c.fillStyle = 'rgba(255,200,190,0.3)'; c.fill();
-    });
-  } else if (name.includes('kurk')) {
-    [[68, 13, 54], [192, 13, 54]].forEach(([cx, cy, rx]) => {
-      const g = c.createRadialGradient(cx - 8, cy - 3, 2, cx, cy, rx);
-      g.addColorStop(0, '#B0DA70'); g.addColorStop(0.6, '#68A828'); g.addColorStop(1, '#386810');
-      c.beginPath(); c.ellipse(cx, cy, rx, 10, 0, 0, Math.PI * 2); c.fillStyle = g; c.fill();
-      c.strokeStyle = 'rgba(40,90,10,0.28)'; c.lineWidth = 1;
-      for (let i = -3; i <= 3; i++) { c.beginPath(); c.moveTo(cx + i * 12, cy - 9); c.lineTo(cx + i * 10, cy + 9); c.stroke(); }
-      c.beginPath(); c.ellipse(cx - 10, cy - 4, 16, 6, -.25, 0, Math.PI * 2); c.fillStyle = 'rgba(200,255,140,0.28)'; c.fill();
-    });
-  } else if (name.includes('sibul') || name.includes('kastrull')) {
-    [[68, 13], [192, 13]].forEach(([cx, cy]) => {
-      [50, 34, 20].forEach((rx, i) => {
-        c.beginPath(); c.ellipse(cx, cy, rx, 11 - i * 2, 0, 0, Math.PI * 2);
-        c.strokeStyle = ['rgba(205,115,215,0.9)', 'rgba(180,88,195,0.72)', 'rgba(158,68,178,0.52)'][i];
-        c.lineWidth = i === 0 ? 5.5 : 3.5; c.stroke();
-      });
-    });
-  } else if (name.includes('avocado')) {
-    [[68, 13, 54], [192, 13, 54]].forEach(([cx, cy, rx]) => {
-      const g = c.createRadialGradient(cx, cy, 4, cx, cy, rx);
-      g.addColorStop(0, '#D0EC70'); g.addColorStop(0.5, '#78B830'); g.addColorStop(1, '#3A6810');
-      c.beginPath(); c.ellipse(cx, cy, rx, 11, 0, 0, Math.PI * 2); c.fillStyle = g; c.fill();
-      c.beginPath(); c.ellipse(cx, cy, rx * 0.36, 7, 0, 0, Math.PI * 2); c.fillStyle = '#8B5E3C'; c.fill();
-      c.beginPath(); c.ellipse(cx - 8, cy - 3, 15, 6, -.2, 0, Math.PI * 2); c.fillStyle = 'rgba(230,255,170,0.28)'; c.fill();
-    });
+  if(pi.length>=2){
+    push('p',20,pC(pi[0]),pS())
+    ju.forEach(x=>{const n=gn(x.id);push('c',7,cC(n),cS(n))})
+    sa.forEach(x=>{const n=gn(x.id);const[t,h,c,s]=vD(n);push(t,h,c,s)})
+    li.forEach(x=>{const n=gn(x.id);push('s',6,sC(n),sS(n))})
+    push('p',20,pC(pi[1]),pS())
+  } else if(pi.length===1){
+    push('p',20,pC(pi[0]),pS())
+    ju.forEach(x=>{const n=gn(x.id);push('c',7,cC(n),cS(n))})
+    sa.forEach(x=>{const n=gn(x.id);const[t,h,c,s]=vD(n);push(t,h,c,s)})
+    li.forEach(x=>{const n=gn(x.id);push('s',6,sC(n),sS(n))})
   } else {
-    // Default: salat
-    const pts: [number, number][] = [];
-    for (let x = 0; x <= w; x += 10) pts.push([x, 8 + Math.sin(x * .09) * 7 + Math.sin(x * .17) * 4]);
-    c.beginPath(); c.moveTo(-2, h + 2); c.lineTo(pts[0][0], pts[0][1]);
-    for (let i = 1; i < pts.length; i++) c.quadraticCurveTo(pts[i-1][0], pts[i-1][1], (pts[i-1][0]+pts[i][0])/2, (pts[i-1][1]+pts[i][1])/2);
-    c.lineTo(w + 2, h + 2); c.closePath();
-    const g = c.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, '#70D858'); g.addColorStop(1, '#2E9018');
-    c.fillStyle = g; c.fill();
+    ju.forEach(x=>{const n=gn(x.id);push('c',7,cC(n),cS(n))})
+    sa.forEach(x=>{const n=gn(x.id);const[t,h,c,s]=vD(n);push(t,h,c,s)})
+    li.forEach(x=>{const n=gn(x.id);push('s',6,sC(n),sS(n))})
   }
+
+  // Y: start just below top bun rim
+  let y = START_Y + BUN_DOME + RIM_H + GAP
+  for(const l of out){ l.y=y; y+=l.h+GAP }
+  return out
 }
 
-function drawCheese(cv: HTMLCanvasElement, id: number) {
-  const c = cv.getContext('2d')!; const w = cv.width;
-  c.clearRect(0, 0, w, cv.height);
-  const ing = getAllIngredients().find(i => i.id === id);
-  const name = ing?.name?.toLowerCase() ?? '';
-  let col1 = '#FFD030', col2 = '#D09800';
-  if (name.includes('mozzarella')) { col1 = '#FFF5E8'; col2 = '#E0D0B0'; }
-  if (name.includes('blue'))       { col1 = '#C8D4E8'; col2 = '#7888A0'; }
-  const g = c.createLinearGradient(0, 0, 0, cv.height);
-  g.addColorStop(0, col1); g.addColorStop(1, col2);
-  c.fillStyle = g; c.beginPath(); (c as any).roundRect(2, 2, w - 4, 13, 3); c.fill();
-  [6, 40, 86, 140, 196, w - 9].forEach(dx => {
-    const dh = 5 + Math.random() * 8;
-    c.beginPath(); c.moveTo(dx - 3, 13); c.bezierCurveTo(dx - 4, 13 + dh*.4, dx + 6, 13 + dh*.6, dx + 3, 13 + dh);
-    c.bezierCurveTo(dx + 5, 13 + dh*.6, dx - 1, 13 + dh*.3, dx - 3, 13); c.fillStyle = col2; c.fill();
-  });
-  if (name.includes('blue')) {
-    c.fillStyle = 'rgba(70,90,150,0.38)';
-    for (let i = 0; i < 9; i++) { c.beginPath(); c.ellipse(18 + i * 24 + rnd(-4,4), 7 + rnd(-2,2), rnd(3,6), rnd(2,4), rnd(-.3,.3), 0, Math.PI*2); c.fill(); }
-  }
-  c.beginPath(); (c as any).roundRect(8, 2, w - 16, 4, 2); c.fillStyle = 'rgba(255,255,255,0.3)'; c.fill();
+function gn(id:number):string{
+  return getAllIngredients().find(i=>i.id===id)?.name?.toLowerCase()??''
+}
+function pC(item:{id:number}):string{
+  const n=gn(item.id)
+  if(n.includes('kana'))  return '#A87040'
+  if(n.includes('vegan')) return '#607830'
+  if(n.includes('grill')) return '#602010'
+  if(n.includes('veise')) return '#8A3418'
+  return '#904018'
+}
+function pS():string{return '#2A0802'}
+function cC(n:string):string{if(n.includes('mozzarella'))return '#F5EEE0';if(n.includes('blue'))return '#A8B8C8';return '#EDB015'}
+function cS(n:string):string{if(n.includes('mozzarella'))return '#CCBCA0';if(n.includes('blue'))return '#6878900';return '#A87808'}
+function vD(n:string):[string,number,string,string]{
+  if(n.includes('tomat'))return ['t',13,'#CC2818','#801010']
+  if(n.includes('kurk')) return ['k',9, '#5A9820','#1E5808']
+  if(n.includes('sibul')||n.includes('kastrull'))return ['o',11,'transparent','transparent']
+  if(n.includes('avocado'))return ['a',10,'#6A9E20','#305008']
+  return ['l',13,'#3A9818','#1A4E08']
+}
+function sC(n:string):string{
+  if(n.includes('ketšup'))  return '#C02018'
+  if(n.includes('majonees'))return '#F5F5E5'
+  if(n.includes('bbq'))     return '#601408'
+  if(n.includes('chipotle'))return '#A02808'
+  if(n.includes('peekon'))  return '#A81E1E'
+  if(n.includes('muna'))    return '#DCB818'
+  return '#C89808'
+}
+function sS(n:string):string{
+  if(n.includes('ketšup'))  return '#720808'
+  if(n.includes('majonees'))return '#C0C098'
+  return '#907008'
 }
 
-function drawPatty(cv: HTMLCanvasElement, id: number) {
-  const c = cv.getContext('2d')!; const w = cv.width, cx = w / 2;
-  c.clearRect(0, 0, w, cv.height);
-  const ing = getAllIngredients().find(i => i.id === id);
-  const name = ing?.name?.toLowerCase() ?? '';
-
-  let dark = '#1A0800', mid = '#3A1C08', lightC = '#9A5828', lightR = '#A06030';
-  if (name.includes('kana'))  { dark='#1E1000'; mid='#4A2C10'; lightC='#C09050'; lightR='#B07830'; }
-  if (name.includes('vegan')) { dark='#182008'; mid='#304018'; lightC='#809850'; lightR='#607030'; }
-  if (name.includes('grill')) { dark='#0E0500'; mid='#280E04'; lightC='#7A3818'; lightR='#602010'; }
-
-  c.beginPath(); c.ellipse(cx, 36, w/2-4, 13, 0, 0, Math.PI*2); c.fillStyle = dark; c.fill();
-  c.beginPath(); c.ellipse(cx, 30, w/2-6, 13, 0, 0, Math.PI*2); c.fillStyle = mid; c.fill();
-  const g = c.createRadialGradient(cx - 20, 14, 4, cx, 22, 72);
-  g.addColorStop(0, lightR); g.addColorStop(0.4, lightC); g.addColorStop(1, dark);
-  c.beginPath(); c.ellipse(cx, 22, w/2-8, 13, 0, 0, Math.PI*2); c.fillStyle = g; c.fill();
-  c.fillStyle = 'rgba(180,100,30,0.08)';
-  for (let i = 0; i < 14; i++) { c.beginPath(); c.ellipse(rnd(18,w-18), rnd(10,28), rnd(5,14), rnd(3,7), rnd(-.5,.5), 0, Math.PI*2); c.fill(); }
-  const marks = name.includes('grill') ? 4 : 3;
-  for (let i = 0; i < marks; i++) {
-    const x1 = 32 + i * 46, y1 = 10, x2 = x1 + 28, y2 = 30;
-    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2);
-    c.strokeStyle = 'rgba(6,1,0,0.88)'; c.lineWidth = name.includes('grill') ? 5 : 3.5; c.lineCap = 'round'; c.stroke();
-    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2);
-    c.strokeStyle = 'rgba(180,80,0,0.22)'; c.lineWidth = name.includes('grill') ? 9 : 6; c.stroke();
-  }
-  const sg = c.createRadialGradient(cx - 22, 14, 2, cx - 6, 18, 52);
-  sg.addColorStop(0, 'rgba(255,160,60,0.18)'); sg.addColorStop(1, 'transparent');
-  c.beginPath(); c.ellipse(cx - 6, 18, 52, 11, -.2, 0, Math.PI*2); c.fillStyle = sg; c.fill();
+// lettuce wavy path
+function lp(y:number, back:boolean):string{
+  const b = back ? y+6 : y+1
+  return `M14,${b+8} Q34,${b} 54,${b+7} Q74,${b+15} 94,${b+3} Q114,${b-8} 134,${b+3} Q154,${b+14} 174,${b+1} Q194,${b-9} 214,${b-1} Q234,${b+9} 254,${b+1} L254,${b+13} Q234,${b+21} 214,${b+11} Q194,${b+23} 174,${b+13} Q154,${b+26} 134,${b+13} Q114,${b+1} 94,${b+15} Q74,${b+27} 54,${b+15} Q34,${b+5} 14,${b+16} Z`
 }
 
-function drawSauce(cv: HTMLCanvasElement, id: number) {
-  const c = cv.getContext('2d')!; const w = cv.width, h = cv.height;
-  c.clearRect(0, 0, w, h);
-  const ing = getAllIngredients().find(i => i.id === id);
-  const name = ing?.name?.toLowerCase() ?? '';
-  let col1 = '#F8D840', col2 = '#D4A800';
-  if (name.includes('ketšup'))   { col1 = '#FF5040'; col2 = '#BE1818'; }
-  if (name.includes('majonees')) { col1 = '#FFFFF2'; col2 = '#E4E0C0'; }
-  if (name.includes('bbq'))      { col1 = '#922010'; col2 = '#4C0A06'; }
-  if (name.includes('chipotle')) { col1 = '#C84020'; col2 = '#841808'; }
-  if (name.includes('peekon'))   { col1 = '#D04040'; col2 = '#8A1818'; }
-  if (name.includes('muna'))     { col1 = '#FFE880'; col2 = '#E0C020'; }
-  const pts: [number, number][] = [];
-  for (let x = 0; x <= w; x += 10) pts.push([x, 5 + Math.sin(x * .1) * 3 + Math.sin(x * .06 + 1) * 2]);
-  c.beginPath(); c.moveTo(-2, h + 2); c.lineTo(pts[0][0], pts[0][1]);
-  for (let i = 1; i < pts.length; i++) c.quadraticCurveTo(pts[i-1][0], pts[i-1][1], (pts[i-1][0]+pts[i][0])/2, (pts[i-1][1]+pts[i][1])/2);
-  c.lineTo(w + 2, h + 2); c.closePath();
-  const g = c.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, col1); g.addColorStop(1, col2);
-  c.fillStyle = g; c.fill();
-  c.fillStyle = 'rgba(255,255,255,0.15)'; c.fillRect(0, 0, w, 3);
-}
+const layers3 = computed(()=>mkL())
 
-// Watch & redraw
-watch(selectedIngredients, async () => {
-  await nextTick(); await nextTick();
-  if (cvTopBun.value) drawTopBun(cvTopBun.value);
-  if (cvBotBun.value) drawBotBun(cvBotBun.value);
-  const salat = selectedIngredients.value['salat'] ?? [];
-  salat.forEach((item, idx) => { if (vegCanvases.value[idx]) drawVeg(vegCanvases.value[idx], item.id); });
-  const juust = selectedIngredients.value['juust'] ?? [];
-  juust.forEach((item, idx) => { if (cheeseCanvases.value[idx]) drawCheese(cheeseCanvases.value[idx], item.id); });
-  await nextTick();
-  const pitav = selectedIngredients.value['pitav'] ?? [];
-  pitav.forEach((item, idx) => { if (pattyCanvases.value[idx]) drawPatty(pattyCanvases.value[idx], item.id); });
-  const lisand = selectedIngredients.value['lisand'] ?? [];
-  lisand.forEach((item, idx) => { if (sauceCanvases.value[idx]) drawSauce(sauceCanvases.value[idx], item.id); });
-}, { deep: true });
+const svgTopRim = computed(()=> START_Y + BUN_DOME)
 
+const svgBotY = computed(()=>{
+  const ls = layers3.value
+  if(!ls.length) return svgTopRim.value + RIM_H + GAP + 4
+  const last = ls[ls.length-1]
+  return last.y + last.h + GAP + 4
+})
 
+const svgH = computed(()=> svgBotY.value + BOT_H + 14)
 
-// Watch & redraw
-watch(selectedIngredients, async () => {
-  await nextTick(); await nextTick();
-  if (cvTopBun.value) drawTopBun(cvTopBun.value);
-  if (cvBotBun.value) drawBotBun(cvBotBun.value);
-  const salat = selectedIngredients.value['salat'] ?? [];
-  salat.forEach((item, idx) => { if (vegCanvases.value[idx]) drawVeg(vegCanvases.value[idx], item.id); });
-  const juust = selectedIngredients.value['juust'] ?? [];
-  juust.forEach((item, idx) => { if (cheeseCanvases.value[idx]) drawCheese(cheeseCanvases.value[idx], item.id); });
-  await nextTick();
-  const pitav = selectedIngredients.value['pitav'] ?? [];
-  pitav.forEach((item, idx) => { if (pattyCanvases.value[idx]) drawPatty(pattyCanvases.value[idx], item.id); });
-  const lisand = selectedIngredients.value['lisand'] ?? [];
-  lisand.forEach((item, idx) => { if (sauceCanvases.value[idx]) drawSauce(sauceCanvases.value[idx], item.id); });
-}, { deep: true });
+const seeds = [
+  {x:82, d:12, w:8, h:3.8, r:-22},
+  {x:114,d:24, w:8, h:3.8, r:-8},
+  {x:143,d:30, w:8, h:3.8, r:0},
+  {x:172,d:24, w:8, h:3.8, r:8},
+  {x:206,d:12, w:8, h:3.8, r:22},
+  {x:130,d:46, w:6.5,h:3.1,r:-14},
+  {x:161,d:44, w:6.5,h:3.1,r:16},
+]
+const bseeds = [
+  {x:94, d:8, w:6.5,h:3.1,r:-18},
+  {x:125,d:4, w:6.5,h:3.1,r:5},
+  {x:154,d:3, w:6.5,h:3.1,r:0},
+  {x:182,d:4, w:6.5,h:3.1,r:-5},
+  {x:206,d:7, w:6.5,h:3.1,r:15},
+]
 
+onMounted(async () => {});
 
-// Assembly canvas drawing functions (scroll animatsioon)
-function rndA(a:number,b:number){return a+Math.random()*(b-a);}
-function drawAsmTopBun(cv:HTMLCanvasElement){const c=cv.getContext('2d')!;const w=cv.width,h=cv.height,cx=w/2;c.clearRect(0,0,w,h);c.beginPath();c.ellipse(cx,78,148,14,0,0,Math.PI*2);c.fillStyle='rgba(0,0,0,0.45)';c.fill();c.beginPath();c.ellipse(cx,62,144,18,0,0,Math.PI*2);c.fillStyle='#6B3608';c.fill();c.beginPath();c.moveTo(8,62);c.bezierCurveTo(cx-100,8,cx+100,8,w-8,62);c.ellipse(cx,62,144,18,0,0,Math.PI);c.closePath();c.fillStyle='#B86018';c.fill();const g=c.createRadialGradient(cx-18,22,4,cx+10,38,90);g.addColorStop(0,'#F5A848');g.addColorStop(0.3,'#DC8028');g.addColorStop(0.7,'#B86018');g.addColorStop(1,'#8A4010');c.beginPath();c.moveTo(8,62);c.bezierCurveTo(cx-100,8,cx+100,8,w-8,62);c.ellipse(cx,62,144,18,0,0,Math.PI);c.closePath();c.fillStyle=g;c.fill();const sg=c.createRadialGradient(cx-22,20,2,cx-10,28,48);sg.addColorStop(0,'rgba(255,230,170,0.38)');sg.addColorStop(1,'rgba(255,180,80,0)');c.beginPath();c.ellipse(cx-14,26,52,18,-.25,0,Math.PI*2);c.fillStyle=sg;c.fill();[[cx-60,30,-.35],[cx-18,18,.05],[cx+28,20,.22],[cx+62,32,.3],[cx-38,44,-.18],[cx+44,44,.15],[cx+8,38,-.08]].forEach(([sx,sy,rot])=>{c.save();c.translate(sx,sy);c.rotate(rot);const s=c.createRadialGradient(-1,-1.5,1,0,0,9);s.addColorStop(0,'#F8E8B8');s.addColorStop(1,'#A88030');c.beginPath();c.ellipse(0,0,9.5,5.5,0,0,Math.PI*2);c.fillStyle=s;c.fill();c.restore();});}
-function drawAsmLettuce(cv:HTMLCanvasElement){const c=cv.getContext('2d')!;const w=cv.width,h=cv.height;c.clearRect(0,0,w,h);for(let l=0;l<3;l++){const pts:number[][]=[];for(let x=0;x<=w;x+=8)pts.push([x,10+l*3+Math.sin(x*(.07+l*.02)+l)*(12-l*2)+Math.sin(x*(.14+l*.01)+l*2)*5]);c.beginPath();c.moveTo(-2,h+2);c.lineTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.quadraticCurveTo(pts[i-1][0],pts[i-1][1],(pts[i-1][0]+pts[i][0])/2,(pts[i-1][1]+pts[i][1])/2);c.lineTo(w+2,h+2);c.closePath();const cols=[['#6DD458','#3A9828'],['#58C840','#2E8818'],['#80E060','#4AB830']];const lg=c.createLinearGradient(0,0,0,h);lg.addColorStop(0,cols[l][0]);lg.addColorStop(1,cols[l][1]);c.fillStyle=lg;c.fill();}}
-function drawAsmCheese(cv:HTMLCanvasElement){const c=cv.getContext('2d')!;const w=cv.width,h=cv.height;c.clearRect(0,0,w,h);const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#FFD030');g.addColorStop(1,'#D89E00');c.fillStyle=g;c.beginPath();(c as any).roundRect(2,2,w-4,16,3);c.fill();[8,42,90,148,210,268,w-10].forEach(dx=>{const dh=8+Math.random()*10;c.beginPath();c.moveTo(dx-4,16);c.bezierCurveTo(dx-6,16+dh*.4,dx+8,16+dh*.6,dx+4,16+dh);c.bezierCurveTo(dx+6,16+dh*.6,dx-2,16+dh*.3,dx-4,16);c.fillStyle='#D89E00';c.fill();});}
-function drawAsmPatty(cv:HTMLCanvasElement){const c=cv.getContext('2d')!;const w=cv.width,h=cv.height,cx=w/2;c.clearRect(0,0,w,h);c.beginPath();c.ellipse(cx,42,138,18,0,0,Math.PI*2);c.fillStyle='#1A0800';c.fill();c.beginPath();c.ellipse(cx,36,136,18,0,0,Math.PI*2);c.fillStyle='#3A1C08';c.fill();const g=c.createRadialGradient(cx-25,18,6,cx,26,90);g.addColorStop(0,'#A06030');g.addColorStop(0.35,'#7A3E18');g.addColorStop(0.7,'#5A2A0A');g.addColorStop(1,'#3A1408');c.beginPath();c.ellipse(cx,26,134,19,0,0,Math.PI*2);c.fillStyle=g;c.fill();c.fillStyle='rgba(180,100,30,0.1)';for(let i=0;i<18;i++){c.beginPath();c.ellipse(rndA(30,w-30),rndA(14,36),rndA(8,20),rndA(5,10),rndA(-.5,.5),0,Math.PI*2);c.fill();}[[52,12,86,40],[98,10,132,38],[144,12,178,40]].forEach(([x1,y1,x2,y2])=>{c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.strokeStyle='rgba(10,2,0,0.85)';c.lineWidth=4.5;c.lineCap='round';c.stroke();});}
-function drawAsmTomato(cv:HTMLCanvasElement){const c=cv.getContext('2d')!;const w=cv.width,h=cv.height;c.clearRect(0,0,w,h);[[65,15,60],[215,15,60]].forEach(([cx,cy,rx])=>{const g=c.createRadialGradient(cx-12,cy-5,4,cx,cy,rx);g.addColorStop(0,'#FF7060');g.addColorStop(0.45,'#E83030');g.addColorStop(1,'#901010');c.beginPath();c.ellipse(cx,cy,rx,12,0,0,Math.PI*2);c.fillStyle=g;c.fill();});}
-function drawAsmSauce(cv:HTMLCanvasElement){const c=cv.getContext('2d')!;const w=cv.width,h=cv.height;c.clearRect(0,0,w,h);const pts:number[][]=[];for(let x=0;x<=w;x+=12)pts.push([x,7+Math.sin(x*.1)*4]);c.beginPath();c.moveTo(-2,h+2);c.lineTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.quadraticCurveTo(pts[i-1][0],pts[i-1][1],(pts[i-1][0]+pts[i][0])/2,(pts[i-1][1]+pts[i][1])/2);c.lineTo(w+2,h+2);c.closePath();const mg=c.createLinearGradient(0,0,0,h);mg.addColorStop(0,'#F8D840');mg.addColorStop(1,'#D4A800');c.fillStyle=mg;c.fill();}
-function drawAsmOnion(cv:HTMLCanvasElement){const c=cv.getContext('2d')!;const w=cv.width,h=cv.height;c.clearRect(0,0,w,h);[[55,16],[210,16]].forEach(([cx,cy])=>{[50,34,20].forEach((rx,i)=>{c.beginPath();c.ellipse(cx,cy,rx,12-i*2,0,0,Math.PI*2);c.strokeStyle=['rgba(210,120,220,0.85)','rgba(185,95,200,0.7)','rgba(165,80,185,0.5)'][i];c.lineWidth=i===0?5.5:3.5;c.stroke();});});const pcx=130,pcy=16;const pg=c.createRadialGradient(pcx-6,pcy-5,2,pcx,pcy,24);pg.addColorStop(0,'#B8E060');pg.addColorStop(1,'#407810');c.beginPath();c.ellipse(pcx,pcy,24,13,0,0,Math.PI*2);c.fillStyle=pg;c.fill();}
-function drawAsmBotBun(cv:HTMLCanvasElement){const c=cv.getContext('2d')!;const w=cv.width,h=cv.height,cx=w/2;c.clearRect(0,0,w,h);c.beginPath();c.ellipse(cx,h-4,148,9,0,0,Math.PI*2);c.fillStyle='rgba(0,0,0,0.5)';c.fill();const g=c.createRadialGradient(cx-20,12,3,cx,22,95);g.addColorStop(0,'#E8A040');g.addColorStop(0.45,'#C07828');g.addColorStop(0.8,'#9A5010');g.addColorStop(1,'#6A3008');c.beginPath();c.ellipse(cx,22,146,22,0,0,Math.PI*2);c.fillStyle=g;c.fill();const rim=c.createLinearGradient(0,30,0,h-6);rim.addColorStop(0,'rgba(0,0,0,0)');rim.addColorStop(1,'rgba(0,0,0,0.38)');c.beginPath();c.ellipse(cx,22,146,22,0,0,Math.PI*2);c.fillStyle=rim;c.fill();}
-
-onMounted(async () => {
-  await nextTick();
-  if (cvTopBun.value) drawTopBun(cvTopBun.value);
-  if (cvBotBun.value) drawBotBun(cvBotBun.value);
-});
 
 
 </script>
@@ -817,8 +608,8 @@ onMounted(async () => {
 .bb-left {
   border-right: 1px solid #141414;
   position: sticky;
-  top: 64px;
-  height: calc(100vh - 64px);
+  top: 0;
+  height: 100vh;
   overflow: hidden;
 }
 .bb-burger-panel {
@@ -851,13 +642,14 @@ onMounted(async () => {
   position: relative;
   width: 100%;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  height: 260px;
-  overflow: hidden;
-  background: radial-gradient(ellipse at 50% 110%, rgba(200,100,20,0.1) 0%, transparent 65%);
+  min-height: 200px;
+  padding: 12px 0;
+  background: radial-gradient(ellipse at 50% 78%, rgba(180,80,10,0.1) 0%, transparent 62%);
   border-radius: 12px;
 }
+
 .bb-burger-glow { display: none; }
 .bb-burger-stack {
   position: relative;
