@@ -1,0 +1,15 @@
+[phases.setup]
+nixPkgs = ["php83", "php83Packages.composer", "nodejs_20", "nodePackages.npm", "php83Extensions.pdo", "php83Extensions.pdo_sqlite", "php83Extensions.mbstring", "php83Extensions.tokenizer", "php83Extensions.xml", "php83Extensions.ctype", "php83Extensions.fileinfo", "php83Extensions.bcmath"]
+
+[phases.build]
+cmds = [
+  "composer install --optimize-autoloader --no-dev --no-interaction",
+  "npm ci",
+  "npm run build",
+  "mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache",
+  "chmod -R 775 storage bootstrap/cache",
+  "touch database/database.sqlite"
+]
+
+[start]
+cmd = "php artisan migrate --force && php artisan db:seed --force --class=DatabaseSeeder 2>/dev/null || true && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=$PORT"

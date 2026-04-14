@@ -122,7 +122,7 @@ register.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
 /**
-* @see routes/web.php:23
+* @see routes/web.php:36
 * @route '/'
 */
 export const home = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -136,7 +136,7 @@ home.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
-* @see routes/web.php:23
+* @see routes/web.php:36
 * @route '/'
 */
 home.url = (options?: RouteQueryOptions) => {
@@ -144,7 +144,7 @@ home.url = (options?: RouteQueryOptions) => {
 }
 
 /**
-* @see routes/web.php:23
+* @see routes/web.php:36
 * @route '/'
 */
 home.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -153,11 +153,91 @@ home.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 
 /**
-* @see routes/web.php:23
+* @see routes/web.php:36
 * @route '/'
 */
 home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: home.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:58
+* @route '/kontakt'
+*/
+export const kontakt = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: kontakt.url(options),
+    method: 'get',
+})
+
+kontakt.definition = {
+    methods: ["get","head"],
+    url: '/kontakt',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:58
+* @route '/kontakt'
+*/
+kontakt.url = (options?: RouteQueryOptions) => {
+    return kontakt.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:58
+* @route '/kontakt'
+*/
+kontakt.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: kontakt.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:58
+* @route '/kontakt'
+*/
+kontakt.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: kontakt.url(options),
+    method: 'head',
+})
+
+/**
+* @see routes/web.php:64
+* @route '/meelelahutus'
+*/
+export const meelelahutus = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: meelelahutus.url(options),
+    method: 'get',
+})
+
+meelelahutus.definition = {
+    methods: ["get","head"],
+    url: '/meelelahutus',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see routes/web.php:64
+* @route '/meelelahutus'
+*/
+meelelahutus.url = (options?: RouteQueryOptions) => {
+    return meelelahutus.definition.url + queryParams(options)
+}
+
+/**
+* @see routes/web.php:64
+* @route '/meelelahutus'
+*/
+meelelahutus.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: meelelahutus.url(options),
+    method: 'get',
+})
+
+/**
+* @see routes/web.php:64
+* @route '/meelelahutus'
+*/
+meelelahutus.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: meelelahutus.url(options),
     method: 'head',
 })
 

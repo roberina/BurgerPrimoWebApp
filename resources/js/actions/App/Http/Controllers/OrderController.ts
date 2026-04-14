@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\OrderController::index
 * @see app/Http/Controllers/OrderController.php:16
@@ -204,26 +204,26 @@ cancel.post = (args: { order: number | { id: number } } | [order: number | { id:
 })
 
 /**
-* @see \App\Http\Controllers\OrderController::deliveryLocation
+* @see \App\Http\Controllers\OrderController::updateDeliveryLocation
 * @see app/Http/Controllers/OrderController.php:111
 * @route '/orders/{order}/delivery-location'
 */
-export const deliveryLocation = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
-    url: deliveryLocation.url(args, options),
+export const updateDeliveryLocation = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: updateDeliveryLocation.url(args, options),
     method: 'patch',
 })
 
-deliveryLocation.definition = {
+updateDeliveryLocation.definition = {
     methods: ["patch"],
     url: '/orders/{order}/delivery-location',
 } satisfies RouteDefinition<["patch"]>
 
 /**
-* @see \App\Http\Controllers\OrderController::deliveryLocation
+* @see \App\Http\Controllers\OrderController::updateDeliveryLocation
 * @see app/Http/Controllers/OrderController.php:111
 * @route '/orders/{order}/delivery-location'
 */
-deliveryLocation.url = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+updateDeliveryLocation.url = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { order: args }
     }
@@ -246,18 +246,18 @@ deliveryLocation.url = (args: { order: number | { id: number } } | [order: numbe
         : args.order,
     }
 
-    return deliveryLocation.definition.url
+    return updateDeliveryLocation.definition.url
             .replace('{order}', parsedArgs.order.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\OrderController::deliveryLocation
+* @see \App\Http\Controllers\OrderController::updateDeliveryLocation
 * @see app/Http/Controllers/OrderController.php:111
 * @route '/orders/{order}/delivery-location'
 */
-deliveryLocation.patch = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
-    url: deliveryLocation.url(args, options),
+updateDeliveryLocation.patch = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: updateDeliveryLocation.url(args, options),
     method: 'patch',
 })
 
@@ -353,14 +353,6 @@ bulkDelete.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     method: 'post',
 })
 
-const orders = {
-    index: Object.assign(index, index),
-    store: Object.assign(store, store),
-    show: Object.assign(show, show),
-    cancel: Object.assign(cancel, cancel),
-    deliveryLocation: Object.assign(deliveryLocation, deliveryLocation),
-    destroy: Object.assign(destroy, destroy),
-    bulkDelete: Object.assign(bulkDelete, bulkDelete),
-}
+const OrderController = { index, store, show, cancel, updateDeliveryLocation, destroy, bulkDelete }
 
-export default orders
+export default OrderController

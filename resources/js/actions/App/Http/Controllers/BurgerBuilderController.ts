@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\BurgerBuilderController::index
 * @see app/Http/Controllers/BurgerBuilderController.php:17
@@ -194,26 +194,26 @@ destroy.delete = (args: { burger: number | { id: number } } | [burger: number | 
 })
 
 /**
-* @see \App\Http\Controllers\BurgerBuilderController::favorite
+* @see \App\Http\Controllers\BurgerBuilderController::toggleFavorite
 * @see app/Http/Controllers/BurgerBuilderController.php:128
 * @route '/burger-builder/{burger}/favorite'
 */
-export const favorite = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: favorite.url(args, options),
+export const toggleFavorite = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: toggleFavorite.url(args, options),
     method: 'post',
 })
 
-favorite.definition = {
+toggleFavorite.definition = {
     methods: ["post"],
     url: '/burger-builder/{burger}/favorite',
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see \App\Http\Controllers\BurgerBuilderController::favorite
+* @see \App\Http\Controllers\BurgerBuilderController::toggleFavorite
 * @see app/Http/Controllers/BurgerBuilderController.php:128
 * @route '/burger-builder/{burger}/favorite'
 */
-favorite.url = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+toggleFavorite.url = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { burger: args }
     }
@@ -236,42 +236,42 @@ favorite.url = (args: { burger: number | { id: number } } | [burger: number | { 
         : args.burger,
     }
 
-    return favorite.definition.url
+    return toggleFavorite.definition.url
             .replace('{burger}', parsedArgs.burger.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\BurgerBuilderController::favorite
+* @see \App\Http\Controllers\BurgerBuilderController::toggleFavorite
 * @see app/Http/Controllers/BurgerBuilderController.php:128
 * @route '/burger-builder/{burger}/favorite'
 */
-favorite.post = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: favorite.url(args, options),
+toggleFavorite.post = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: toggleFavorite.url(args, options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\BurgerBuilderController::submit
+* @see \App\Http\Controllers\BurgerBuilderController::submitForReview
 * @see app/Http/Controllers/BurgerBuilderController.php:139
 * @route '/burger-builder/{burger}/submit'
 */
-export const submit = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: submit.url(args, options),
+export const submitForReview = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: submitForReview.url(args, options),
     method: 'post',
 })
 
-submit.definition = {
+submitForReview.definition = {
     methods: ["post"],
     url: '/burger-builder/{burger}/submit',
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see \App\Http\Controllers\BurgerBuilderController::submit
+* @see \App\Http\Controllers\BurgerBuilderController::submitForReview
 * @see app/Http/Controllers/BurgerBuilderController.php:139
 * @route '/burger-builder/{burger}/submit'
 */
-submit.url = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+submitForReview.url = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { burger: args }
     }
@@ -294,28 +294,21 @@ submit.url = (args: { burger: number | { id: number } } | [burger: number | { id
         : args.burger,
     }
 
-    return submit.definition.url
+    return submitForReview.definition.url
             .replace('{burger}', parsedArgs.burger.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\BurgerBuilderController::submit
+* @see \App\Http\Controllers\BurgerBuilderController::submitForReview
 * @see app/Http/Controllers/BurgerBuilderController.php:139
 * @route '/burger-builder/{burger}/submit'
 */
-submit.post = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: submit.url(args, options),
+submitForReview.post = (args: { burger: number | { id: number } } | [burger: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: submitForReview.url(args, options),
     method: 'post',
 })
 
-const burgerBuilder = {
-    index: Object.assign(index, index),
-    store: Object.assign(store, store),
-    update: Object.assign(update, update),
-    destroy: Object.assign(destroy, destroy),
-    favorite: Object.assign(favorite, favorite),
-    submit: Object.assign(submit, submit),
-}
+const BurgerBuilderController = { index, store, update, destroy, toggleFavorite, submitForReview }
 
-export default burgerBuilder
+export default BurgerBuilderController

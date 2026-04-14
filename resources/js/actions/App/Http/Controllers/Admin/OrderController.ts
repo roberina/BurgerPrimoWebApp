@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Admin\OrderController::index
 * @see app/Http/Controllers/Admin/OrderController.php:14
@@ -170,26 +170,26 @@ confirm.post = (args: { order: number | { id: number } } | [order: number | { id
 })
 
 /**
-* @see \App\Http\Controllers\Admin\OrderController::status
+* @see \App\Http\Controllers\Admin\OrderController::updateStatus
 * @see app/Http/Controllers/Admin/OrderController.php:52
 * @route '/admin/orders/{order}/status'
 */
-export const status = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: status.url(args, options),
+export const updateStatus = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: updateStatus.url(args, options),
     method: 'post',
 })
 
-status.definition = {
+updateStatus.definition = {
     methods: ["post"],
     url: '/admin/orders/{order}/status',
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see \App\Http\Controllers\Admin\OrderController::status
+* @see \App\Http\Controllers\Admin\OrderController::updateStatus
 * @see app/Http/Controllers/Admin/OrderController.php:52
 * @route '/admin/orders/{order}/status'
 */
-status.url = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+updateStatus.url = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { order: args }
     }
@@ -212,52 +212,52 @@ status.url = (args: { order: number | { id: number } } | [order: number | { id: 
         : args.order,
     }
 
-    return status.definition.url
+    return updateStatus.definition.url
             .replace('{order}', parsedArgs.order.toString())
             .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\Admin\OrderController::status
+* @see \App\Http\Controllers\Admin\OrderController::updateStatus
 * @see app/Http/Controllers/Admin/OrderController.php:52
 * @route '/admin/orders/{order}/status'
 */
-status.post = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: status.url(args, options),
+updateStatus.post = (args: { order: number | { id: number } } | [order: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: updateStatus.url(args, options),
     method: 'post',
 })
 
 /**
-* @see \App\Http\Controllers\Admin\OrderController::bulkStatus
+* @see \App\Http\Controllers\Admin\OrderController::bulkUpdateStatus
 * @see app/Http/Controllers/Admin/OrderController.php:89
 * @route '/admin/orders/bulk-status'
 */
-export const bulkStatus = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: bulkStatus.url(options),
+export const bulkUpdateStatus = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: bulkUpdateStatus.url(options),
     method: 'post',
 })
 
-bulkStatus.definition = {
+bulkUpdateStatus.definition = {
     methods: ["post"],
     url: '/admin/orders/bulk-status',
 } satisfies RouteDefinition<["post"]>
 
 /**
-* @see \App\Http\Controllers\Admin\OrderController::bulkStatus
+* @see \App\Http\Controllers\Admin\OrderController::bulkUpdateStatus
 * @see app/Http/Controllers/Admin/OrderController.php:89
 * @route '/admin/orders/bulk-status'
 */
-bulkStatus.url = (options?: RouteQueryOptions) => {
-    return bulkStatus.definition.url + queryParams(options)
+bulkUpdateStatus.url = (options?: RouteQueryOptions) => {
+    return bulkUpdateStatus.definition.url + queryParams(options)
 }
 
 /**
-* @see \App\Http\Controllers\Admin\OrderController::bulkStatus
+* @see \App\Http\Controllers\Admin\OrderController::bulkUpdateStatus
 * @see app/Http/Controllers/Admin/OrderController.php:89
 * @route '/admin/orders/bulk-status'
 */
-bulkStatus.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
-    url: bulkStatus.url(options),
+bulkUpdateStatus.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: bulkUpdateStatus.url(options),
     method: 'post',
 })
 
@@ -429,15 +429,6 @@ startDelivery.post = (args: { order: number | { id: number } } | [order: number 
     method: 'post',
 })
 
-const orders = {
-    index: Object.assign(index, index),
-    show: Object.assign(show, show),
-    confirm: Object.assign(confirm, confirm),
-    status: Object.assign(status, status),
-    bulkStatus: Object.assign(bulkStatus, bulkStatus),
-    destroy: Object.assign(destroy, destroy),
-    reject: Object.assign(reject, reject),
-    startDelivery: Object.assign(startDelivery, startDelivery),
-}
+const OrderController = { index, show, confirm, updateStatus, bulkUpdateStatus, destroy, reject, startDelivery }
 
-export default orders
+export default OrderController
