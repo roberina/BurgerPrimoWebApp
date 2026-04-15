@@ -207,11 +207,37 @@ const decideError = ref('');
 const previewMapContainer = ref<HTMLElement | null>(null);
 let previewMap: any = null;
 
+const openNavigation = () => {
+  const destLat = props.order.delivery_lat;
+  const destLng = props.order.delivery_lng;
+  const address = props.order.delivery_address;
+
+  if (destLat && destLng) {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    if (isIOS) {
+      // Proovi Waze, kui pole installitud, ava Apple Maps
+      window.location.href = `waze://?ll=${destLat},${destLng}&navigate=yes`;
+      setTimeout(() => {
+        window.location.href = `maps://maps.apple.com/?daddr=${destLat},${destLng}&dirflg=d`;
+      }, 1500);
+    } else {
+      // Android: proovi Waze, fallback Google Maps
+      window.location.href = `waze://?ll=${destLat},${destLng}&navigate=yes`;
+      setTimeout(() => {
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLng}&travelmode=driving`, '_blank');
+      }, 1500);
+    }
+  } else if (address) {
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}&travelmode=driving`, '_blank');
+  }
+};
+
 const acceptOrder = async () => {
   deciding.value = true;
   decideError.value = '';
   try {
     await fetch(props.acceptUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    openNavigation();
     phase.value = 'tracking';
     // GPS käivitub pärast faasi muutumist (mapContainer on siis DOM-is)
     setTimeout(() => startTracking(), 100);
