@@ -42,96 +42,186 @@
               <svg :viewBox="`0 0 260 ${svgH}`" width="240" :height="svgH*240/260"
                 xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto;overflow:visible">
                 <defs>
-                  <radialGradient id="gTB" cx="34%" cy="18%" r="74%">
-                    <stop offset="0%"   stop-color="#F8B040"/>
-                    <stop offset="32%"  stop-color="#D06818"/>
-                    <stop offset="65%"  stop-color="#A04808"/>
-                    <stop offset="100%" stop-color="#582004"/>
+                  <!-- Top bun: warm golden-amber 3D -->
+                  <radialGradient id="gTB" cx="32%" cy="14%" r="80%">
+                    <stop offset="0%"   stop-color="#FFC84A"/>
+                    <stop offset="22%"  stop-color="#E07820"/>
+                    <stop offset="55%"  stop-color="#A84808"/>
+                    <stop offset="100%" stop-color="#501800"/>
                   </radialGradient>
-                  <radialGradient id="gBB" cx="34%" cy="20%" r="70%">
-                    <stop offset="0%"   stop-color="#E09030"/>
-                    <stop offset="44%"  stop-color="#B86018"/>
-                    <stop offset="100%" stop-color="#4E1C04"/>
+                  <!-- Top bun rim -->
+                  <linearGradient id="gTBRim" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#6A2808"/>
+                    <stop offset="100%" stop-color="#2A0C00"/>
+                  </linearGradient>
+                  <!-- Bottom bun -->
+                  <radialGradient id="gBB" cx="30%" cy="16%" r="74%">
+                    <stop offset="0%"   stop-color="#EEA040"/>
+                    <stop offset="38%"  stop-color="#C06820"/>
+                    <stop offset="100%" stop-color="#481800"/>
                   </radialGradient>
-                  <radialGradient id="gSd" cx="28%" cy="25%" r="66%">
-                    <stop offset="0%"   stop-color="#F5EEB5"/>
-                    <stop offset="58%"  stop-color="#CCBA3A"/>
-                    <stop offset="100%" stop-color="#8A6A14"/>
+                  <!-- Sesame seed -->
+                  <radialGradient id="gSd" cx="24%" cy="20%" r="72%">
+                    <stop offset="0%"   stop-color="#FFF4CC"/>
+                    <stop offset="52%"  stop-color="#D4BC40"/>
+                    <stop offset="100%" stop-color="#806010"/>
                   </radialGradient>
-                  <filter id="fds">
-                    <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.42)"/>
+                  <!-- Soft drop shadow -->
+                  <filter id="fds" x="-12%" y="-12%" width="124%" height="150%">
+                    <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="rgba(0,0,0,0.55)"/>
                   </filter>
-                  <filter id="fds2">
-                    <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="rgba(0,0,0,0.32)"/>
+                  <filter id="fds2" x="-8%" y="-8%" width="116%" height="140%">
+                    <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="rgba(0,0,0,0.40)"/>
                   </filter>
+                  <!-- Ambient glow under burger -->
+                  <radialGradient id="gGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%"   stop-color="rgba(210,105,30,0.35)"/>
+                    <stop offset="100%" stop-color="rgba(210,105,30,0)"/>
+                  </radialGradient>
                 </defs>
 
-                <ellipse cx="130" :cy="svgH-4" rx="108" ry="7" fill="rgba(0,0,0,0.3)"/>
+                <!-- Ambient glow under burger -->
+                <ellipse cx="130" :cy="svgH-2" rx="100" ry="12" fill="url(#gGlow)"/>
+                <!-- Ground shadow -->
+                <ellipse cx="130" :cy="svgH+2" rx="90" ry="5" fill="rgba(0,0,0,0.45)"/>
 
                 <!-- TOP BUN -->
                 <g filter="url(#fds)">
-                  <rect x="28" :y="svgTopRim" width="204" height="11" rx="5" fill="#4A1802"/>
-                  <path :d="`M28,${svgTopRim} C28,${svgTopRim-BUN_DOME} 232,${svgTopRim-BUN_DOME} 232,${svgTopRim} Z`" fill="url(#gTB)"/>
-                  <ellipse cx="96" :cy="svgTopRim-BUN_DOME*0.48" rx="54" :ry="BUN_DOME*0.22" fill="rgba(255,238,158,0.17)"/>
+                  <!-- Bun rim (base strip) -->
+                  <rect x="26" :y="svgTopRim" width="208" height="14" rx="7" fill="url(#gTBRim)"/>
+                  <!-- Main dome -->
+                  <path :d="`M26,${svgTopRim+2} C26,${svgTopRim-BUN_DOME+4} 234,${svgTopRim-BUN_DOME+4} 234,${svgTopRim+2} Z`" fill="url(#gTB)"/>
+                  <!-- Large primary shine -->
+                  <ellipse cx="98" :cy="svgTopRim-BUN_DOME*0.50" rx="56" :ry="BUN_DOME*0.20" fill="rgba(255,235,150,0.20)"/>
+                  <!-- Small specular highlight -->
+                  <ellipse cx="82" :cy="svgTopRim-BUN_DOME*0.64" rx="22" :ry="BUN_DOME*0.10" fill="rgba(255,252,210,0.18)"/>
+                  <!-- Rim shadow line -->
+                  <rect x="26" :y="svgTopRim+6" width="208" height="8" rx="4" fill="rgba(0,0,0,0.20)"/>
+                  <!-- Seeds -->
                   <g v-for="s in seeds" :key="s.x">
-                    <ellipse :cx="s.x" :cy="svgTopRim-s.d+1.5" :rx="s.w" :ry="s.h" :transform="`rotate(${s.r},${s.x},${svgTopRim-s.d})`" fill="rgba(16,5,0,0.28)"/>
-                    <ellipse :cx="s.x" :cy="svgTopRim-s.d"     :rx="s.w" :ry="s.h" :transform="`rotate(${s.r},${s.x},${svgTopRim-s.d})`" fill="url(#gSd)"/>
-                    <line :x1="s.x-s.w+1" :y1="svgTopRim-s.d" :x2="s.x+s.w-1" :y2="svgTopRim-s.d" stroke="rgba(88,48,4,0.32)" stroke-width="0.8"/>
+                    <ellipse :cx="s.x" :cy="svgTopRim-s.d+2" :rx="s.w" :ry="s.h" :transform="`rotate(${s.r},${s.x},${svgTopRim-s.d})`" fill="rgba(10,2,0,0.35)"/>
+                    <ellipse :cx="s.x" :cy="svgTopRim-s.d"   :rx="s.w" :ry="s.h" :transform="`rotate(${s.r},${s.x},${svgTopRim-s.d})`" fill="url(#gSd)"/>
+                    <ellipse :cx="s.x-s.w*0.3" :cy="svgTopRim-s.d-s.h*0.3" :rx="s.w*0.35" :ry="s.h*0.3" fill="rgba(255,248,200,0.45)" :transform="`rotate(${s.r},${s.x},${svgTopRim-s.d})`"/>
+                    <line :x1="s.x-s.w+1.5" :y1="svgTopRim-s.d" :x2="s.x+s.w-1.5" :y2="svgTopRim-s.d" stroke="rgba(70,38,2,0.4)" stroke-width="0.9"/>
                   </g>
                 </g>
 
-                <!-- LAYERS -->
+                <!-- INGREDIENT LAYERS -->
                 <g v-for="(L,i) in layers3" :key="i" filter="url(#fds2)">
+
+                  <!-- PATTY -->
                   <g v-if="L.t==='p'">
-                    <rect x="24" :y="L.y+L.h*0.58" width="212" :height="L.h*0.46+2" rx="7" :fill="L.s"/>
-                    <rect x="24" :y="L.y" width="212" :height="L.h" rx="8" :fill="L.c"/>
-                    <clipPath :id="`cp${i}`"><rect x="24" :y="L.y" width="212" :height="L.h" rx="8"/></clipPath>
+                    <!-- Bottom shadow -->
+                    <rect x="22" :y="L.y+L.h*0.55" width="216" :height="L.h*0.48+3" rx="10" :fill="L.s"/>
+                    <!-- Main patty body -->
+                    <rect x="22" :y="L.y" width="216" :height="L.h" rx="10" :fill="L.c"/>
+                    <clipPath :id="`cp${i}`"><rect x="22" :y="L.y" width="216" :height="L.h" rx="10"/></clipPath>
                     <g :clip-path="`url(#cp${i})`">
-                      <rect v-for="g in [48,80,112,145,178]" :key="g" :x="g" :y="L.y-1" width="5" :height="L.h+2" rx="2.5" fill="rgba(4,1,0,0.52)"/>
-                      <rect v-for="g in [50,82,114,147,180]" :key="`h${g}`" :x="g" :y="L.y-1" width="2.5" :height="L.h+2" rx="1.5" fill="rgba(210,65,5,0.14)"/>
+                      <!-- Grill marks (dark) -->
+                      <rect v-for="g in [44,72,102,132,162,192]" :key="g" :x="g" :y="L.y" width="7" :height="L.h" fill="rgba(2,0,0,0.58)"/>
+                      <!-- Grill mark hot-glow edge -->
+                      <rect v-for="g in [51,79,109,139,169,199]" :key="`e${g}`" :x="g" :y="L.y" width="2" :height="L.h" fill="rgba(200,60,0,0.18)"/>
+                      <!-- Caramelised dark spots -->
+                      <ellipse cx="65"  :cy="L.y+L.h*0.55" rx="12" :ry="L.h*0.28" fill="rgba(20,2,0,0.38)"/>
+                      <ellipse cx="118" :cy="L.y+L.h*0.4"  rx="9"  :ry="L.h*0.22" fill="rgba(20,2,0,0.30)"/>
+                      <ellipse cx="175" :cy="L.y+L.h*0.6"  rx="14" :ry="L.h*0.26" fill="rgba(20,2,0,0.32)"/>
+                      <!-- Top surface sheen -->
+                      <rect x="22" :y="L.y" width="216" height="3" fill="rgba(255,110,20,0.12)"/>
                     </g>
                   </g>
+
+                  <!-- CHEESE -->
                   <g v-else-if="L.t==='c'">
-                    <ellipse v-for="d in [30,65,104,140,176,210]" :key="d" :cx="d" :cy="L.y+L.h+5" rx="4" ry="5.5" :fill="L.c"/>
-                    <rect x="8" :y="L.y+5" width="244" height="5" rx="2" :fill="L.s"/>
-                    <rect x="8" :y="L.y" width="244" :height="L.h+1" rx="2" :fill="L.c"/>
-                    <rect x="8" :y="L.y" width="244" height="3" rx="1.5" fill="rgba(255,248,185,0.24)"/>
+                    <!-- Melt drips hanging below -->
+                    <ellipse v-for="d in [28,58,92,124,158,192,220]" :key="d" :cx="d" :cy="L.y+L.h+6" rx="5.5" ry="7" :fill="L.c"/>
+                    <!-- Darker base shadow -->
+                    <rect x="5" :y="L.y+5" width="250" height="7" rx="3" :fill="L.s"/>
+                    <!-- Main cheese slab -->
+                    <rect x="5" :y="L.y" width="250" :height="L.h+2" rx="3" :fill="L.c"/>
+                    <!-- Top gloss -->
+                    <rect x="5" :y="L.y" width="250" height="3.5" rx="2" fill="rgba(255,255,200,0.32)"/>
+                    <!-- Oil sheen streaks -->
+                    <ellipse v-for="(e,ei) in [{x:55},{x:108},{x:165},{x:215}]" :key="ei" :cx="e.x" :cy="L.y+L.h/2" rx="22" ry="2" fill="rgba(255,255,160,0.18)"/>
                   </g>
+
+                  <!-- LETTUCE -->
                   <g v-else-if="L.t==='l'">
                     <path :d="lp(L.y,true)"  :fill="L.s"/>
                     <path :d="lp(L.y,false)" :fill="L.c"/>
+                    <!-- Vein highlights -->
+                    <line x1="60" :y1="L.y+4" x2="80" :y2="L.y+8" stroke="rgba(255,255,255,0.12)" stroke-width="1.2" stroke-linecap="round"/>
+                    <line x1="130" :y1="L.y+3" x2="155" :y2="L.y+7" stroke="rgba(255,255,255,0.10)" stroke-width="1" stroke-linecap="round"/>
+                    <line x1="185" :y1="L.y+5" x2="200" :y2="L.y+9" stroke="rgba(255,255,255,0.10)" stroke-width="1" stroke-linecap="round"/>
                   </g>
+
+                  <!-- TOMATO -->
                   <g v-else-if="L.t==='t'">
-                    <rect x="18" :y="L.y+L.h*0.58" width="224" :height="L.h*0.46" rx="3" :fill="L.s"/>
-                    <rect x="18" :y="L.y" width="224" :height="L.h" rx="5" :fill="L.c"/>
-                    <ellipse v-for="x in [56,98,136,175]" :key="x" :cx="x" :cy="L.y+L.h/2" rx="4.5" ry="2" fill="rgba(255,242,220,0.28)"/>
+                    <!-- Shadow edge -->
+                    <rect x="16" :y="L.y+L.h*0.55" width="228" :height="L.h*0.48" rx="4" :fill="L.s"/>
+                    <!-- Main slice -->
+                    <rect x="16" :y="L.y" width="228" :height="L.h" rx="5" :fill="L.c"/>
+                    <!-- Seed pockets (lighter gel) -->
+                    <ellipse v-for="x in [46,84,126,166,206]" :key="x" :cx="x" :cy="L.y+L.h/2" rx="7" ry="4" fill="rgba(255,220,190,0.55)"/>
+                    <!-- Seeds inside pockets -->
+                    <ellipse v-for="x in [46,84,126,166,206]" :key="`s${x}`" :cx="x" :cy="L.y+L.h/2" rx="2.5" ry="1.5" fill="rgba(200,120,60,0.7)"/>
+                    <!-- Surface sheen -->
+                    <rect x="16" :y="L.y" width="228" height="3" rx="2" fill="rgba(255,200,180,0.28)"/>
                   </g>
+
+                  <!-- CUCUMBER -->
                   <g v-else-if="L.t==='k'">
-                    <rect x="16" :y="L.y+L.h*0.58" width="228" :height="L.h*0.46" rx="3" fill="#1E5808"/>
-                    <rect x="16" :y="L.y" width="228" :height="L.h" rx="4" :fill="L.c"/>
+                    <rect x="14" :y="L.y+L.h*0.55" width="232" :height="L.h*0.48" rx="3" fill="#1A5006"/>
+                    <rect x="14" :y="L.y" width="232" :height="L.h" rx="4" :fill="L.c"/>
+                    <!-- Seed line -->
+                    <ellipse v-for="x in [42,82,124,164,204]" :key="x" :cx="x" :cy="L.y+L.h/2" rx="5" ry="2.5" fill="rgba(220,255,200,0.35)"/>
+                    <rect x="14" :y="L.y" width="232" height="2.5" rx="2" fill="rgba(180,255,160,0.22)"/>
                   </g>
+
+                  <!-- ONION -->
                   <g v-else-if="L.t==='o'">
-                    <ellipse cx="70"  :cy="L.y+L.h/2" rx="50" :ry="L.h/2+1" fill="rgba(185,65,205,0.1)" stroke="#CC68E0" stroke-width="3.5"/>
-                    <ellipse cx="70"  :cy="L.y+L.h/2" rx="33" :ry="L.h/2-1" fill="none" stroke="#AA50C0" stroke-width="2.5"/>
-                    <ellipse cx="190" :cy="L.y+L.h/2" rx="50" :ry="L.h/2+1" fill="rgba(185,65,205,0.1)" stroke="#CC68E0" stroke-width="3.5"/>
-                    <ellipse cx="190" :cy="L.y+L.h/2" rx="33" :ry="L.h/2-1" fill="none" stroke="#AA50C0" stroke-width="2.5"/>
+                    <!-- Left ring -->
+                    <ellipse cx="72"  :cy="L.y+L.h/2" rx="52" :ry="L.h/2+2" fill="rgba(200,80,220,0.09)" stroke="#D070E8" stroke-width="3"/>
+                    <ellipse cx="72"  :cy="L.y+L.h/2" rx="34" :ry="L.h/2-2" fill="none" stroke="#B058CC" stroke-width="2"/>
+                    <ellipse cx="72"  :cy="L.y+L.h/2" rx="16" :ry="L.h/2-5" fill="none" stroke="#9040AA" stroke-width="1.5" stroke-dasharray="3,2"/>
+                    <!-- Right ring -->
+                    <ellipse cx="188" :cy="L.y+L.h/2" rx="52" :ry="L.h/2+2" fill="rgba(200,80,220,0.09)" stroke="#D070E8" stroke-width="3"/>
+                    <ellipse cx="188" :cy="L.y+L.h/2" rx="34" :ry="L.h/2-2" fill="none" stroke="#B058CC" stroke-width="2"/>
+                    <ellipse cx="188" :cy="L.y+L.h/2" rx="16" :ry="L.h/2-5" fill="none" stroke="#9040AA" stroke-width="1.5" stroke-dasharray="3,2"/>
                   </g>
+
+                  <!-- AVOCADO -->
                   <g v-else-if="L.t==='a'">
-                    <rect x="16" :y="L.y+L.h*0.58" width="228" :height="L.h*0.46" rx="3" fill="#304E08"/>
-                    <rect x="16" :y="L.y" width="228" :height="L.h" rx="4" :fill="L.c"/>
+                    <rect x="14" :y="L.y+L.h*0.55" width="232" :height="L.h*0.48" rx="3" fill="#254008"/>
+                    <rect x="14" :y="L.y" width="232" :height="L.h" rx="4" :fill="L.c"/>
+                    <!-- Lighter patches (fat marbling) -->
+                    <ellipse v-for="(e,ei) in [{x:60},{x:120},{x:180}]" :key="ei" :cx="e.x" :cy="L.y+L.h/2" rx="20" ry="3.5" fill="rgba(160,220,100,0.22)"/>
+                    <rect x="14" :y="L.y" width="232" height="2.5" rx="2" fill="rgba(200,255,150,0.18)"/>
                   </g>
+
+                  <!-- SAUCE -->
                   <g v-else-if="L.t==='s'">
-                    <rect x="20" :y="L.y+L.h*0.6" width="220" :height="L.h*0.45" rx="2" :fill="L.s"/>
-                    <rect x="20" :y="L.y" width="220" :height="L.h" rx="3" :fill="L.c"/>
-                    <rect x="20" :y="L.y" width="220" height="2" rx="1" fill="rgba(255,255,255,0.14)"/>
+                    <rect x="18" :y="L.y+L.h*0.55" width="224" :height="L.h*0.48" rx="2" :fill="L.s"/>
+                    <rect x="18" :y="L.y" width="224" :height="L.h" rx="3" :fill="L.c"/>
+                    <!-- Sauce sheen / gloss -->
+                    <rect x="18" :y="L.y" width="224" height="2.5" rx="1.5" fill="rgba(255,255,255,0.20)"/>
+                    <!-- Sauce blobs -->
+                    <ellipse v-for="(e,ei) in [{x:55,r:18},{x:120,r:22},{x:185,r:16}]" :key="ei" :cx="e.x" :cy="L.y+L.h/2" :rx="e.r" ry="1.8" fill="rgba(255,255,255,0.10)"/>
                   </g>
+
                 </g>
 
                 <!-- BOTTOM BUN -->
                 <g filter="url(#fds)">
-                  <rect x="28" :y="svgBotY+18" width="204" height="8" rx="3" fill="#361002"/>
-                  <rect x="28" :y="svgBotY"    width="204" height="22" rx="9" fill="url(#gBB)"/>
-                  <ellipse cx="102" :cy="svgBotY+8" rx="46" ry="6" fill="rgba(255,208,115,0.17)"/>
+                  <!-- Shadow base -->
+                  <rect x="26" :y="svgBotY+20" width="208" height="8" rx="4" fill="#280A00"/>
+                  <!-- Main bun body -->
+                  <rect x="26" :y="svgBotY" width="208" height="24" rx="10" fill="url(#gBB)"/>
+                  <!-- Primary shine -->
+                  <ellipse cx="100" :cy="svgBotY+9" rx="48" ry="7" fill="rgba(255,210,120,0.20)"/>
+                  <!-- Small specular -->
+                  <ellipse cx="82"  :cy="svgBotY+6" rx="20" ry="3.5" fill="rgba(255,240,180,0.16)"/>
+                  <!-- Bottom edge shadow -->
+                  <rect x="26" :y="svgBotY+17" width="208" height="7" rx="4" fill="rgba(0,0,0,0.22)"/>
                 </g>
               </svg>
             </div>
