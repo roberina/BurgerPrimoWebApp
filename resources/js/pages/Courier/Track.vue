@@ -92,7 +92,7 @@
       <div class="relative w-full h-screen overflow-hidden bg-[#0a1628]">
 
         <!-- Ülemine navigatsiooniriba -->
-        <div class="absolute top-0 left-0 right-0 z-20 shadow-2xl">
+        <div class="absolute top-0 left-0 right-0 shadow-2xl" style="z-index:1000">
 
           <!-- Peamine juhis -->
           <div class="flex items-stretch bg-[#1a2b3c]" style="min-height:80px">
@@ -125,7 +125,7 @@
         <div ref="mapContainer" class="absolute inset-0 w-full h-full"></div>
 
         <!-- Alumine infopaneel -->
-        <div class="absolute bottom-0 left-0 right-0 z-20" style="background: linear-gradient(to top, #0a1628 80%, transparent)">
+        <div class="absolute bottom-0 left-0 right-0" style="z-index:1000; background: linear-gradient(to top, #0a1628 80%, transparent)">
 
           <div class="px-5 pt-6 pb-4">
             <!-- Kiirus + ETA + peata -->
