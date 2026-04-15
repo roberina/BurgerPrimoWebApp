@@ -87,88 +87,93 @@
       </div>
     </template>
 
-    <!-- ───── JÄLGIMINE ───── -->
+    <!-- ───── JÄLGIMINE (navigatsiooni reziim) ───── -->
     <template v-else>
+      <div class="relative w-full h-screen overflow-hidden bg-[#0a1628]">
 
-      <!-- Header -->
-      <div class="flex items-center justify-between px-5 pt-6 pb-3 flex-shrink-0">
-        <div class="flex items-center gap-2">
-          <span class="text-2xl">🍔</span>
-          <div>
-            <p class="font-bold text-sm leading-tight">Burger Primo</p>
-            <p class="text-xs text-gray-500">Kulleri jälgimine</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold"
-             :class="statusBadgeClass">
-          <div class="w-1.5 h-1.5 rounded-full" :class="statusDotClass"></div>
-          {{ statusLabel }}
-        </div>
-      </div>
+        <!-- Ülemine navigatsiooniriba -->
+        <div class="absolute top-0 left-0 right-0 z-20 shadow-2xl">
 
-      <!-- Map -->
-      <div ref="mapContainer" class="flex-1 w-full" style="min-height: 0;"></div>
-
-      <!-- Bottom sheet -->
-      <div class="flex-shrink-0 bg-[#111111] border-t border-white/10 px-5 py-4 space-y-3">
-
-        <!-- Käsitsi juhis -->
-        <div v-if="manualMode && !stopped" class="bg-[#1a1a1a] border border-white/10 rounded-xl px-4 py-3 flex items-start gap-3">
-          <span class="text-lg mt-0.5">🛵</span>
-          <div class="flex-1">
-            <p class="text-sm font-semibold text-white mb-0.5">Lohista oma asukoht kaardile</p>
-            <p class="text-xs text-gray-500">GPS pole saadaval. Kliki kaardil oma asukohal või lohista 🛵 ikooni.</p>
-          </div>
-        </div>
-
-        <!-- ETA riba -->
-        <div v-if="etaLabel" class="flex items-center justify-between bg-cyan-950/40 border border-cyan-900/40 rounded-xl px-4 py-3">
-          <div class="flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></div>
-            <span class="text-sm text-cyan-300 font-medium">Sihtkohani</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <span v-if="etaDistance" class="text-xs text-gray-400">{{ etaDistance }}</span>
-            <span class="text-lg font-bold text-cyan-400">{{ etaLabel }}</span>
-          </div>
-        </div>
-
-        <!-- Tellimus + sihtkoht -->
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Tellimus</p>
-            <p class="font-mono font-bold text-[#D2691E]">{{ order.order_number }}</p>
-            <div v-if="order.delivery_address" class="mt-2">
-              <p class="text-xs text-gray-500 uppercase tracking-widest mb-0.5">Sihtkoht</p>
-              <p class="text-sm text-white font-medium leading-snug">{{ order.delivery_address }}</p>
+          <!-- Peamine juhis -->
+          <div class="flex items-stretch bg-[#1a2b3c]" style="min-height:80px">
+            <!-- Pöörde ikoon -->
+            <div class="w-20 bg-[#0f1e2e] flex items-center justify-center flex-shrink-0">
+              <div v-html="currentManeuverSvg" class="text-white w-12 h-12"></div>
+            </div>
+            <!-- Kaugus + tänav -->
+            <div class="flex-1 flex flex-col justify-center px-4 py-2 min-w-0">
+              <div class="text-3xl font-black text-white leading-none tracking-tight">{{ distanceToNextFormatted }}</div>
+              <div class="text-sm text-gray-300 mt-1 truncate">{{ currentStepStreet }}</div>
             </div>
           </div>
-          <div v-if="lastUpdate && !manualMode" class="text-right shrink-0">
-            <p class="text-xs text-gray-500 mb-0.5">GPS täpsus</p>
-            <p class="text-sm font-semibold text-white">±{{ Math.round(lastUpdate.accuracy) }}m</p>
+
+          <!-- Järgmine juhis -->
+          <div v-if="nextNavStep" class="flex items-center gap-2 px-4 py-1.5 bg-[#0f1e2e]/90 backdrop-blur-sm">
+            <span class="text-[10px] text-gray-500 uppercase tracking-widest flex-shrink-0">ja siis</span>
+            <div v-html="nextManeuverSvg" class="text-gray-300 w-4 h-4 flex-shrink-0"></div>
+            <span class="text-xs text-gray-300 truncate">{{ nextNavStep.name || 'Jätka' }}</span>
+          </div>
+
+          <!-- Käsitsi režiim hoiatus -->
+          <div v-if="manualMode && !stopped" class="flex items-center gap-2 px-4 py-2 bg-orange-900/40 border-t border-orange-700/30">
+            <span class="text-sm">🛵</span>
+            <p class="text-xs text-orange-300">GPS pole saadaval — kliki kaardil oma asukohale</p>
           </div>
         </div>
 
-        <button
-          v-if="manualMode && !stopped"
-          @click="retryGps"
-          class="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-semibold transition text-sm"
-        >
-          🔄 Proovi GPS-i uuesti
-        </button>
+        <!-- Kaart (täisekraan) -->
+        <div ref="mapContainer" class="absolute inset-0 w-full h-full"></div>
 
-        <button
-          v-if="(isTracking || manualMode) && !stopped"
-          @click="stopTracking"
-          class="w-full py-3.5 rounded-xl bg-red-600/15 hover:bg-red-600 border border-red-800/50 hover:border-red-600 text-red-400 hover:text-white font-bold transition text-sm"
-        >
-          Peata jälgimine
-        </button>
-        <div v-else-if="stopped" class="text-center py-2">
-          <p class="text-sm text-gray-400">Jälgimine peatatud ✓</p>
+        <!-- Alumine infopaneel -->
+        <div class="absolute bottom-0 left-0 right-0 z-20" style="background: linear-gradient(to top, #0a1628 80%, transparent)">
+
+          <div class="px-5 pt-6 pb-4">
+            <!-- Kiirus + ETA + peata -->
+            <div class="flex items-center justify-between mb-3">
+              <!-- Kiirus -->
+              <div class="bg-[#0f1e2e]/80 rounded-2xl px-4 py-2 text-center min-w-[72px] border border-white/8">
+                <div class="text-2xl font-black text-white leading-none">{{ currentSpeedValue }}</div>
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">km/h</div>
+              </div>
+
+              <!-- ETA -->
+              <div v-if="etaLabel" class="text-center flex-1 px-3">
+                <div class="text-xl font-black text-white">{{ etaLabel }}</div>
+                <div class="text-xs text-gray-400">{{ etaDistance }}</div>
+              </div>
+
+              <!-- Nupud -->
+              <div class="flex flex-col gap-2">
+                <button v-if="manualMode && !stopped" @click="retryGps"
+                  class="w-10 h-10 rounded-full bg-blue-600/20 border border-blue-700/50 flex items-center justify-center text-blue-400 text-sm">
+                  🔄
+                </button>
+                <button v-if="!stopped" @click="stopTracking"
+                  class="w-10 h-10 rounded-full bg-red-600/20 border border-red-800/50 flex items-center justify-center text-red-400 font-bold text-sm">
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <!-- Tellimus info -->
+            <div class="flex items-center gap-2 bg-[#0f1e2e]/60 rounded-xl px-4 py-2.5 border border-white/6">
+              <span class="text-base">🏠</span>
+              <div class="flex-1 min-w-0">
+                <span class="font-mono text-xs text-[#D2691E] font-bold mr-2">{{ order.order_number }}</span>
+                <span v-if="order.delivery_address" class="text-xs text-gray-400 truncate">{{ order.delivery_address }}</span>
+              </div>
+              <div v-if="lastUpdate && !manualMode" class="text-right shrink-0">
+                <span class="text-[10px] text-gray-600">±{{ Math.round(lastUpdate.accuracy) }}m</span>
+              </div>
+            </div>
+
+            <div v-if="stopped" class="text-center mt-3">
+              <p class="text-sm text-gray-400">Jälgimine peatatud ✓</p>
+            </div>
+          </div>
         </div>
-      </div>
 
+      </div>
     </template>
   </div>
 </template>
@@ -280,6 +285,76 @@ let lastRouteFetchLat = 0;
 let lastRouteFetchLng = 0;
 let lastRouteFetchTime = 0;
 
+// Navigatsiooni olek
+const routeSteps = ref<any[]>([]);
+const currentStepIndex = ref(0);
+const distanceToNextManeuver = ref<number | null>(null);
+const currentSpeed = ref<number | null>(null);
+
+const haversineDist = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+};
+
+const updateNavStep = (lat: number, lng: number) => {
+  if (!routeSteps.value.length) return;
+  let idx = currentStepIndex.value;
+  while (idx < routeSteps.value.length - 1) {
+    const loc = routeSteps.value[idx]?.maneuver?.location;
+    if (!loc) break;
+    const dist = haversineDist(lat, lng, loc[1], loc[0]);
+    if (dist < 25) { idx++; currentStepIndex.value = idx; }
+    else break;
+  }
+  const cur = routeSteps.value[idx];
+  if (cur?.maneuver?.location) {
+    const [mLng, mLat] = cur.maneuver.location;
+    distanceToNextManeuver.value = haversineDist(lat, lng, mLat, mLng);
+  }
+};
+
+const arrowSvg = (modifier: string, size: number): string => {
+  const s = `stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"`;
+  const arrows: Record<string, string> = {
+    straight:      `<path d="M20 32V10M12 18l8-9 8 9" ${s}/>`,
+    right:         `<path d="M13 28V20a7 7 0 0 1 7-7h2M22 8l6 5-6 5" ${s}/>`,
+    left:          `<path d="M27 28V20a7 7 0 0 0-7-7h-2M18 8l-6 5 6 5" ${s}/>`,
+    'slight right':`<path d="M14 30V22c0-5 3-9 9-12M23 8l6 3-3 6" ${s}/>`,
+    'slight left': `<path d="M26 30V22c0-5-3-9-9-12M17 8l-6 3 3 6" ${s}/>`,
+    'sharp right': `<path d="M12 30v-6a8 8 0 0 1 8-8h6M26 11l3 7-7 1" ${s}/>`,
+    'sharp left':  `<path d="M28 30v-6a8 8 0 0 0-8-8h-6M14 11l-3 7 7 1" ${s}/>`,
+    uturn:         `<path d="M14 30V22a8 8 0 0 1 16 0v2M30 20l-4 4-4-4" ${s}/>`,
+    arrive:        `<circle cx="20" cy="20" r="8" ${s}/><path d="M20 10v10M20 30v-2" ${s}/>`,
+  };
+  const path = arrows[modifier] || arrows['straight'];
+  return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">${path}</svg>`;
+};
+
+const getManeuverSvg = (step: any, size = 40): string => {
+  if (!step) return arrowSvg('straight', size);
+  const type = step.maneuver?.type;
+  const mod = step.maneuver?.modifier;
+  if (type === 'arrive') return arrowSvg('arrive', size);
+  return arrowSvg(mod || 'straight', size);
+};
+
+const currentNavStep = computed(() => routeSteps.value[currentStepIndex.value] ?? null);
+const nextNavStep = computed(() => routeSteps.value[currentStepIndex.value + 1] ?? null);
+const currentManeuverSvg = computed(() => getManeuverSvg(currentNavStep.value, 40));
+const nextManeuverSvg = computed(() => getManeuverSvg(nextNavStep.value, 16));
+const currentStepStreet = computed(() => currentNavStep.value?.name || 'Jätka otse');
+const currentSpeedValue = computed(() => currentSpeed.value !== null ? Math.round(currentSpeed.value) : 0);
+const distanceToNextFormatted = computed(() => {
+  const d = distanceToNextManeuver.value;
+  if (d === null) return etaDistance.value ?? '--';
+  if (d < 50) return `${Math.round(d)} m`;
+  if (d < 1000) return `${Math.round(d / 10) * 10} m`;
+  return `${(d / 1000).toFixed(1)} km`;
+});
+
 const etaLabel = computed(() => {
   if (etaMinutes.value === null) return null;
   if (etaMinutes.value < 60) return `~${etaMinutes.value} min`;
@@ -316,13 +391,20 @@ const fetchRoute = async (lat: number, lng: number) => {
 
     if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; }
     routeLayer = L.geoJSON(route.geometry, {
-      style: { color: '#0ea5e9', weight: 5, opacity: 0.85, lineCap: 'round', lineJoin: 'round' },
+      style: { color: '#0ea5e9', weight: 6, opacity: 0.9, lineCap: 'round', lineJoin: 'round' },
     }).addTo(map);
 
     etaMinutes.value = Math.max(1, Math.ceil(route.duration / 60));
     etaDistance.value = route.distance >= 1000
       ? `${(route.distance / 1000).toFixed(1)} km`
       : `${Math.round(route.distance)} m`;
+
+    // Salvesta pöördejuhised
+    if (data.routes[0].legs?.[0]?.steps) {
+      routeSteps.value = data.routes[0].legs[0].steps;
+      currentStepIndex.value = 0;
+      distanceToNextManeuver.value = null;
+    }
   } catch { /* vaikne */ }
 };
 
@@ -457,10 +539,12 @@ const startTracking = () => {
         courierMarker?.dragging?.disable();
       }
       isTracking.value = true;
-      const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+      const { latitude: lat, longitude: lng, accuracy, speed } = pos.coords;
+      currentSpeed.value = speed !== null ? speed * 3.6 : null;
       lastUpdate.value = { lat, lng, accuracy };
       if (!map) await initMap(lat, lng, false);
       else updateMapPosition(lat, lng);
+      updateNavStep(lat, lng);
       sendLocation(lat, lng);
       fetchRoute(lat, lng);
     },
