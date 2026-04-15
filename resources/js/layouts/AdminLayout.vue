@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, usePage, router } from '@inertiajs/vue3';
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -60,7 +60,7 @@ const navigation = [
 
 const logout = () => {
   if (confirm('Kas soovite välja logida?')) {
-    window.location.href = '/logout';
+    router.post('/logout');
   }
 };
 
