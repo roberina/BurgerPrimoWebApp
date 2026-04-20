@@ -4,8 +4,39 @@
 
     <main class="max-w-3xl mx-auto px-6 py-12">
 
+      <!-- ───── KOHALE TOIMETATUD ───── -->
+      <template v-if="order.status === 'completed'">
+        <div class="flex flex-col items-center justify-center py-20 text-center gap-6">
+          <!-- Animatsioon -->
+          <div class="relative">
+            <div class="text-9xl" style="filter: drop-shadow(0 0 32px rgba(34,197,94,0.5))">🎉</div>
+            <div class="absolute -top-3 -right-3 text-4xl animate-bounce" style="animation-delay:0.2s">🍔</div>
+            <div class="absolute -bottom-3 -left-3 text-3xl animate-bounce" style="animation-delay:0.5s">⭐</div>
+          </div>
+          <div class="space-y-3 mt-4">
+            <h1 class="text-4xl font-black text-white">Naudi oma sööki!</h1>
+            <p class="text-green-400 font-bold text-xl">Tellimus on kohale toimetatud ✓</p>
+            <p class="text-gray-500 text-sm max-w-xs mx-auto">
+              Tellimus <span class="font-mono text-[#D2691E] font-bold">{{ order.order_number }}</span>
+              on edukalt kätte toimetatud.
+            </p>
+          </div>
+          <div class="flex gap-3 mt-4 flex-wrap justify-center">
+            <a href="/menu"
+               class="px-6 py-3 rounded-2xl font-bold text-sm transition"
+               style="background: linear-gradient(135deg, #D2691E, #B8571A); color: white;">
+              Telli uuesti 🍔
+            </a>
+            <a href="/orders"
+               class="px-6 py-3 rounded-2xl font-bold text-sm bg-white/8 hover:bg-white/12 border border-white/10 text-gray-300 transition">
+              Minu tellimused
+            </a>
+          </div>
+        </div>
+      </template>
+
       <!-- ───── KOHALETOIMETAMINE: Bolt-laadne vaade ───── -->
-      <template v-if="order.status === 'delivering'">
+      <template v-else-if="order.status === 'delivering'">
 
         <!-- Suur kaart -->
         <div class="mb-4 rounded-2xl overflow-hidden shadow-2xl">
@@ -69,13 +100,13 @@
 
         <!-- Auto-refresh teade -->
         <p class="text-center text-xs text-gray-600 mb-4">
-          Asukoht uueneb automaatselt iga 15 sekundi järel
+          Asukoht uueneb automaatselt iga 3 sekundi järel
         </p>
 
       </template>
 
       <!-- ───── TAVALINE VAADE (kõik muud staatused) ───── -->
-      <template v-else>
+      <template v-else-if="order.status !== 'completed'">
 
       <!-- Success / Status Banner -->
       <div class="mb-8 rounded-2xl p-8 text-center"
@@ -228,6 +259,33 @@
       </template><!-- /v-else -->
 
     </main>
+
+    <!-- Kulleri kohalejõudmise teatis -->
+    <Transition name="arrived">
+      <div v-if="showArrivedBanner"
+           class="fixed inset-0 flex items-center justify-center"
+           style="z-index: 9999; background: rgba(0,0,0,0.88);"
+           @click="showArrivedBanner = false">
+        <div class="text-center rounded-3xl border border-green-500/30 p-10"
+             style="background: linear-gradient(135deg, #061206, #0a1f0a); max-width: 360px; width: 90%; box-shadow: 0 0 80px rgba(34,197,94,0.25);"
+             @click.stop>
+          <div class="text-8xl mb-2" style="filter: drop-shadow(0 0 40px rgba(34,197,94,0.8))">🛵</div>
+          <div class="text-5xl mb-4">🍔</div>
+          <h2 class="text-3xl font-black text-white mb-2">Kuller on kohal!</h2>
+          <p class="text-green-400 font-semibold text-lg mb-1">Sinu tellimus on saabunud</p>
+          <p class="text-gray-500 text-sm mb-8">
+            Tellimus <span class="font-mono text-[#D2691E] font-bold">{{ order.order_number }}</span>
+          </p>
+          <button
+            @click="showArrivedBanner = false"
+            class="w-full py-3 rounded-2xl font-bold text-white text-base transition hover:opacity-90"
+            style="background: linear-gradient(135deg, #16a34a, #15803d); box-shadow: 0 4px 20px rgba(22,163,74,0.4);">
+            Sain aru ✓
+          </button>
+        </div>
+      </div>
+    </Transition>
+
   </div>
 </template>
 
@@ -235,7 +293,7 @@
 import DeliveryMap from '@/components/DeliveryMap.vue';
 import AddressPickerMap from '@/components/AddressPickerMap.vue';
 import { Link, router } from '@inertiajs/vue3';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 const haversineKm = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
   const R = 6371;
@@ -281,6 +339,14 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+// Courier arrival notification
+const showArrivedBanner = ref(false);
+watch(() => props.order.status, (newStatus, oldStatus) => {
+  if (oldStatus === 'delivering' && newStatus === 'completed') {
+    showArrivedBanner.value = true;
+  }
+});
 
 // Delivery address picker (shown when address not yet set)
 const pickLat = ref<number | null>(null);
@@ -351,7 +417,7 @@ onMounted(() => {
   if (isActive.value) {
     refreshInterval = setInterval(() => {
       router.reload({ only: ['order'] });
-    }, 15000);
+    }, 3000);
   }
 });
 
@@ -394,3 +460,10 @@ const formatDate = (date: string): string => {
   });
 };
 </script>
+
+<style scoped>
+.arrived-enter-active { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.arrived-leave-active  { transition: all 0.25s ease; }
+.arrived-enter-from    { opacity: 0; transform: scale(0.7); }
+.arrived-leave-to      { opacity: 0; transform: scale(0.9); }
+</style>

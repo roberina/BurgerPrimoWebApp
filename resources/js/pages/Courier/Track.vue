@@ -78,6 +78,23 @@
       </div>
     </template>
 
+    <!-- ───── KOHALE TOIMETATUD ───── -->
+    <template v-else-if="phase === 'delivered'">
+      <div class="flex-1 flex flex-col items-center justify-center px-5 text-center gap-5">
+        <div class="relative">
+          <div class="text-8xl mb-2 animate-bounce">🏠</div>
+          <div class="absolute -top-2 -right-4 text-3xl animate-spin" style="animation-duration:3s">⭐</div>
+          <div class="absolute -bottom-2 -left-4 text-2xl animate-ping" style="animation-duration:2s">✨</div>
+        </div>
+        <div class="space-y-2 mt-4">
+          <h2 class="text-3xl font-black text-white">Tarne lõpetatud!</h2>
+          <p class="text-green-400 font-semibold text-lg">Suurepärane töö 🎉</p>
+          <p class="text-gray-400 text-sm mt-2">Tellimus <span class="font-mono text-[#D2691E] font-bold">{{ order.order_number }}</span> on edukalt kohale toimetatud.</p>
+        </div>
+        <div class="w-20 h-1 rounded-full mt-2" style="background: linear-gradient(90deg, #16a34a, #4ade80)"></div>
+      </div>
+    </template>
+
     <!-- ───── KEELDUTUD ───── -->
     <template v-else-if="phase === 'declined'">
       <div class="flex-1 flex flex-col items-center justify-center px-5 text-center gap-4">
@@ -114,10 +131,15 @@
             <span class="text-xs text-gray-300 truncate">{{ nextNavStep.name || 'Jätka' }}</span>
           </div>
 
-          <!-- Käsitsi režiim hoiatus -->
-          <div v-if="manualMode && !stopped" class="flex items-center gap-2 px-4 py-2 bg-orange-900/40 border-t border-orange-700/30">
-            <span class="text-sm">🛵</span>
-            <p class="text-xs text-orange-300">GPS pole saadaval — kliki kaardil oma asukohale</p>
+          <!-- GPS otsib -->
+          <div v-if="!isTracking && !stopped && !gpsError" class="flex items-center gap-2 px-4 py-2 bg-blue-900/30 border-t border-blue-700/20">
+            <span class="text-sm animate-pulse">📡</span>
+            <p class="text-xs text-blue-300">GPS asukoha otsimine...</p>
+          </div>
+          <!-- GPS viga -->
+          <div v-if="gpsError" class="flex items-center gap-2 px-4 py-2 bg-red-900/30 border-t border-red-700/20">
+            <span class="text-sm">⚠️</span>
+            <p class="text-xs text-red-300">{{ gpsError }}</p>
           </div>
         </div>
 
@@ -144,10 +166,6 @@
 
               <!-- Nupud -->
               <div class="flex flex-col gap-2">
-                <button v-if="manualMode && !stopped" @click="retryGps"
-                  class="w-10 h-10 rounded-full bg-blue-600/20 border border-blue-700/50 flex items-center justify-center text-blue-400 text-sm">
-                  🔄
-                </button>
                 <button v-if="!stopped" @click="stopTracking"
                   class="w-10 h-10 rounded-full bg-red-600/20 border border-red-800/50 flex items-center justify-center text-red-400 font-bold text-sm">
                   ✕
@@ -162,12 +180,37 @@
                 <span class="font-mono text-xs text-[#D2691E] font-bold mr-2">{{ order.order_number }}</span>
                 <span v-if="order.delivery_address" class="text-xs text-gray-400 truncate">{{ order.delivery_address }}</span>
               </div>
-              <div v-if="lastUpdate && !manualMode" class="text-right shrink-0">
+              <div v-if="lastUpdate" class="text-right shrink-0">
                 <span class="text-[10px] text-gray-600">±{{ Math.round(lastUpdate.accuracy) }}m</span>
               </div>
             </div>
 
-            <div v-if="stopped" class="text-center mt-3">
+            <!-- Kaugus sihtkohani -->
+            <div v-if="distToDestination !== null && distToDestination > 200 && !stopped"
+                 class="mt-2 text-center">
+              <span class="text-xs text-gray-500">
+                Sihtkohani ~{{ distToDestination >= 1000
+                  ? (distToDestination / 1000).toFixed(1) + ' km'
+                  : Math.round(distToDestination) + ' m' }}
+              </span>
+            </div>
+
+            <!-- Olen kohal nupp — ilmub kui <200m sihtkohast või pole koordinaate -->
+            <div v-if="(!order.delivery_lat || distToDestination !== null && distToDestination <= 200) && !stopped" class="mt-3">
+              <button
+                @click="markDelivered"
+                :disabled="markingDelivered"
+                class="w-full py-4 rounded-2xl font-black text-lg transition disabled:opacity-60"
+                style="background: linear-gradient(135deg, #16a34a, #15803d); color: white; box-shadow: 0 0 24px rgba(22,163,74,0.5);"
+              >
+                <span v-if="!markingDelivered" class="flex items-center justify-center gap-2">
+                  🏠 Olen kohal — tarne lõpetatud
+                </span>
+                <span v-else>...</span>
+              </button>
+            </div>
+
+            <div v-if="stopped && phase !== 'delivered'" class="text-center mt-3">
               <p class="text-sm text-gray-400">Jälgimine peatatud ✓</p>
             </div>
           </div>
@@ -202,10 +245,11 @@ const props = defineProps<{
   updateUrl: string;
   acceptUrl: string;
   declineUrl: string;
+  deliveredUrl: string;
 }>();
 
 // ─── Phase ────────────────────────────────────────────────
-type Phase = 'deciding' | 'tracking' | 'declined';
+type Phase = 'deciding' | 'tracking' | 'declined' | 'delivered';
 const phase = ref<Phase>('deciding');
 const deciding = ref(false);
 const decideError = ref('');
@@ -241,8 +285,8 @@ const declineOrder = async () => {
 // ─── Tracking ─────────────────────────────────────────────
 const mapContainer = ref<HTMLElement | null>(null);
 const isTracking = ref(false);
-const manualMode = ref(false);
 const stopped = ref(false);
+const gpsError = ref('');
 const lastUpdate = ref<{ lat: number; lng: number; accuracy: number } | null>(null);
 
 let map: any = null;
@@ -251,10 +295,22 @@ let routeLayer: any = null;
 let L: any = null;
 let watchId: number | null = null;
 let gpsTimeout: ReturnType<typeof setTimeout> | null = null;
-let manualInterval: ReturnType<typeof setInterval> | null = null;
 
 const etaMinutes = ref<number | null>(null);
 const etaDistance = ref<string | null>(null);
+const distToDestination = ref<number | null>(null);
+const markingDelivered = ref(false);
+
+const markDelivered = async () => {
+  markingDelivered.value = true;
+  try {
+    await fetch(props.deliveredUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    stopTracking();
+    phase.value = 'delivered';
+  } catch {
+    markingDelivered.value = false;
+  }
+};
 let lastRouteFetchLat = 0;
 let lastRouteFetchLng = 0;
 let lastRouteFetchTime = 0;
@@ -382,45 +438,19 @@ const fetchRoute = async (lat: number, lng: number) => {
   } catch { /* vaikne */ }
 };
 
-const RESTAURANT_LAT = 58.2517;
-const RESTAURANT_LNG = 22.4935;
 const SAAREMAA = { sw: [57.85, 21.50] as [number, number], ne: [58.75, 23.20] as [number, number] };
 
-const statusBadgeClass = computed(() => {
-  if (stopped.value)    return 'bg-gray-800 text-gray-400';
-  if (isTracking.value) return 'bg-green-900/40 text-green-400';
-  if (manualMode.value) return 'bg-orange-900/40 text-orange-400';
-  return 'bg-gray-800 text-gray-400';
-});
-const statusDotClass = computed(() => {
-  if (stopped.value)    return 'bg-gray-500';
-  if (isTracking.value) return 'bg-green-400 animate-pulse';
-  if (manualMode.value) return 'bg-orange-400 animate-pulse';
-  return 'bg-gray-500';
-});
-const statusLabel = computed(() => {
-  if (stopped.value)    return 'Peatatud';
-  if (isTracking.value) return 'GPS aktiivne';
-  if (manualMode.value) return 'Käsitsi';
-  return 'Ühendan...';
-});
 
-const makeCourierIcon = (draggable = false) =>
+const makeCourierIcon = () =>
   L.divIcon({
     html: `
       <div style="position:relative;width:48px;height:48px">
         <div style="position:absolute;inset:0;background:rgba(56,189,248,0.25);border-radius:50%;animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite"></div>
-        <div style="position:absolute;inset:6px;background:#0ea5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(14,165,233,0.6)${draggable ? ';cursor:grab' : ''}">🛵</div>
+        <div style="position:absolute;inset:6px;background:#0ea5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(14,165,233,0.6)">🛵</div>
       </div>
       <style>@keyframes ping{75%,100%{transform:scale(1.8);opacity:0}}</style>
     `,
     iconSize: [48, 48], iconAnchor: [24, 24], className: '',
-  });
-
-const makeRestaurantIcon = () =>
-  L.divIcon({
-    html: `<div style="font-size:28px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.8))">🍔</div>`,
-    iconSize: [32, 32], iconAnchor: [16, 16], className: '',
   });
 
 const makeHomeIcon = () =>
@@ -435,7 +465,7 @@ const makeHomeIcon = () =>
     iconSize: [44, 44], iconAnchor: [22, 22], className: '',
   });
 
-const initMap = async (lat: number, lng: number, isDraggable = false) => {
+const initMap = async (lat: number, lng: number) => {
   if (map || !mapContainer.value) return;
 
   await import('leaflet/dist/leaflet.css');
@@ -443,49 +473,21 @@ const initMap = async (lat: number, lng: number, isDraggable = false) => {
   L = leaflet.default;
 
   map = L.map(mapContainer.value, { zoomControl: false, attributionControl: false })
-    .setView([lat, lng], 14);
+    .setView([lat, lng], 16);
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     maxZoom: 19, subdomains: 'abcd',
   }).addTo(map);
-
-  L.marker([RESTAURANT_LAT, RESTAURANT_LNG], { icon: makeRestaurantIcon() })
-    .addTo(map).bindPopup('<strong>Burger Primo</strong>');
 
   const destLat = props.order.delivery_lat;
   const destLng = props.order.delivery_lng;
   if (destLat && destLng) {
     L.marker([destLat, destLng], { icon: makeHomeIcon() })
       .addTo(map).bindPopup(props.order.delivery_address ?? 'Sihtkoht');
-    map.fitBounds(
-      [[RESTAURANT_LAT, RESTAURANT_LNG], [destLat, destLng], [lat, lng]],
-      { padding: [50, 50] },
-    );
   }
 
-  courierMarker = L.marker([lat, lng], { icon: makeCourierIcon(isDraggable), draggable: isDraggable })
-    .addTo(map).bindPopup(isDraggable ? 'Lohista siia oma asukohale' : 'Sina oled siin');
-
-  if (isDraggable) {
-    courierMarker.on('dragend', () => {
-      const { lat: la, lng: ln } = courierMarker.getLatLng();
-      const cLat = Math.max(SAAREMAA.sw[0], Math.min(SAAREMAA.ne[0], la));
-      const cLng = Math.max(SAAREMAA.sw[1], Math.min(SAAREMAA.ne[1], ln));
-      courierMarker.setLatLng([cLat, cLng]);
-      sendLocation(cLat, cLng);
-      fetchRoute(cLat, cLng);
-    });
-    map.on('click', (e: any) => {
-      if (stopped.value) return;
-      const { lat: cLat, lng: cLng } = e.latlng;
-      if (cLat < SAAREMAA.sw[0] || cLat > SAAREMAA.ne[0] || cLng < SAAREMAA.sw[1] || cLng > SAAREMAA.ne[1]) return;
-      courierMarker.setLatLng([cLat, cLng]);
-      map.panTo([cLat, cLng], { animate: true, duration: 0.5 });
-      sendLocation(cLat, cLng);
-      fetchRoute(cLat, cLng);
-    });
-    courierMarker.openPopup();
-  }
+  courierMarker = L.marker([lat, lng], { icon: makeCourierIcon(), draggable: false })
+    .addTo(map);
 
   // Joonista marsruut kohe kaardi laadimisel
   fetchRoute(lat, lng);
@@ -494,77 +496,53 @@ const initMap = async (lat: number, lng: number, isDraggable = false) => {
 const updateMapPosition = (lat: number, lng: number) => {
   if (!map || !courierMarker) return;
   courierMarker.setLatLng([lat, lng]);
-  map.panTo([lat, lng], { animate: true, duration: 1 });
+  // Kaart järgib automaatselt kulleri asukohta
+  map.setView([lat, lng], map.getZoom(), { animate: true, duration: 0.8 });
 };
 
 const startTracking = () => {
-  if (!navigator.geolocation) { switchToManual(); return; }
-
-  gpsTimeout = setTimeout(() => {
-    if (!isTracking.value) switchToManual();
-  }, 8000);
+  if (!navigator.geolocation) return;
 
   watchId = navigator.geolocation.watchPosition(
     async (pos) => {
       if (gpsTimeout) { clearTimeout(gpsTimeout); gpsTimeout = null; }
-      if (manualMode.value) {
-        manualMode.value = false;
-        if (manualInterval) { clearInterval(manualInterval); manualInterval = null; }
-        courierMarker?.dragging?.disable();
-      }
       isTracking.value = true;
       const { latitude: lat, longitude: lng, accuracy, speed } = pos.coords;
       currentSpeed.value = speed !== null ? speed * 3.6 : null;
       lastUpdate.value = { lat, lng, accuracy };
-      if (!map) await initMap(lat, lng, false);
+      if (!map) await initMap(lat, lng);
       else updateMapPosition(lat, lng);
       updateNavStep(lat, lng);
       sendLocation(lat, lng);
       fetchRoute(lat, lng);
     },
-    () => {
-      if (gpsTimeout) { clearTimeout(gpsTimeout); gpsTimeout = null; }
-      if (!isTracking.value) switchToManual();
+    (err) => {
+      if (err.code === 1) {
+        const isHttp = location.protocol === 'http:' && location.hostname !== 'localhost';
+        gpsError.value = isHttp
+          ? 'GPS ei tööta HTTP saidil. Vaja on HTTPS-i.'
+          : 'Asukoha luba on keelatud. Luba brauseris selle saidi asukoht.';
+      } else if (err.code === 2) {
+        gpsError.value = 'GPS signaal puudub. Liigu õue või luba asukoht seadete kaudu.';
+      } else if (err.code === 3) {
+        gpsError.value = 'GPS aegus. Proovi uuesti.';
+      }
     },
-    { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 },
+    { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 },
   );
-};
-
-const switchToManual = async () => {
-  manualMode.value = true;
-  isTracking.value = false;
-  const startLat = RESTAURANT_LAT;
-  const startLng = RESTAURANT_LNG;
-  if (!map) await initMap(startLat, startLng, true);
-  else {
-    courierMarker?.dragging?.enable();
-    fetchRoute(startLat, startLng);
-  }
-  manualInterval = setInterval(() => {
-    if (stopped.value || !courierMarker) return;
-    const { lat, lng } = courierMarker.getLatLng();
-    sendLocation(lat, lng);
-  }, 30000);
-};
-
-const retryGps = () => {
-  if (manualInterval) { clearInterval(manualInterval); manualInterval = null; }
-  manualMode.value = false;
-  isTracking.value = false;
-  if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
-  startTracking();
 };
 
 const stopTracking = () => {
   if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
   if (gpsTimeout) { clearTimeout(gpsTimeout); gpsTimeout = null; }
-  if (manualInterval) { clearInterval(manualInterval); manualInterval = null; }
   isTracking.value = false;
-  manualMode.value = false;
   stopped.value = true;
 };
 
 const sendLocation = async (lat: number, lng: number) => {
+  if (props.order.delivery_lat && props.order.delivery_lng) {
+    distToDestination.value = haversineDist(lat, lng, props.order.delivery_lat, props.order.delivery_lng);
+  }
   try {
     await fetch(props.updateUrl, {
       method: 'POST',
@@ -598,14 +576,6 @@ const initPreviewMap = async () => {
     maxZoom: 19, subdomains: 'abcd',
   }).addTo(previewMap);
 
-  // Restorani marker
-  Lp.marker([RESTAURANT_LAT, RESTAURANT_LNG], {
-    icon: Lp.divIcon({
-      html: `<div style="font-size:22px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.8))">🍔</div>`,
-      iconSize: [26, 26], iconAnchor: [13, 13], className: '',
-    }),
-  }).addTo(previewMap);
-
   // Sihtkoha marker
   Lp.marker([destLat, destLng], {
     icon: Lp.divIcon({
@@ -620,10 +590,7 @@ const initPreviewMap = async () => {
     }),
   }).addTo(previewMap);
 
-  previewMap.fitBounds(
-    [[RESTAURANT_LAT, RESTAURANT_LNG], [destLat, destLng]],
-    { padding: [30, 30] },
-  );
+  previewMap.setView([destLat, destLng], 14);
 };
 
 onMounted(() => {
@@ -636,7 +603,6 @@ onMounted(() => {
 onUnmounted(() => {
   if (watchId !== null) navigator.geolocation.clearWatch(watchId);
   if (gpsTimeout) clearTimeout(gpsTimeout);
-  if (manualInterval) clearInterval(manualInterval);
   if (routeLayer) { routeLayer = null; }
   if (map) { map.remove(); map = null; }
   if (previewMap) { previewMap.remove(); previewMap = null; }

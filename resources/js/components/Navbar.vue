@@ -27,6 +27,8 @@ const navItems = [
   { label: 'Populaarsed',  href: '/#popular',        anchor: 'popular',       isMenuPage: false },
   { label: 'Meelelahutus', href: '/#entertainment',  anchor: 'entertainment', isMenuPage: false },
   { label: 'Kontakt',      href: '/#contact',        anchor: 'contact',       isMenuPage: false },
+  { label: 'Menüü',        href: '/menu',            anchor: null,            isMenuPage: true  },
+  { label: 'Tellimused',   href: '/orders',          anchor: null,            isMenuPage: true  },
   { label: 'Ehita burger', href: '/burger-builder',  anchor: null,            isMenuPage: true  },
 ]
 
@@ -141,38 +143,38 @@ const vClickOutside = {
     style="transition: transform 0.6s cubic-bezier(0.22,1,0.36,1), opacity 0.6s ease, background 0.4s ease, border 0.4s ease, box-shadow 0.4s ease;"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16 lg:h-20 gap-4">
+      <div class="flex items-center justify-between h-18 lg:h-22 gap-6" style="height:72px;">
 
         <!-- Logo -->
-        <Link href="/" class="group flex items-center gap-2.5 flex-shrink-0">
+        <Link href="/" class="group flex items-center gap-3 flex-shrink-0">
           <img
             src="/img/Logo45.png"
             alt="Burger Primo"
-            class="w-9 h-9 object-contain transition-all duration-400 group-hover:scale-110 group-hover:rotate-3"
+            class="w-11 h-11 object-contain transition-all duration-400 group-hover:scale-110 group-hover:rotate-3"
           />
-          <span class="text-base font-bold tracking-tight text-white hidden sm:block">
+          <span class="text-xl font-bold tracking-tight text-white hidden sm:block">
             Burger <span class="text-[#D2691E] transition-all duration-300 group-hover:text-[#E87E32]">Primo</span>
           </span>
         </Link>
 
         <!-- Desktop nav -->
-        <nav class="hidden lg:flex items-center gap-0">
+        <nav class="hidden lg:flex items-center gap-1">
           <template v-for="item in navItems" :key="item.href">
 
             <Link
               v-if="item.isMenuPage"
               :href="item.href"
-              class="relative px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200 group"
-              :class="isActive(item) ? 'text-white' : 'text-gray-500 hover:text-white'"
+              class="relative px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group"
+              :class="isActive(item) ? 'text-white' : 'text-gray-500 hover:text-gray-200'"
             >
               <span class="relative z-10">{{ item.label }}</span>
               <span
                 class="absolute inset-0 rounded-xl transition-all duration-200"
-                :class="isActive(item) ? 'bg-[#D2691E]/12' : 'bg-transparent group-hover:bg-white/5'"
+                :class="isActive(item) ? 'bg-white/6' : 'bg-transparent group-hover:bg-white/4'"
               />
               <span
                 v-if="isActive(item)"
-                class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#D2691E]"
+                class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#D2691E]/80"
               />
             </Link>
 
@@ -180,17 +182,17 @@ const vClickOutside = {
               v-else
               :href="item.href"
               @click="handleNavClick(item, $event)"
-              class="relative px-3 py-2 rounded-xl text-xs font-medium transition-all duration-200 group cursor-pointer"
-              :class="isActive(item) ? 'text-white' : 'text-gray-500 hover:text-white'"
+              class="relative px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group cursor-pointer"
+              :class="isActive(item) ? 'text-white' : 'text-gray-500 hover:text-gray-200'"
             >
               <span class="relative z-10">{{ item.label }}</span>
               <span
                 class="absolute inset-0 rounded-xl transition-all duration-200"
-                :class="isActive(item) ? 'bg-[#D2691E]/12' : 'bg-transparent group-hover:bg-white/5'"
+                :class="isActive(item) ? 'bg-white/6' : 'bg-transparent group-hover:bg-white/4'"
               />
               <span
                 v-if="isActive(item)"
-                class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#D2691E]"
+                class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#D2691E]/80"
               />
             </a>
 
@@ -198,29 +200,19 @@ const vClickOutside = {
         </nav>
 
         <!-- Right side -->
-        <div class="hidden lg:flex items-center gap-2 flex-shrink-0">
+        <div class="hidden lg:flex items-center gap-3 flex-shrink-0">
           <a href="https://wolt.com/en/est/kuressaare/restaurant/primo-burger" target="_blank" rel="noopener"
-            class="px-2.5 py-1 bg-[#00c2e0]/8 border border-[#00c2e0]/18 text-[#00c2e0] rounded-full text-xs font-bold hover:bg-[#00c2e0]/18 transition-all duration-200">Wolt</a>
+            class="px-3.5 py-1.5 bg-[#00c2e0]/10 border border-[#00c2e0]/22 text-[#00c2e0] rounded-full text-sm font-bold hover:bg-[#00c2e0]/20 transition-all duration-200">Wolt</a>
           <a href="https://food.bolt.eu/en-US/164/p/90859-primo-burger" target="_blank" rel="noopener"
-            class="px-2.5 py-1 bg-[#21c93d]/8 border border-[#21c93d]/18 text-[#21c93d] rounded-full text-xs font-bold hover:bg-[#21c93d]/18 transition-all duration-200">Bolt</a>
-          <div class="w-px h-5 bg-white/8 mx-1" />
-          <Link href="/menu"
-            class="px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200"
-            :class="page.url.startsWith('/menu') ? 'text-white bg-white/8' : 'text-gray-500 hover:text-white hover:bg-white/5'"
-          >Menüü</Link>
-          <Link v-if="user" href="/orders"
-            class="px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200"
-            :class="page.url.startsWith('/orders') ? 'text-white bg-white/8' : 'text-gray-500 hover:text-white hover:bg-white/5'"
-          >Tellimused</Link>
-          <div class="w-px h-5 bg-white/8 mx-1" />
+            class="px-3.5 py-1.5 bg-[#21c93d]/10 border border-[#21c93d]/22 text-[#21c93d] rounded-full text-sm font-bold hover:bg-[#21c93d]/20 transition-all duration-200">Bolt</a>
 
           <template v-if="user">
             <Link
               v-if="user.is_admin"
               href="/admin/dashboard"
-              class="btn-magnetic px-3 py-1.5 rounded-xl bg-yellow-500/8 border border-yellow-500/18 text-yellow-400 text-xs font-bold hover:bg-yellow-500/18 transition-all flex items-center gap-1.5"
+              class="px-4 py-2 rounded-xl bg-yellow-500/10 border border-yellow-500/22 text-yellow-400 text-sm font-bold hover:bg-yellow-500/20 transition-all flex items-center gap-2"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
@@ -230,12 +222,12 @@ const vClickOutside = {
             <div class="relative" v-click-outside="closeDropdown">
               <button
                 @click="dropdownOpen = !dropdownOpen"
-                class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-white/5 transition-all duration-200"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-white/6 transition-all duration-200"
               >
-                <div class="w-7 h-7 bg-gradient-to-br from-[#D2691E] to-[#8B3A00] rounded-full flex items-center justify-center text-white text-xs font-black shadow">
+                <div class="w-8 h-8 bg-gradient-to-br from-[#D2691E] to-[#8B3A00] rounded-full flex items-center justify-center text-white text-sm font-black shadow">
                   {{ user.name.charAt(0).toUpperCase() }}
                 </div>
-                <span class="text-sm font-medium text-gray-400">{{ user.name }}</span>
+                <span class="text-sm font-semibold text-gray-300">{{ user.name }}</span>
                 <svg
                   class="h-3 w-3 text-gray-600 transition-transform duration-200"
                   :class="{ 'rotate-180': dropdownOpen }"
@@ -272,6 +264,7 @@ const vClickOutside = {
               </Transition>
             </div>
           </template>
+
         </div>
 
         <!-- Mobile hamburger -->

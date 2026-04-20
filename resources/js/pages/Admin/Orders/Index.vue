@@ -2,7 +2,6 @@
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import DeliveryMap from '@/components/DeliveryMap.vue';
 import {
   Clock,
   Check,
@@ -848,18 +847,7 @@ const setFilter = (filter: string) => {
               </div>
             </div>
 
-            <div class="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <!-- Kaart -->
-              <div>
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Kulleri asukoht</p>
-                <DeliveryMap
-                  :courier-lat="order.courier_lat ?? null"
-                  :courier-lng="order.courier_lng ?? null"
-                  :courier-updated-at="order.courier_updated_at ?? null"
-                  height="280px"
-                />
-              </div>
-
+            <div class="p-6">
               <!-- Info + Actions -->
               <div class="flex flex-col justify-between">
                 <!-- Tooted -->

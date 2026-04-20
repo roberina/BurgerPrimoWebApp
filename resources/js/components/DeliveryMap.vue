@@ -174,6 +174,7 @@ watch(
     if (!map || !L || !lat || !lng) return;
     if (courierMarker) {
       courierMarker.setLatLng([lat, lng]);
+      map.setView([lat, lng], map.getZoom(), { animate: true, duration: 0.8 });
     } else {
       courierMarker = L.marker([lat, lng], { icon: makeCourierIcon() }).addTo(map).bindPopup('Kuller');
       const fitPoints: [number, number][] = [[lat, lng]];

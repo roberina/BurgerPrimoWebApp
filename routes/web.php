@@ -32,6 +32,9 @@ Route::post('/courier/accept/{token}', [CourierController::class, 'accept'])
 Route::post('/courier/decline/{token}', [CourierController::class, 'decline'])
     ->name('courier.decline')
     ->withoutMiddleware([$nocsrf]);
+Route::post('/courier/delivered/{token}', [CourierController::class, 'delivered'])
+    ->name('courier.delivered')
+    ->withoutMiddleware([$nocsrf]);
 
 Route::get('/', function () {
     $featuredItems = \App\Models\MenuItem::with('category')

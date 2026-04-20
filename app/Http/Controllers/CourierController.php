@@ -36,10 +36,11 @@ class CourierController extends Controller
                     'price'       => (float) $item->price,
                 ]),
             ],
-            'token'      => $token,
-            'updateUrl'  => url("/courier/location/{$token}"),
-            'acceptUrl'  => url("/courier/accept/{$token}"),
-            'declineUrl' => url("/courier/decline/{$token}"),
+            'token'        => $token,
+            'updateUrl'    => url("/courier/location/{$token}"),
+            'acceptUrl'    => url("/courier/accept/{$token}"),
+            'declineUrl'   => url("/courier/decline/{$token}"),
+            'deliveredUrl' => url("/courier/delivered/{$token}"),
         ]);
     }
 
@@ -70,6 +71,24 @@ class CourierController extends Controller
             'courier_lat'       => null,
             'courier_lng'       => null,
             'courier_updated_at' => null,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Courier marks the order as delivered.
+     */
+    public function delivered(string $token): JsonResponse
+    {
+        $order = Order::where('courier_token', $token)
+            ->whereIn('status', ['delivering'])
+            ->firstOrFail();
+
+        $order->update([
+            'status'             => 'completed',
+            'courier_token'      => null,
+            'courier_updated_at' => now(),
         ]);
 
         return response()->json(['success' => true]);
