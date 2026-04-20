@@ -205,8 +205,6 @@ const vClickOutside = {
             class="px-3.5 py-1.5 bg-[#00c2e0]/10 border border-[#00c2e0]/22 text-[#00c2e0] rounded-full text-sm font-bold hover:bg-[#00c2e0]/20 transition-all duration-200">Wolt</a>
           <a href="https://food.bolt.eu/en-US/164/p/90859-primo-burger" target="_blank" rel="noopener"
             class="px-3.5 py-1.5 bg-[#21c93d]/10 border border-[#21c93d]/22 text-[#21c93d] rounded-full text-sm font-bold hover:bg-[#21c93d]/20 transition-all duration-200">Bolt</a>
-          <div class="w-px h-6 bg-white/10 mx-0.5" />
-          <div class="w-px h-6 bg-white/10 mx-0.5" />
 
           <template v-if="user">
             <Link

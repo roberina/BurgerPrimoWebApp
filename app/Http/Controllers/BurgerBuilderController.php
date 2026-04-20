@@ -80,6 +80,10 @@ class BurgerBuilderController extends Controller
         $totalPrice = $burger->calculateTotalPrice();
         $burger->update(['total_price' => $totalPrice]);
 
+        if ($request->boolean('submit_for_review')) {
+            $burger->update(['status' => 'pending']);
+        }
+
         return redirect()->back()->with('success', 'Burger loodud edukalt!');
     }
 
@@ -112,6 +116,10 @@ class BurgerBuilderController extends Controller
         // Recalculate price
         $totalPrice = $burger->calculateTotalPrice();
         $burger->update(['total_price' => $totalPrice]);
+
+        if ($request->boolean('submit_for_review') && in_array($burger->status, ['draft', 'rejected', null])) {
+            $burger->update(['status' => 'pending', 'admin_note' => null]);
+        }
 
         return redirect()->back()->with('success', 'Burger uuendatud edukalt!');
     }

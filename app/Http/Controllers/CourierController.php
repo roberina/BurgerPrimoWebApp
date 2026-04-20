@@ -86,7 +86,7 @@ class CourierController extends Controller
             ->firstOrFail();
 
         $order->update([
-            'status'             => 'delivered',
+            'status'             => 'completed',
             'courier_token'      => null,
             'courier_updated_at' => now(),
         ]);
