@@ -134,30 +134,28 @@ const vClickOutside = {
     style="transition: transform 0.6s cubic-bezier(0.22,1,0.36,1), opacity 0.6s ease, background 0.4s ease, border 0.4s ease, box-shadow 0.4s ease;"
   >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-[1fr_auto_1fr] items-center h-16 lg:h-20">
+      <div class="flex items-center justify-between h-16 lg:h-20 lg:grid lg:grid-cols-[1fr_auto_1fr]">
 
-        <!-- Left: Logo + delivery -->
-        <div class="hidden lg:flex items-center gap-2.5">
+        <!-- Left: Logo + delivery (desktop) / Logo + hamburger (mobile) -->
+        <div class="flex items-center justify-between w-full lg:w-auto lg:justify-start lg:gap-2.5">
           <Link href="/" class="group flex items-center gap-2.5 shrink-0">
             <img src="/img/Logo45.png" alt="Burger Primo" class="w-9 h-9 object-contain transition-all duration-400 group-hover:scale-110 group-hover:rotate-3" />
             <span class="text-base font-bold tracking-tight text-white hidden sm:block">
               Burger <span class="text-[#D2691E] transition-all duration-300 group-hover:text-[#E87E32]">Primo</span>
             </span>
           </Link>
-          <div class="w-px h-5 bg-white/8" />
-          <a href="https://wolt.com/en/est/kuressaare/restaurant/primo-burger" target="_blank" rel="noopener"
-            class="btn-magnetic px-3 py-1.5 bg-[#00c2e0]/8 border border-[#00c2e0]/18 text-[#00c2e0] rounded-full text-xs font-bold hover:bg-[#00c2e0]/18 transition-all duration-200">Wolt</a>
-          <a href="https://food.bolt.eu/en-US/164/p/90859-primo-burger" target="_blank" rel="noopener"
-            class="btn-magnetic px-3 py-1.5 bg-[#21c93d]/8 border border-[#21c93d]/18 text-[#21c93d] rounded-full text-xs font-bold hover:bg-[#21c93d]/18 transition-all duration-200">Bolt Food</a>
+          <div class="hidden lg:flex items-center gap-2.5">
+            <div class="w-px h-5 bg-white/8" />
+            <a href="https://wolt.com/en/est/kuressaare/restaurant/primo-burger" target="_blank" rel="noopener"
+              class="btn-magnetic px-3 py-1.5 bg-[#00c2e0]/8 border border-[#00c2e0]/18 text-[#00c2e0] rounded-full text-xs font-bold hover:bg-[#00c2e0]/18 transition-all duration-200">Wolt</a>
+            <a href="https://food.bolt.eu/en-US/164/p/90859-primo-burger" target="_blank" rel="noopener"
+              class="btn-magnetic px-3 py-1.5 bg-[#21c93d]/8 border border-[#21c93d]/18 text-[#21c93d] rounded-full text-xs font-bold hover:bg-[#21c93d]/18 transition-all duration-200">Bolt Food</a>
+          </div>
+          <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 rounded-xl text-gray-500 hover:text-white hover:bg-white/6 transition-all z-10">
+            <svg v-if="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
         </div>
-
-        <!-- Mobile logo -->
-        <Link href="/" class="lg:hidden group flex items-center gap-2.5 shrink-0">
-          <img src="/img/Logo45.png" alt="Burger Primo" class="w-9 h-9 object-contain" />
-          <span class="text-base font-bold tracking-tight text-white hidden sm:block">
-            Burger <span class="text-[#D2691E]">Primo</span>
-          </span>
-        </Link>
 
         <!-- Center: nav -->
         <nav class="hidden lg:flex justify-center items-center gap-0.5">
@@ -253,11 +251,6 @@ const vClickOutside = {
           </template>
         </div>
 
-        <!-- Mobile hamburger -->
-        <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 rounded-xl text-gray-500 hover:text-white hover:bg-white/6 transition-all z-10 ml-auto">
-          <svg v-if="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-        </button>
       </div>
     </div>
 
@@ -291,7 +284,7 @@ const vClickOutside = {
           </div>
 
           <div class="pt-3 mt-2 border-t border-white/6 space-y-1">
-            <div class="px-4 pb-2">
+            <div class="px-4 pb-2 w-fit">
               <LanguageToggle />
             </div>
             <template v-if="user">
