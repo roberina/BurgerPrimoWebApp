@@ -78,8 +78,8 @@ const handleWheel = (e: WheelEvent) => {
   if (scrollRef.value) scrollRef.value.scrollTop += e.deltaY;
 };
 
-const onScrollRefMounted = (el: HTMLElement | null) => {
-  scrollRef.value = el;
+const onScrollRefMounted = (el: any) => {
+  scrollRef.value = el as HTMLElement | null;
   if (el) el.addEventListener('wheel', handleWheel, { passive: false });
 };
 
