@@ -46,12 +46,13 @@ class IngredientSeeder extends Seeder
         ];
 
         foreach ($ingredients as $ingredient) {
-            Ingredient::create([
-                'name' => $ingredient['name'],
-                'category' => $ingredient['category'],
-                'price' => $ingredient['price'],
-                'is_available' => true,
-            ]);
+            Ingredient::firstOrCreate(
+                ['name' => $ingredient['name'], 'category' => $ingredient['category']],
+                [
+                    'price' => $ingredient['price'],
+                    'is_available' => true,
+                ]
+            );
         }
     }
 }

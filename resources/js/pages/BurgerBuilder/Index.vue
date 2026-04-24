@@ -379,11 +379,34 @@ const error   = (msg: string) => showToast(msg, 'err');
 const normalizedIngredients = computed(() => {
   const raw = props.ingredients as any;
   if (!raw) return {};
-  if (!Array.isArray(raw)) return raw;
+
+  // Helper: deduplicate by name (keeps first/lowest-id occurrence)
+  const dedup = (arr: any[]) => {
+    const seen = new Set<string>();
+    return arr.filter((ing: any) => {
+      if (seen.has(ing.name)) return false;
+      seen.add(ing.name);
+      return true;
+    });
+  };
+
+  if (!Array.isArray(raw)) {
+    // Already grouped by category (object from Laravel groupBy)
+    const result: Record<string, any[]> = {};
+    Object.entries(raw).forEach(([cat, items]) => {
+      result[cat] = dedup(items as any[]);
+    });
+    return result;
+  }
+
+  // Flat array — group then dedup
   const result: Record<string, any[]> = {};
   raw.forEach((ing: any) => {
     if (!result[ing.category]) result[ing.category] = [];
     result[ing.category].push(ing);
+  });
+  Object.keys(result).forEach(cat => {
+    result[cat] = dedup(result[cat]);
   });
   return result;
 });

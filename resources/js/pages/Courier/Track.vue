@@ -92,6 +92,12 @@
           <p class="text-gray-400 text-sm mt-2">Tellimus <span class="font-mono text-[#D2691E] font-bold">{{ order.order_number }}</span> on edukalt kohale toimetatud.</p>
         </div>
         <div class="w-20 h-1 rounded-full mt-2" style="background: linear-gradient(90deg, #16a34a, #4ade80)"></div>
+        <button
+          @click="() => window.location.href = '/'"
+          class="mt-4 px-8 py-3 rounded-2xl font-bold text-white text-base transition hover:opacity-90"
+          style="background: linear-gradient(135deg, #374151, #1f2937); border: 1px solid rgba(255,255,255,0.1);">
+          Sulge ✕
+        </button>
       </div>
     </template>
 

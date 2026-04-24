@@ -16,7 +16,15 @@ class BurgerBuilderController extends Controller
 
     public function index(): Response
     {
+        // Use subquery to get only the first (lowest id) ingredient per unique name+category pair,
+        // avoiding duplicates caused by running both the seeder and the migration seed.
         $ingredients = Ingredient::where('is_available', true)
+            ->whereIn('id', function ($query) {
+                $query->selectRaw('MIN(id)')
+                    ->from('ingredients')
+                    ->where('is_available', true)
+                    ->groupBy('name', 'category');
+            })
             ->orderBy('category')
             ->orderBy('name')
             ->get()

@@ -265,7 +265,7 @@
       <div v-if="showArrivedBanner"
            class="fixed inset-0 flex items-center justify-center"
            style="z-index: 9999; background: rgba(0,0,0,0.88);"
-           @click="showArrivedBanner = false">
+           @click="dismissArrivedBanner">
         <div class="text-center rounded-3xl border border-green-500/30 p-10"
              style="background: linear-gradient(135deg, #061206, #0a1f0a); max-width: 360px; width: 90%; box-shadow: 0 0 80px rgba(34,197,94,0.25);"
              @click.stop>
@@ -277,7 +277,7 @@
             Tellimus <span class="font-mono text-[#D2691E] font-bold">{{ order.order_number }}</span>
           </p>
           <button
-            @click="showArrivedBanner = false"
+            @click="dismissArrivedBanner"
             class="w-full py-3 rounded-2xl font-bold text-white text-base transition hover:opacity-90"
             style="background: linear-gradient(135deg, #16a34a, #15803d); box-shadow: 0 4px 20px rgba(22,163,74,0.4);">
             Sain aru ✓
@@ -342,6 +342,11 @@ const props = defineProps<Props>();
 
 // Courier arrival notification
 const showArrivedBanner = ref(false);
+
+const dismissArrivedBanner = () => {
+  showArrivedBanner.value = false;
+};
+
 watch(() => props.order.status, (newStatus, oldStatus) => {
   if (oldStatus === 'delivering' && newStatus === 'completed') {
     showArrivedBanner.value = true;
@@ -412,6 +417,13 @@ const isActive = computed(() =>
 );
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
+
+watch(isActive, (active) => {
+  if (!active && refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+  }
+});
 
 onMounted(() => {
   if (isActive.value) {
