@@ -272,7 +272,7 @@ class CartController extends Controller
 
         $validated = $request->validate([
             'customer_notes' => 'nullable|string|max:500',
-            'delivery_method' => 'required|in:dine_in,takeaway',  // ADD THIS
+            'delivery_method' => 'required|in:dine_in,takeaway,delivery',
 
         ]);
 

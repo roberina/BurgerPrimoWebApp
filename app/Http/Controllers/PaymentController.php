@@ -21,7 +21,7 @@ class PaymentController extends Controller
             return redirect()->route('cart.index')->with('error', 'Teie ostukorv on tühi!');
         }
 
-        $deliveryMethod = $request->get('delivery_method', 'dine_in');
+        $deliveryMethod = $request->get('delivery_method', 'takeaway');
 
         // Calculate total from cart
         $cartItems = [];
@@ -75,7 +75,7 @@ class PaymentController extends Controller
     public function createIntent(Request $request)
     {
         $validated = $request->validate([
-            'delivery_method' => 'required|in:dine_in,takeaway',
+            'delivery_method' => 'required|in:dine_in,takeaway,delivery',
             'customer_notes' => 'nullable|string|max:500',
         ]);
 
@@ -137,11 +137,11 @@ class PaymentController extends Controller
     {
         $validated = $request->validate([
             'payment_intent_id' => 'required|string',
-            'delivery_method' => 'required|in:dine_in,takeaway',
+            'delivery_method' => 'required|in:dine_in,takeaway,delivery',
             'customer_notes' => 'nullable|string|max:500',
-            'delivery_lat'     => 'required_if:delivery_method,takeaway|nullable|numeric|between:57.85,58.75',
-            'delivery_lng'     => 'required_if:delivery_method,takeaway|nullable|numeric|between:21.50,23.20',
-            'delivery_address' => 'required_if:delivery_method,takeaway|nullable|string|max:500',
+            'delivery_lat'     => 'required_if:delivery_method,delivery|nullable|numeric|between:57.85,58.75',
+            'delivery_lng'     => 'required_if:delivery_method,delivery|nullable|numeric|between:21.50,23.20',
+            'delivery_address' => 'required_if:delivery_method,delivery|nullable|string|max:500',
         ]);
 
         try {

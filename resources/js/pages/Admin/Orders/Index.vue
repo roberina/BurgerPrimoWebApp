@@ -633,9 +633,9 @@ const setFilter = (filter: string) => {
 
               <!-- Delivery Method -->
               <div class="mt-3 flex items-center gap-2">
-                <component :is="order.delivery_method === 'dine_in' ? Home : ShoppingBag" :size="18" class="text-gray-400" />
+                <component :is="order.delivery_method === 'dine_in' ? Home : order.delivery_method === 'delivery' ? Bike : ShoppingBag" :size="18" class="text-gray-400" />
                 <span class="text-sm font-medium text-gray-300">
-                  {{ order.delivery_method === 'dine_in' ? 'Kohapeal' : 'Kaasa' }}
+                  {{ order.delivery_method === 'dine_in' ? 'Kohapeal' : order.delivery_method === 'delivery' ? 'Telli koju' : 'Kaasa' }}
                 </span>
               </div>
             </div>
@@ -734,7 +734,7 @@ const setFilter = (filter: string) => {
                 <div class="flex items-center gap-3">
                   <span class="text-xl font-bold text-white">#{{ order.order_number }}</span>
                   <span class="text-sm text-gray-300">{{ order.user.name }}</span>
-                  <component :is="order.delivery_method === 'dine_in' ? Home : ShoppingBag" :size="16" class="text-gray-400" />
+                  <component :is="order.delivery_method === 'dine_in' ? Home : order.delivery_method === 'delivery' ? Bike : ShoppingBag" :size="16" class="text-gray-400" />
                 </div>
                 <div class="flex items-center gap-3">
                   <span class="text-sm text-gray-400">{{ getTimeSince(order.created_at) }}</span>
@@ -805,7 +805,7 @@ const setFilter = (filter: string) => {
             <div class="bg-green-600/5 px-4 py-3 border-b border-gray-800">
               <div class="flex items-center justify-between">
                 <span class="text-lg font-bold text-green-500">#{{ order.order_number }}</span>
-                <component :is="order.delivery_method === 'dine_in' ? Home : ShoppingBag" :size="18" class="text-gray-400" />
+                <component :is="order.delivery_method === 'dine_in' ? Home : order.delivery_method === 'delivery' ? Bike : ShoppingBag" :size="18" class="text-gray-400" />
               </div>
               <p class="text-sm text-white mt-1">{{ order.user.name }}</p>
             </div>

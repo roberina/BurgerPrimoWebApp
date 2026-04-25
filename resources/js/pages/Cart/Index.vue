@@ -156,7 +156,7 @@
                 <span v-else>Kohaletoimetamine pole hetkel saadaval</span>
               </div>
 
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-3 gap-3">
                 <button type="button" @click="deliveryMethod = 'dine_in'" :class="deliveryMethod === 'dine_in' ? 'border-[#D2691E] bg-[#D2691E]/10 text-white' : 'border-white/8 text-gray-500 hover:border-white/20 hover:text-gray-300'" class="py-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                   <span class="text-xs font-semibold">Kohapeal</span>
@@ -164,6 +164,10 @@
                 <button type="button" @click="deliveryMethod = 'takeaway'" :class="deliveryMethod === 'takeaway' ? 'border-[#D2691E] bg-[#D2691E]/10 text-white' : 'border-white/8 text-gray-500 hover:border-white/20 hover:text-gray-300'" class="py-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                   <span class="text-xs font-semibold">Kaasa</span>
+                </button>
+                <button type="button" @click="deliveryMethod = 'delivery'" :class="deliveryMethod === 'delivery' ? 'border-[#D2691E] bg-[#D2691E]/10 text-white' : 'border-white/8 text-gray-500 hover:border-white/20 hover:text-gray-300'" class="py-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 22V12h6v10" /></svg>
+                  <span class="text-xs font-semibold">Telli koju</span>
                 </button>
               </div>
             </div>
@@ -228,7 +232,7 @@ const props = defineProps<{ cartItems: CartItem[]; total: number }>()
 const page = usePage()
 const deliveryStatus = computed(() => (page.props as any).deliveryStatus as { available: boolean; couriers: number; eta: string | null } | null)
 
-const deliveryMethod    = ref<'dine_in' | 'takeaway' | null>(null)
+const deliveryMethod    = ref<'dine_in' | 'takeaway' | 'delivery' | null>(null)
 const showDeliveryWarning = ref(false)
 
 const modal = ref({

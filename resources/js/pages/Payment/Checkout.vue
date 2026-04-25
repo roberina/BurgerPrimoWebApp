@@ -52,10 +52,13 @@
               <svg v-if="deliveryMethod === 'dine_in'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#D2691E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#D2691E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg v-else-if="deliveryMethod === 'takeaway'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#D2691E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
-              <span class="font-semibold">{{ deliveryMethod === 'dine_in' ? 'Kohapeal söön' : 'Võtan kaasa' }}</span>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#D2691E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 22V12h6v10" />
+              </svg>
+              <span class="font-semibold">{{ deliveryMethod === 'dine_in' ? 'Kohapeal söön' : deliveryMethod === 'takeaway' ? 'Võtan kaasa' : 'Telli koju' }}</span>
             </div>
           </div>
         </div>
@@ -65,7 +68,7 @@
           <h2 class="text-2xl font-bold mb-6">Makseandmed</h2>
 
           <!-- Delivery Address Picker (takeaway / home delivery) — KOHUSTUSLIK -->
-          <div v-if="deliveryMethod !== 'dine_in'" class="mb-6" ref="addressSection">
+          <div v-if="deliveryMethod === 'delivery'" class="mb-6" ref="addressSection">
             <label class="text-sm mb-3 flex items-center gap-2"
                    :class="addressError ? 'text-red-400' : 'text-gray-400'">
               🏠 <span>Sihtkoht</span>
@@ -164,7 +167,7 @@ interface Props {
   subtotal: number;
   packagingFee: number;
   total: number;
-  deliveryMethod: 'dine_in' | 'takeaway';
+  deliveryMethod: 'dine_in' | 'takeaway' | 'delivery';
   stripePublicKey: string;
 }
 
@@ -174,7 +177,7 @@ const page = usePage();
 const deliveryStatus = computed(() => (page.props as any).deliveryStatus as { available: boolean; couriers: number; eta: string | null } | null);
 const couriersAvailable = computed(() => deliveryStatus.value?.available ?? true);
 
-const deliveryMethod = ref<'dine_in' | 'takeaway'>(props.deliveryMethod);
+const deliveryMethod = ref<'dine_in' | 'takeaway' | 'delivery'>(props.deliveryMethod);
 const customerNotes = ref('');
 const processing = ref(false);
 const cardError = ref('');
@@ -226,7 +229,7 @@ onMounted(async () => {
 
 const handleSubmit = async () => {
   // Valideeri tarneaadress
-  if (deliveryMethod.value !== 'dine_in' && !deliveryAddress.value) {
+  if (deliveryMethod.value === 'delivery' && !deliveryAddress.value) {
     addressError.value = true;
     await nextTick();
     addressSection.value?.scrollIntoView({ behavior: 'smooth', block: 'center' });
