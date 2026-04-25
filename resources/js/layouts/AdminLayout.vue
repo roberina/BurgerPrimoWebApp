@@ -13,6 +13,9 @@ import {
   X,
   ClipboardList,
   Users,
+  Star,
+  Megaphone,
+  UtensilsCrossed,
 } from 'lucide-vue-next';
 
 const page = usePage();
@@ -56,6 +59,24 @@ const navigation = [
     url: '/admin/menu/items',
     icon: Package,
     isActive: currentPath.value.startsWith('/admin/menu/items'),
+  },
+  {
+    title: 'Menüü Lisandid',
+    url: '/admin/addons',
+    icon: UtensilsCrossed,
+    isActive: currentPath.value.startsWith('/admin/addons'),
+  },
+  {
+    title: 'Arvustused',
+    url: '/admin/reviews',
+    icon: Star,
+    isActive: currentPath.value.startsWith('/admin/reviews'),
+  },
+  {
+    title: 'Teadaanded',
+    url: '/admin/announcements',
+    icon: Megaphone,
+    isActive: currentPath.value.startsWith('/admin/announcements'),
   },
   {
     title: 'Kasutajad',

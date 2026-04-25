@@ -4,7 +4,7 @@
     <div class="page-bg-overlay" />
   </div>
 
-  <div class="page-root text-white">
+  <div class="page-root text-white pt-16 lg:pt-20">
     <Navbar />
 
     <!-- Confirm Modal -->

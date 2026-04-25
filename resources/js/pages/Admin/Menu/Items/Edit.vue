@@ -185,7 +185,7 @@
           <button
             type="submit"
             :disabled="form.processing"
-            class="flex-1 bg-[#D2691E] hover:bg-[#D2691E] disabled:opacity-40 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition"
+            class="flex-1 bg-[#D2691E] hover:bg-[#B8571A] disabled:opacity-40 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition"
           >
             {{ form.processing ? 'Salvestamine...' : (isEdit ? 'Salvesta muudatused' : 'Lisa toode') }}
           </button>

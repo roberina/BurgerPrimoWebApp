@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#0B0B0B] text-white">
+  <div class="min-h-screen bg-[#0B0B0B] text-white pt-16 lg:pt-20">
     <!-- Navbar -->
     <Navbar :cartCount="cartItems.length" />
 
