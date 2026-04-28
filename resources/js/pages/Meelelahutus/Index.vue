@@ -18,7 +18,15 @@ defineProps<{ announcements?: Announcement[] }>()
 </script>
 
 <template>
-  <Head title="Meelelahutus — Burger Primo" />
+  <Head title="Meelelahutus — Burger Primo">
+    <meta name="description" content="Vaata Burger Primo meelelahutust – üritused, muusika ja lõbus õhkkond Kuressaares." head-key="description" />
+    <meta name="robots" content="index, follow" head-key="robots" />
+    <meta property="og:title" content="Meelelahutus — Burger Primo" head-key="og:title" />
+    <meta property="og:description" content="Vaata Burger Primo meelelahutust – üritused, muusika ja lõbus õhkkond Kuressaares." head-key="og:description" />
+    <meta property="og:type" content="website" head-key="og:type" />
+    <meta property="og:url" content="https://burgerprimo.ee/meelelahutus" head-key="og:url" />
+    <meta property="og:image" content="/img/Logo45.png" head-key="og:image" />
+  </Head>
 
   <div class="min-h-screen bg-[#0B0B0B] text-white">
     <Navbar />

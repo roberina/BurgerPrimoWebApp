@@ -63,7 +63,7 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 mb-8">
       <div class="px-6 py-10 md:px-12 md:py-12">
         <div class="text-center space-y-4">
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-yellow-500/25 bg-yellow-500/8 text-yellow-400 text-xs font-bold uppercase tracking-[0.22em]">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-yellow-500/25 bg-yellow-500/25 text-yellow-200 text-xs font-bold uppercase tracking-[0.22em]">
             {{ t('reviews.badge') }}
           </div>
           <h2 :ref="(el) => headingRef = el as any" class="text-3xl md:text-5xl font-bold text-white">
@@ -76,7 +76,6 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
       </div>
     </div>
 
-    <!-- Dual marquee -->
     <template v-if="displayReviews.length >= 4">
       <div class="relative w-full mb-4 overflow-hidden">
         <div class="pointer-events-none absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-black/80 to-transparent z-10" />
@@ -84,7 +83,7 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
         <div class="flex gap-4 scroll-track">
           <div v-for="(review, i) in scrollReviews1" :key="`r1-${i}`" class="flex-shrink-0 w-72 glass-card p-5 hover:border-[#D2691E]/22 transition-colors duration-300 group">
             <div class="flex gap-0.5 mb-3">
-              <span v-for="j in 5" :key="j" class="text-sm transition-transform duration-150 group-hover:scale-110" :class="j <= review.rating ? 'text-yellow-400' : 'text-gray-700'" :style="{ transitionDelay: `${j * 30}ms` }">★</span>
+              <span v-for="j in 5" :key="j" class="text-sm transition-transform duration-150 group-hover:scale-110" :class="j <= review.rating ? 'text-yellow-400' : 'text-gray-600'" :style="{ transitionDelay: `${j * 30}ms` }">★</span>
             </div>
             <p class="text-gray-300 text-xs leading-relaxed line-clamp-3 mb-3">{{ review.content }}</p>
             <div class="flex items-center gap-2">
@@ -101,8 +100,8 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
         <div class="pointer-events-none absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-black/80 to-transparent z-10" />
         <div class="flex gap-4 scroll-track-reverse">
           <div v-for="(review, i) in scrollReviews2" :key="`r2-${i}`" class="flex-shrink-0 w-64 glass-card p-4 hover:border-[#D2691E]/15 transition-colors duration-300">
-            <div class="flex gap-0.5 mb-2"><span v-for="j in 5" :key="j" class="text-xs" :class="j <= review.rating ? 'text-yellow-400' : 'text-gray-700'">★</span></div>
-            <p class="text-gray-500 text-xs leading-relaxed line-clamp-2 mb-2">{{ review.content }}</p>
+            <div class="flex gap-0.5 mb-2"><span v-for="j in 5" :key="j" class="text-xs" :class="j <= review.rating ? 'text-yellow-400' : 'text-gray-600'">★</span></div>
+            <p class="text-gray-400 text-xs leading-relaxed line-clamp-2 mb-2">{{ review.content }}</p>
             <span class="text-xs text-gray-600">— {{ review.name }}</span>
           </div>
         </div>
@@ -114,7 +113,7 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
       <div class="max-w-6xl mx-auto px-4 sm:px-6 mb-8">
         <div :ref="(el) => staticGridRef = el as any" class="hidden md:grid grid-cols-1 md:grid-cols-3 gap-4">
           <div v-for="(review) in displayReviews" :key="review.id" data-stagger class="glass-card p-6 hover:border-[#D2691E]/20 transition-colors duration-300 group">
-            <div class="flex gap-1 mb-4"><span v-for="j in 5" :key="j" class="text-lg group-hover:scale-110 transition-transform duration-150" :class="j <= review.rating ? 'text-yellow-400' : 'text-gray-700'" :style="{ transitionDelay: `${j * 40}ms` }">★</span></div>
+            <div class="flex gap-1 mb-4"><span v-for="j in 5" :key="j" class="text-lg group-hover:scale-110 transition-transform duration-150" :class="j <= review.rating ? 'text-yellow-400' : 'text-gray-600'" :style="{ transitionDelay: `${j * 40}ms` }">★</span></div>
             <p class="text-gray-300 text-sm leading-relaxed mb-4">{{ review.content }}</p>
             <div class="flex items-center gap-2.5">
               <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#D2691E]/25 to-[#8B3A00]/25 flex items-center justify-center border border-[#D2691E]/20"><span class="text-[#D2691E] font-black text-sm">{{ review.name.charAt(0).toUpperCase() }}</span></div>
@@ -128,16 +127,16 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
             <div class="flex transition-transform duration-500" :style="{ transform: `translateX(-${reviewSlide * 100}%)` }">
               <div v-for="review in displayReviews" :key="review.id" class="w-full flex-shrink-0">
                 <div class="glass-card p-6">
-                  <div class="flex gap-1 mb-4"><span v-for="j in 5" :key="j" class="text-lg" :class="j <= review.rating ? 'text-yellow-400' : 'text-gray-700'">★</span></div>
+                  <div class="flex gap-1 mb-4"><span v-for="j in 5" :key="j" class="text-lg" :class="j <= review.rating ? 'text-yellow-400' : 'text-gray-600'">★</span></div>
                   <p class="text-gray-300 text-sm leading-relaxed mb-4">{{ review.content }}</p>
                   <div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-full bg-[#D2691E]/15 flex items-center justify-center"><span class="text-[#D2691E] font-black text-sm">{{ review.name.charAt(0).toUpperCase() }}</span></div><span class="text-sm text-gray-400 font-medium">{{ review.name }}</span></div>
                 </div>
               </div>
             </div>
           </div>
-          <button v-if="total > 1" @click="prevSlide" class="absolute -left-3 top-1/2 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
-          <button v-if="total > 1" @click="nextSlide" class="absolute -right-3 top-1/2 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></button>
-          <div class="flex justify-center gap-1.5 mt-4"><button v-for="(_, i) in displayReviews" :key="i" @click="reviewSlide = i" class="h-1.5 rounded-full transition-all duration-300" :class="reviewSlide === i ? 'w-5 bg-[#D2691E]' : 'w-1.5 bg-white/20'" /></div>
+          <button v-if="total > 1" @click="prevSlide" aria-label="Eelmine arvustus" class="absolute -left-3 top-1/2 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
+          <button v-if="total > 1" @click="nextSlide" aria-label="Järgmine arvustus" class="absolute -right-3 top-1/2 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></button>
+          <div class="flex justify-center gap-1.5 mt-4"><button v-for="(_, i) in displayReviews" :key="i" @click="reviewSlide = i" :aria-label="`Arvustus ${i + 1}`" :aria-current="reviewSlide === i ? 'true' : undefined" class="h-1.5 rounded-full transition-all duration-300" :class="reviewSlide === i ? 'w-5 bg-[#D2691E]' : 'w-1.5 bg-white/20'" /></div>
         </div>
       </div>
     </template>
@@ -147,7 +146,6 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
       <p class="text-gray-500 mt-2">{{ t('reviews.empty') }}</p>
     </div>
 
-    <!-- CTA -->
     <div :ref="(el) => ctaRef = el as any" class="flex justify-center">
       <button
         @click="reviewModalOpen = true"
@@ -160,7 +158,6 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
       </button>
     </div>
 
-    <!-- Modal -->
     <Teleport to="body">
       <Transition enter-active-class="transition duration-250 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
         <div v-if="reviewModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -193,7 +190,7 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
                     <div>
                       <label class="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">{{ t('reviews.modal.rating') }} <span class="text-[#D2691E]">*</span></label>
                       <div class="flex gap-1">
-                        <button v-for="star in 5" :key="star" type="button" @click="formData.rating = star" @mouseenter="hoveredStar = star" @mouseleave="hoveredStar = 0" class="text-2xl transition-all duration-100 hover:scale-125" :class="star <= (hoveredStar || formData.rating) ? 'text-yellow-400' : 'text-gray-700'">★</button>
+                        <button v-for="star in 5" :key="star" type="button" @click="formData.rating = star" @mouseenter="hoveredStar = star" @mouseleave="hoveredStar = 0" class="text-2xl transition-all duration-100 hover:scale-125" :class="star <= (hoveredStar || formData.rating) ? 'text-yellow-400' : 'text-gray-600'">★</button>
                       </div>
                     </div>
                     <div>

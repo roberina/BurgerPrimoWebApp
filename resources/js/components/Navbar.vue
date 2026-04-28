@@ -10,13 +10,11 @@ interface User {
   name: string
   email: string
   is_admin: boolean
-  is_courier: boolean
 }
 
 const page = usePage()
-const user           = computed(() => page.props.auth?.user as User | null)
-const cartCount      = computed(() => (page.props as any).cartCount as number ?? 0)
-const deliveryStatus = computed(() => (page.props as any).deliveryStatus as { available: boolean; couriers: number; eta: string | null } | null)
+const user      = computed(() => page.props.auth?.user as User | null)
+const cartCount = computed(() => (page.props as any).cartCount as number ?? 0)
 const { t } = useI18n()
 
 const dropdownOpen   = ref(false)
@@ -153,7 +151,7 @@ const vClickOutside = {
             <a href="https://food.bolt.eu/en-US/164/p/90859-primo-burger" target="_blank" rel="noopener"
               class="btn-magnetic px-3 py-1.5 bg-[#21c93d]/8 border border-[#21c93d]/18 text-[#21c93d] rounded-full text-xs font-bold hover:bg-[#21c93d]/18 transition-all duration-200">Bolt Food</a>
           </div>
-          <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 rounded-xl text-gray-500 hover:text-white hover:bg-white/6 transition-all z-10">
+          <button @click="mobileMenuOpen = !mobileMenuOpen" :aria-label="mobileMenuOpen ? 'Sulge menüü' : 'Ava menüü'" :aria-expanded="mobileMenuOpen" class="lg:hidden p-2 rounded-xl text-gray-500 hover:text-white hover:bg-white/6 transition-all z-10">
             <svg v-if="!mobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
             <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
@@ -215,11 +213,6 @@ const vClickOutside = {
           <div class="w-px h-5 bg-white/8 mx-0.5" />
 
           <template v-if="user">
-            <Link v-if="user.is_courier && !user.is_admin" href="/courier/dashboard"
-              class="btn-magnetic px-3 py-1.5 rounded-xl bg-cyan-500/8 border border-cyan-500/18 text-cyan-400 text-xs font-bold hover:bg-cyan-500/18 transition-all flex items-center gap-1.5">
-              🛵 Kulleri töölaud
-            </Link>
-
             <Link v-if="user.is_admin" href="/admin/dashboard"
               class="btn-magnetic px-3 py-1.5 rounded-xl bg-yellow-500/8 border border-yellow-500/18 text-yellow-400 text-xs font-bold hover:bg-yellow-500/18 transition-all flex items-center gap-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -296,7 +289,6 @@ const vClickOutside = {
             </div>
             <template v-if="user">
               <p class="px-4 py-1 text-[10px] text-gray-700 uppercase tracking-wider font-bold">Konto</p>
-              <Link v-if="user.is_courier && !user.is_admin" href="/courier/dashboard" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm font-medium text-cyan-400 bg-cyan-500/6 hover:bg-cyan-500/12 transition-all">🛵 Kulleri töölaud</Link>
               <Link v-if="user.is_admin" href="/admin/dashboard" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm font-medium text-yellow-400 bg-yellow-500/6 hover:bg-yellow-500/12 transition-all">⚙️ Admin Dashboard</Link>
               <Link href="/settings/profile" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-all">👤 {{ t('nav.profile') }}</Link>
               <Link href="/logout" method="post" as="button" @click="mobileMenuOpen = false" class="block w-full text-left px-4 py-3 rounded-xl text-sm text-red-500 hover:bg-red-500/8 transition-all">🚪 {{ t('nav.logout') }}</Link>

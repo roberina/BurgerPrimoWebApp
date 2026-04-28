@@ -1,6 +1,12 @@
 <template>
-  <Head title="Menüü">
+  <Head title="Menüü — Burger Primo">
     <meta name="description" content="Vaata Burger Primo täielikku menüüd – burgerid, snäkid, joogid ja palju muud. Telli juba täna!" head-key="description" />
+    <meta name="robots" content="index, follow" head-key="robots" />
+    <meta property="og:title" content="Menüü — Burger Primo" head-key="og:title" />
+    <meta property="og:description" content="Vaata Burger Primo täielikku menüüd – burgerid, snäkid, joogid ja palju muud. Telli juba täna!" head-key="og:description" />
+    <meta property="og:type" content="website" head-key="og:type" />
+    <meta property="og:url" content="https://burgerprimo.ee/menu" head-key="og:url" />
+    <meta property="og:image" content="/img/Logo45.png" head-key="og:image" />
   </Head>
   <div class="bg-[#0B0B0B] text-white pt-16 lg:pt-20">
     <Navbar />

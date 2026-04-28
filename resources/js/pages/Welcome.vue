@@ -46,7 +46,15 @@ defineProps<{
 </script>
 
 <template>
-  <Head title="Avaleht" />
+  <Head title="Burger Primo — Parimad burgerid Kuressaares">
+    <meta name="description" content="Burger Primo pakub käsitsi valmistatud burgereid, krõbedaid snäkke ja maitsvaid jooke Kuressaares. Telli kohale või tule kohale!" head-key="description" />
+    <meta name="robots" content="index, follow" head-key="robots" />
+    <meta property="og:title" content="Burger Primo — Parimad burgerid Kuressaares" head-key="og:title" />
+    <meta property="og:description" content="Burger Primo pakub käsitsi valmistatud burgereid, krõbedaid snäkke ja maitsvaid jooke Kuressaares. Telli kohale või tule kohale!" head-key="og:description" />
+    <meta property="og:type" content="website" head-key="og:type" />
+    <meta property="og:url" content="https://burgerprimo.ee" head-key="og:url" />
+    <meta property="og:image" content="/img/Logo45.png" head-key="og:image" />
+  </Head>
 
   <div class="page-bg" aria-hidden="true">
     <div class="page-bg-img" />
