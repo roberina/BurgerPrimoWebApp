@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
+use App\Services\PushNotificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,10 +17,18 @@ class AnnouncementController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, PushNotificationService $push)
     {
         $data = $this->validated($request);
-        Announcement::create($data);
+        $announcement = Announcement::create($data);
+
+        if ($announcement->is_active) {
+            rescue(fn () => $push->sendToAll(
+                $announcement->title,
+                $announcement->message,
+            ));
+        }
+
         return back()->with('success', 'Teadaanne lisatud!');
     }
 

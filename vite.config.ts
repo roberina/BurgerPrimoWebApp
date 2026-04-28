@@ -26,6 +26,9 @@ export default defineConfig({
             },
         }),
         VitePWA({
+            strategies: 'injectManifest',
+            srcDir: 'resources/js',
+            filename: 'sw.js',
             registerType: 'autoUpdate',
             manifest: {
                 name: 'Burger Primo',
@@ -51,9 +54,9 @@ export default defineConfig({
                     }
                 ]
             },
-            workbox: {
-                globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}']
-            }
+            injectManifest: {
+                globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+            },
         }),
     ],
 });

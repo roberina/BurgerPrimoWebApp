@@ -78,4 +78,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class, 'courier_user_id');
     }
+
+    public function pushSubscriptions(): HasMany
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
 }
