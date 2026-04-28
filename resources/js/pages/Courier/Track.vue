@@ -228,7 +228,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { router } from '@inertiajs/vue3';
 
 interface OrderItem {
   burger_name: string;
@@ -275,11 +276,31 @@ const authHeaders = () => ({
   'X-CSRF-TOKEN': csrfToken(),
 });
 
+let decidingPoll: ReturnType<typeof setInterval> | null = null;
+
+const stopDecidingPoll = () => {
+  if (decidingPoll) { clearInterval(decidingPoll); decidingPoll = null; }
+};
+
+watch(() => props.order.status, (newStatus) => {
+  if (phase.value === 'deciding' && newStatus !== 'awaiting_courier') {
+    stopDecidingPoll();
+    decideError.value = 'Tellimus on teise kulleri poolt võetud.';
+    setTimeout(() => { window.location.href = props.dashboardUrl ?? '/'; }, 2000);
+  }
+});
+
 const acceptOrder = async () => {
+  stopDecidingPoll();
   deciding.value = true;
   decideError.value = '';
   try {
-    await fetch(props.acceptUrl, { method: 'POST', headers: authHeaders() });
+    const res = await fetch(props.acceptUrl, { method: 'POST', headers: authHeaders() });
+    if (res.status === 409) {
+      decideError.value = 'Tellimus on juba teise kulleri poolt võetud.';
+      setTimeout(() => { window.location.href = props.dashboardUrl ?? '/'; }, 2000);
+      return;
+    }
     phase.value = 'tracking';
     setTimeout(() => startTracking(), 100);
   } catch {
@@ -289,6 +310,7 @@ const acceptOrder = async () => {
 };
 
 const declineOrder = async () => {
+  stopDecidingPoll();
   deciding.value = true;
   decideError.value = '';
   try {
@@ -616,13 +638,18 @@ const initPreviewMap = async () => {
 };
 
 onMounted(() => {
-  // Initsialiseeri preview kaart kui sihtkoord on olemas
   if (props.order.delivery_lat && props.order.delivery_lng) {
     setTimeout(() => initPreviewMap(), 50);
+  }
+  if (phase.value === 'deciding') {
+    decidingPoll = setInterval(() => {
+      router.reload({ only: ['order'] });
+    }, 3000);
   }
 });
 
 onUnmounted(() => {
+  stopDecidingPoll();
   if (watchId !== null) navigator.geolocation.clearWatch(watchId);
   if (gpsTimeout) clearTimeout(gpsTimeout);
   if (routeLayer) { routeLayer = null; }

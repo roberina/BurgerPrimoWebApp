@@ -15,7 +15,7 @@ class OrderController extends Controller
     public function index(Request $request): Response
     {
 
-        $query = Order::with(['user', 'items', 'confirmedBy']);
+        $query = Order::with(['user', 'items', 'confirmedBy', 'courierUser']);
 
         // Filter by status
         if ($request->has('status') && $request->status !== 'all') {
@@ -29,20 +29,15 @@ class OrderController extends Controller
             'confirmed' => Order::where('status', 'confirmed')->count(),
             'preparing' => Order::where('status', 'preparing')->count(),
             'ready' => Order::where('status', 'ready')->count(),
+            'awaiting_courier' => Order::where('status', 'awaiting_courier')->count(),
             'delivering' => Order::where('status', 'delivering')->count(),
             'completed' => Order::where('status', 'completed')->count(),
         ];
-
-        $couriers = User::where('is_courier', true)->orWhere('is_admin', true)
-            ->select('id', 'name', 'email')
-            ->orderBy('name')
-            ->get();
 
         return Inertia::render('Admin/Orders/Index', [
             'orders' => $orders,
             'stats' => $stats,
             'filters' => $request->only('status'),
-            'couriers' => $couriers,
         ]);
     }
 
@@ -60,7 +55,7 @@ class OrderController extends Controller
     {
 
         $validated = $request->validate([
-            'status' => 'required|in:pending,confirmed,preparing,ready,delivering,completed,cancelled',
+            'status' => 'required|in:pending,confirmed,preparing,ready,awaiting_courier,delivering,completed,cancelled',
             'admin_notes' => 'nullable|string|max:500',
         ]);
 
@@ -161,19 +156,15 @@ public function reject(Request $request, Order $order)
     public function startDelivery(Request $request, Order $order)
     {
         if ($order->status !== 'ready') {
-            return redirect()->back()->with('error', 'Ainult valmis tellimusi saab kohale toimetada.');
+            return redirect()->back()->with('error', 'Ainult valmis tellimusi saab kullerile saata.');
         }
 
-        $validated = $request->validate([
-            'courier_user_id' => 'required|exists:users,id',
-        ]);
-
         $order->update([
-            'status'          => 'delivering',
-            'courier_user_id' => $validated['courier_user_id'],
+            'status'          => 'awaiting_courier',
+            'courier_user_id' => null,
         ]);
 
-        return redirect()->back()->with('success', 'Kuller määratud.');
+        return redirect()->back()->with('success', 'Tellimus saadetud kulleritele.');
     }
 
     /**

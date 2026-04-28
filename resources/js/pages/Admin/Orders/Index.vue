@@ -81,18 +81,13 @@ interface Order {
   courier_lat?: number | null;
   courier_lng?: number | null;
   courier_updated_at?: string | null;
+  courier_user?: { id: number; name: string; email: string } | null;
 }
 
 interface PaginationLink {
   url: string | null;
   label: string;
   active: boolean;
-}
-
-interface Courier {
-  id: number;
-  name: string;
-  email: string;
 }
 
 interface Props {
@@ -102,17 +97,9 @@ interface Props {
   };
   stats?: any;
   filters?: any;
-  couriers?: Courier[];
 }
 
 const props = defineProps<Props>();
-
-const selectedCourierPerOrder = reactive<Record<number, number | null>>({});
-
-const startDeliveryWithCourier = (orderId: number) => {
-  const courierId = selectedCourierPerOrder[orderId] ?? null;
-  router.post(`/admin/orders/${orderId}/start-delivery`, { courier_user_id: courierId }, { preserveScroll: true });
-};
 
 const orderStatuses = reactive<Record<number, string>>({});
 const activeFilter = ref<string>('all');
@@ -134,7 +121,7 @@ const filteredOrders = computed(() => {
   
   if (activeFilter.value === 'active') {
     return props.orders.data.filter(o =>
-      ['pending', 'confirmed', 'preparing', 'ready', 'delivering'].includes(o.status),
+      ['pending', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'delivering'].includes(o.status),
     );
   }
   
@@ -155,6 +142,8 @@ const preparingOrders = computed(() =>
 );
 
 const readyOrders = computed(() => props.orders.data.filter((o) => o.status === 'ready'));
+
+const awaitingCourierOrders = computed(() => props.orders.data.filter((o) => o.status === 'awaiting_courier'));
 
 const deliveringOrders = computed(() => props.orders.data.filter((o) => o.status === 'delivering'));
 
@@ -572,6 +561,7 @@ const setFilter = (filter: string) => {
              activeFilter === 'confirmed' ? 'Kinnitatud tellimused' :
              activeFilter === 'preparing' ? 'Valmistamisel' :
              activeFilter === 'ready' ? 'Valmis tellimused' :
+             activeFilter === 'awaiting_courier' ? 'Ootab kullerit' :
              activeFilter === 'delivering' ? 'Kohaletoimetamisel' : '' }}
         </span>
         <span class="text-sm text-gray-400">({{ filteredOrders.length }})</span>
@@ -819,24 +809,62 @@ const setFilter = (filter: string) => {
                 >
                   Märgi täidetuks
                 </button>
-                <div class="flex-1 flex flex-col gap-1.5">
-                  <select
-                    v-model="selectedCourierPerOrder[order.id]"
-                    class="w-full bg-[#0f0f0f] border border-white/10 text-white text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-cyan-500/50"
-                  >
-                    <option :value="undefined" disabled>— Vali kuller —</option>
-                    <option v-for="c in (props.couriers ?? [])" :key="c.id" :value="c.id">{{ c.name }}</option>
-                  </select>
-                  <button
-                    @click="startDeliveryWithCourier(order.id)"
-                    :disabled="!selectedCourierPerOrder[order.id]"
-                    class="w-full bg-cyan-600/20 hover:bg-cyan-600 border border-cyan-700/50 hover:border-cyan-600 text-cyan-400 hover:text-white px-3 py-2 rounded-lg font-semibold transition text-sm flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-cyan-600/20 disabled:hover:text-cyan-400"
-                  >
-                    <Bike :size="15" />
-                    Saada kulleriga
-                  </button>
+                <button
+                  v-if="order.delivery_method === 'delivery'"
+                  @click="startDelivery(order.id)"
+                  class="flex-1 bg-cyan-600/20 hover:bg-cyan-600 border border-cyan-700/50 hover:border-cyan-600 text-cyan-400 hover:text-white px-3 py-2 rounded-lg font-semibold transition text-sm flex items-center justify-center gap-1.5"
+                >
+                  <Bike :size="15" />
+                  Saada kulleriga
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AWAITING COURIER ORDERS -->
+      <div v-if="filteredOrders.some(o => o.status === 'awaiting_courier')">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-0.5 flex-1 bg-orange-500/20"></div>
+          <h3 class="text-lg font-bold text-orange-400 flex items-center gap-2">
+            <Bike :size="20" />
+            OOTAB KULLERIT ({{ filteredOrders.filter(o => o.status === 'awaiting_courier').length }})
+          </h3>
+          <div class="h-0.5 flex-1 bg-orange-500/20"></div>
+        </div>
+
+        <div class="space-y-4">
+          <div
+            v-for="order in filteredOrders.filter(o => o.status === 'awaiting_courier')"
+            :key="order.id"
+            class="bg-[#111111] rounded-xl border-2 border-orange-500/20 overflow-hidden"
+          >
+            <div class="bg-orange-500/5 px-6 py-3 border-b border-gray-800 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="text-xl font-bold text-orange-400">#{{ order.order_number }}</span>
+                <span class="text-sm text-gray-300">{{ order.user.name }}</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></div>
+                  <span class="text-xs text-orange-400 font-semibold">Ootab kulleri vastuvõttu</span>
+                </div>
+                <span class="text-xl font-bold text-white">€{{ Number(order.total_amount).toFixed(2) }}</span>
+              </div>
+            </div>
+            <div class="p-4">
+              <div class="space-y-1 mb-4">
+                <div v-for="item in order.items" :key="item.id" class="text-sm text-gray-400">
+                  <span class="text-orange-400 font-semibold">{{ item.quantity }}x</span> {{ item.burger_name }}
                 </div>
               </div>
+              <button
+                @click="updateOrderStatus(order.id, 'completed')"
+                class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl font-bold transition text-sm"
+              >
+                Märgi täidetuks
+              </button>
             </div>
           </div>
         </div>
@@ -906,6 +934,21 @@ const setFilter = (filter: string) => {
                   </div>
                 </div>
 
+                <!-- Kuller -->
+                <div class="bg-[#0a0a0a] rounded-xl p-3 border border-gray-800 mb-4">
+                  <p class="text-xs text-gray-500 uppercase tracking-widest mb-1.5">Kuller</p>
+                  <div v-if="order.courier_user" class="flex items-center gap-2">
+                    <div class="w-7 h-7 bg-cyan-600/20 rounded-full flex items-center justify-center">
+                      <User :size="14" class="text-cyan-400" />
+                    </div>
+                    <span class="text-sm font-semibold text-cyan-300">{{ order.courier_user.name }}</span>
+                  </div>
+                  <div v-else class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></div>
+                    <span class="text-xs text-orange-400">Kullerit ei ole veel</span>
+                  </div>
+                </div>
+
                 <!-- GPS staatus -->
                 <div class="bg-[#0a0a0a] rounded-xl p-3 border border-gray-800 mb-4">
                   <div v-if="order.courier_lat" class="flex items-center gap-2">
@@ -935,7 +978,7 @@ const setFilter = (filter: string) => {
       </div>
 
       <!-- Other Orders -->
-      <div v-if="filteredOrders.some(o => !['pending', 'confirmed', 'preparing', 'ready', 'delivering'].includes(o.status))">
+      <div v-if="filteredOrders.some(o => !['pending', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'delivering'].includes(o.status))">
         <div class="flex items-center gap-3 mb-4">
           <div class="h-0.5 flex-1 bg-gray-800"></div>
           <h3 class="text-lg font-bold text-gray-400">MUUD</h3>
@@ -944,7 +987,7 @@ const setFilter = (filter: string) => {
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div
-            v-for="order in filteredOrders.filter(o => !['pending', 'confirmed', 'preparing', 'ready'].includes(o.status))"
+            v-for="order in filteredOrders.filter(o => !['pending', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'delivering'].includes(o.status))"
             :key="order.id"
             class="bg-[#111111] rounded-lg border border-gray-800 p-4 opacity-60"
           >
