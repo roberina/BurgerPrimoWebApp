@@ -4,6 +4,9 @@ import { useToast } from '@/composables/useToast';
 
 const { success, error } = useToast();
 import { ref, computed } from 'vue';
+import { useI18n } from '@/composables/useI18n';
+
+const { t } = useI18n();
 import Navbar from '@/components/Navbar.vue';
 
 const page = usePage();
@@ -18,7 +21,7 @@ const form = useForm({
 const submit = () => {
     form.put('/settings/password', {
         preserveScroll: true,
-        onSuccess: () => { form.reset(); success('Parool edukalt muudetud ✓'); },
+        onSuccess: () => { form.reset(); success(t('settings.password.updated')); },
         onError: () => {
             error('Parooli muutmine ebaõnnestus');
             if (form.errors.password) form.reset('password', 'password_confirmation');
@@ -58,7 +61,7 @@ const submit = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span class="hidden sm:inline">Profiil</span>
+                    <span class="hidden sm:inline">{{ t('settings.profile.tab') }}</span>
                 </Link>
                 <Link
                     href="/settings/password"
@@ -67,7 +70,7 @@ const submit = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
-                    <span class="hidden sm:inline">Parool</span>
+                    <span class="hidden sm:inline">{{ t('settings.password.tab') }}</span>
                 </Link>
                 <Link
                     href="/settings/profile#danger"
@@ -76,7 +79,7 @@ const submit = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    <span class="hidden sm:inline">Konto kustutamine</span>
+                    <span class="hidden sm:inline">{{ t('settings.danger.tab') }}</span>
                 </Link>
             </div>
 
@@ -89,15 +92,15 @@ const submit = () => {
                         </svg>
                     </div>
                     <div>
-                        <h2 class="text-white font-semibold text-sm">Parool</h2>
-                        <p class="text-gray-500 text-xs">Kasuta tugevat ja unikaalset parooli</p>
+                        <h2 class="text-white font-semibold text-sm">{{ t('settings.password.heading') }}</h2>
+                        <p class="text-gray-500 text-xs">{{ t('settings.password.sub') }}</p>
                     </div>
                 </div>
 
                 <form @submit.prevent="submit" class="p-6 space-y-5">
                     <div>
                         <label for="current_password" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                            Praegune parool
+                            {{ t('settings.password.current') }}
                         </label>
                         <input
                             id="current_password"
@@ -115,7 +118,7 @@ const submit = () => {
 
                     <div>
                         <label for="password" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                            Uus parool
+                            {{ t('settings.password.new') }}
                         </label>
                         <input
                             id="password"
@@ -133,7 +136,7 @@ const submit = () => {
 
                     <div>
                         <label for="password_confirmation" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-                            Kinnita uus parool
+                            {{ t('settings.password.confirm') }}
                         </label>
                         <input
                             id="password_confirmation"
@@ -155,7 +158,7 @@ const submit = () => {
                             :disabled="form.processing"
                             class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-[#D2691E] to-[#B8571A] text-white hover:from-[#E07A2E] hover:to-[#D2691E] shadow-lg shadow-[#D2691E]/25 hover:shadow-[#D2691E]/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {{ form.processing ? 'Uuendamine...' : 'Uuenda parool' }}
+                            {{ form.processing ? t('settings.password.updating') : t('settings.password.submit') }}
                         </button>
 
                         <Transition

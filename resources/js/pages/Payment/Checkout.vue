@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#0B0B0B] text-white pt-16 lg:pt-20">
+  <div class="min-h-screen bg-[#0B0B0B] text-white">
     <!-- Navbar -->
     <Navbar :cartCount="cartItems.length" />
 
@@ -7,20 +7,20 @@
     <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-4xl font-bold mb-2">Makse</h1>
-        <p class="text-gray-400">Viige oma tellimus lõpule</p>
+        <h1 class="text-4xl font-bold mb-2">{{ t('checkout.title') }}</h1>
+        <p class="text-gray-400">{{ t('checkout.sub') }}</p>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Order Summary -->
         <div class="bg-[#121212] rounded-2xl p-6">
-          <h2 class="text-2xl font-bold mb-6">Tellimuse kokkuvõte</h2>
+          <h2 class="text-2xl font-bold mb-6">{{ t('checkout.summary') }}</h2>
           
           <div class="space-y-4 mb-6">
             <div v-for="(item, index) in cartItems" :key="index" class="flex justify-between items-start">
               <div class="flex-1">
                 <p class="font-semibold">{{ item.name }}</p>
-                <p class="text-sm text-gray-400">Kogus: {{ item.quantity }}</p>
+                <p class="text-sm text-gray-400">{{ t('checkout.qty') }} {{ item.quantity }}</p>
               </div>
               <p class="font-bold text-[#D2691E]">€{{ (item.price * item.quantity).toFixed(2) }}</p>
             </div>
@@ -29,11 +29,11 @@
           <!-- Show subtotal and packaging fee -->
           <div class="space-y-2 mb-4">
             <div class="flex justify-between text-gray-400">
-              <span>Vahesumma:</span>
+              <span>{{ t('checkout.subtotal') }}</span>
               <span>€{{ Number(subtotal).toFixed(2) }}</span>
             </div>
             <div v-if="packagingFee > 0" class="flex justify-between text-[#D2691E]">
-              <span>Pakendamise tasu:</span>
+              <span>{{ t('checkout.packaging') }}</span>
               <span>€{{ Number(packagingFee).toFixed(2) }}</span>
             </div>
           </div>
@@ -41,85 +41,68 @@
           <hr class="border-[#0B0B0B] my-6" />
 
           <div class="flex justify-between items-center text-2xl font-bold">
-            <span>Kokku:</span>
+            <span>{{ t('checkout.total') }}</span>
             <span class="text-[#D2691E]">€{{ Number(total).toFixed(2) }}</span>
           </div>
 
           <!-- Delivery Method Display -->
           <div class="mt-6 p-4 bg-[#0B0B0B] rounded-xl">
-            <p class="text-sm text-gray-400 mb-2">Tellimuse tüüp:</p>
+            <p class="text-sm text-gray-400 mb-2">{{ t('checkout.type') }}</p>
             <div class="flex items-center gap-2">
               <svg v-if="deliveryMethod === 'dine_in'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#D2691E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              <svg v-else-if="deliveryMethod === 'takeaway'" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#D2691E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#D2691E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#D2691E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 22V12h6v10" />
-              </svg>
-              <span class="font-semibold">{{ deliveryMethod === 'dine_in' ? 'Kohapeal söön' : deliveryMethod === 'takeaway' ? 'Võtan kaasa' : 'Telli koju' }}</span>
+              <span class="font-semibold">{{ deliveryMethod === 'dine_in' ? t('checkout.dine_in') : t('checkout.takeaway') }}</span>
             </div>
           </div>
         </div>
 
         <!-- Payment Form -->
         <div class="bg-[#121212] rounded-2xl p-6">
-          <h2 class="text-2xl font-bold mb-6">Makseandmed</h2>
+          <h2 class="text-2xl font-bold mb-6">{{ t('checkout.payment') }}</h2>
 
           <!-- Delivery Address Picker (takeaway / home delivery) — KOHUSTUSLIK -->
-          <div v-if="deliveryMethod === 'delivery'" class="mb-6" ref="addressSection">
+          <div v-if="deliveryMethod !== 'dine_in'" class="mb-6" ref="addressSection">
             <label class="text-sm mb-3 flex items-center gap-2"
                    :class="addressError ? 'text-red-400' : 'text-gray-400'">
-              🏠 <span>Sihtkoht</span>
+              🏠 <span>{{ t('checkout.address') }}</span>
               <span class="text-xs font-normal" :class="addressError ? 'text-red-400' : 'text-gray-600'">
-                {{ addressError ? '— kohustuslik!' : '(ainult Saaremaa)' }}
+                {{ addressError ? t('checkout.address.req') : t('checkout.address.region') }}
               </span>
             </label>
-
-            <!-- Kullereid pole saadaval -->
-            <div v-if="!couriersAvailable"
-                 class="flex items-center gap-3 bg-gray-900/60 border border-white/10 rounded-xl px-4 py-4">
-              <span class="text-2xl">🛵</span>
-              <div>
-                <p class="text-sm font-semibold text-gray-300">Kohaletoimetamine pole hetkel saadaval</p>
-                <p class="text-xs text-gray-500 mt-0.5">Kullerid pole hetkel tööl.</p>
-              </div>
+            <div :class="addressError ? 'ring-2 ring-red-500/60 rounded-xl' : ''">
+              <AddressPickerMap
+                :model-lat="deliveryLat"
+                :model-lng="deliveryLng"
+                :model-address="deliveryAddress"
+                @update:model-lat="deliveryLat = $event; addressError = false"
+                @update:model-lng="deliveryLng = $event"
+                @update:model-address="deliveryAddress = $event"
+              />
             </div>
-
-            <!-- Kaart — ainult kui kullerid saadaval -->
-            <template v-else>
-              <div :class="addressError ? 'ring-2 ring-red-500/60 rounded-xl' : ''">
-                <AddressPickerMap
-                  :model-lat="deliveryLat"
-                  :model-lng="deliveryLng"
-                  :model-address="deliveryAddress"
-                  @update:model-lat="deliveryLat = $event; addressError = false"
-                  @update:model-lng="deliveryLng = $event"
-                  @update:model-address="deliveryAddress = $event"
-                />
-              </div>
-              <p v-if="addressError" class="mt-2 text-sm text-red-400 flex items-center gap-1.5">
-                ⚠ Palun märgi kaardil oma tarneaadress
-              </p>
-            </template>
+            <p v-if="addressError" class="mt-2 text-sm text-red-400 flex items-center gap-1.5">
+              ⚠ {{ t('checkout.address.err') }}
+            </p>
           </div>
 
           <!-- Customer Notes -->
           <div class="mb-6">
-            <label for="customer_notes" class="text-sm text-gray-400 mb-2 block">Märkused (valikuline)</label>
+            <label for="customer_notes" class="text-sm text-gray-400 mb-2 block">{{ t('checkout.notes') }}</label>
             <textarea
               id="customer_notes"
               v-model="customerNotes"
               rows="3"
               class="w-full bg-[#0B0B0B] border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#D2691E] transition-colors"
-              placeholder="Lisage oma tellimusele märkusi..."
+              :placeholder="t('checkout.notes.ph')"
             ></textarea>
           </div>
 
           <!-- Stripe Card Element -->
           <div class="mb-6">
-            <label class="text-sm text-gray-400 mb-2 block">Kaardi andmed</label>
+            <label class="text-sm text-gray-400 mb-2 block">{{ t('checkout.card') }}</label>
             <div 
               id="card-element" 
               class="bg-[#0B0B0B] border border-gray-700 rounded-xl px-4 py-4"
@@ -133,12 +116,12 @@
             :disabled="processing"
             class="w-full bg-gradient-to-r from-[#D2691E] to-[#B8571A] hover:from-[#E07A2E] hover:to-[#D2691E] text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-[#D2691E]/50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span v-if="!processing">Maksa €{{ Number(total).toFixed(2) }}</span>
-            <span v-else>Töötlemine...</span>
+            <span v-if="!processing">{{ t('checkout.pay') }} €{{ Number(total).toFixed(2) }}</span>
+            <span v-else>{{ t('checkout.processing') }}</span>
           </button>
 
           <p class="text-xs text-gray-500 text-center mt-4">
-            Teie makse on turvaliselt töödeldud Stripe poolt
+            {{ t('checkout.secure') }}
           </p>
         </div>
       </div>
@@ -147,11 +130,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { useToast } from '@/composables/useToast';
+import { useI18n } from '@/composables/useI18n';
+const { t } = useI18n();
 
 const { success, error: showError } = useToast();
-import { router, usePage } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import Navbar from '@/components/Navbar.vue';
 import AddressPickerMap from '@/components/AddressPickerMap.vue';
 
@@ -167,17 +152,13 @@ interface Props {
   subtotal: number;
   packagingFee: number;
   total: number;
-  deliveryMethod: 'dine_in' | 'takeaway' | 'delivery';
+  deliveryMethod: 'dine_in' | 'takeaway';
   stripePublicKey: string;
 }
 
 const props = defineProps<Props>();
 
-const page = usePage();
-const deliveryStatus = computed(() => (page.props as any).deliveryStatus as { available: boolean; couriers: number; eta: string | null } | null);
-const couriersAvailable = computed(() => deliveryStatus.value?.available ?? true);
-
-const deliveryMethod = ref<'dine_in' | 'takeaway' | 'delivery'>(props.deliveryMethod);
+const deliveryMethod = ref<'dine_in' | 'takeaway'>(props.deliveryMethod);
 const customerNotes = ref('');
 const processing = ref(false);
 const cardError = ref('');
@@ -229,7 +210,7 @@ onMounted(async () => {
 
 const handleSubmit = async () => {
   // Valideeri tarneaadress
-  if (deliveryMethod.value === 'delivery' && !deliveryAddress.value) {
+  if (deliveryMethod.value !== 'dine_in' && !deliveryAddress.value) {
     addressError.value = true;
     await nextTick();
     addressSection.value?.scrollIntoView({ behavior: 'smooth', block: 'center' });

@@ -15,9 +15,9 @@
     <div class="bb-root">
       <div class="bb-page-header">
         <div class="bb-page-header-inner">
-          <p class="bb-eyebrow">Burger Primo</p>
-          <h1 class="bb-page-title">Ehita oma burger</h1>
-          <p class="bb-page-sub">Vali koostisosad ja loo oma unistuste burger</p>
+          <p class="bb-eyebrow">{{ t('bb.eyebrow') }}</p>
+          <h1 class="bb-page-title">{{ t('bb.title') }}</h1>
+          <p class="bb-page-sub">{{ t('bb.sub') }}</p>
         </div>
       </div>
 
@@ -220,16 +220,16 @@
                 <span class="bb-ing-price">{{ (item.price * item.quantity).toFixed(2) }}€</span>
               </div>
             </div>
-            <div class="bb-ing-empty" v-else>Vali paremal koostisosad →</div>
+            <div class="bb-ing-empty" v-else>{{ t('bb.empty') }}</div>
 
             <div class="bb-price-row" v-if="totalLayers > 0">
-              <span>Kokku</span>
+              <span>{{ t('bb.total') }}</span>
               <span class="bb-price-total">{{ totalPrice.toFixed(2) }}€</span>
             </div>
 
             <!-- SALVESTATUD BURGERID (kompaktne) -->
             <div v-if="customBurgers?.length > 0" class="bb-saved-panel">
-              <p class="bb-saved-panel-label">Salvestatud burgerid</p>
+              <p class="bb-saved-panel-label">{{ t('bb.saved') }}</p>
               <div class="bb-saved-panel-list">
                 <div v-for="burger in customBurgers" :key="burger.id" class="bb-saved-panel-item">
                   <div class="bb-saved-panel-item-main">
@@ -240,16 +240,16 @@
                     <span class="bb-saved-panel-price">{{ Number(burger.total_price).toFixed(2) }}€</span>
                   </div>
                   <div class="bb-saved-panel-actions">
-                    <button @click="loadBurger(burger)" class="bb-spbtn" title="Muuda">
+                    <button @click="loadBurger(burger)" class="bb-spbtn" :title="t('bb.edit.btn')">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
-                    <button v-if="burger.status === 'approved'" @click="quickOrder(burger)" class="bb-spbtn bb-spbtn--green" title="Telli kohe">
+                    <button v-if="burger.status === 'approved'" @click="quickOrder(burger)" class="bb-spbtn bb-spbtn--green" :title="t('bb.order.btn')">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                     </button>
-                    <button v-if="burger.status === 'draft' || burger.status === 'rejected'" @click="submitForReviewById(burger.id)" class="bb-spbtn bb-spbtn--orange" title="Saada kinnitamiseks">
+                    <button v-if="burger.status === 'draft' || burger.status === 'rejected'" @click="submitForReviewById(burger.id)" class="bb-spbtn bb-spbtn--orange" :title="t('bb.submit.btn')">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9l20-7z"/></svg>
                     </button>
-                    <button @click="deleteBurger(burger.id)" class="bb-spbtn bb-spbtn--red" title="Kustuta">
+                    <button @click="deleteBurger(burger.id)" class="bb-spbtn bb-spbtn--red" :title="t('bb.delete.btn')">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                     </button>
                   </div>
@@ -261,7 +261,7 @@
 
         <div class="bb-right">
           <div class="bb-section" v-if="normalizedIngredients['pitav']?.length">
-            <div class="bb-section-header"><span class="bb-section-num">01</span><h2 class="bb-section-title">Pihvid</h2><span class="bb-section-hint">vali kuni 2</span></div>
+            <div class="bb-section-header"><span class="bb-section-num">01</span><h2 class="bb-section-title">{{ t('bb.sec.patties') }}</h2><span class="bb-section-hint">{{ t('bb.sec.patties.hint') }}</span></div>
             <div class="bb-grid">
               <div v-for="ing in normalizedIngredients['pitav']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('pitav', ing.id) }" @click="togglePatty(ing.id)">
                 <div class="bb-card-icon">🥩</div><div class="bb-card-name">{{ ing.name }}</div>
@@ -271,7 +271,7 @@
             </div>
           </div>
           <div class="bb-section" v-if="normalizedIngredients['salat']?.length">
-            <div class="bb-section-header"><span class="bb-section-num">02</span><h2 class="bb-section-title">Köögiviljad</h2><span class="bb-section-hint">vali mitu</span></div>
+            <div class="bb-section-header"><span class="bb-section-num">02</span><h2 class="bb-section-title">{{ t('bb.sec.veg') }}</h2><span class="bb-section-hint">{{ t('bb.sec.veg.hint') }}</span></div>
             <div class="bb-grid">
               <div v-for="ing in normalizedIngredients['salat']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('salat', ing.id) }" @click="toggleMulti('salat', ing.id)">
                 <div class="bb-card-icon">🥬</div><div class="bb-card-name">{{ ing.name }}</div>
@@ -281,7 +281,7 @@
             </div>
           </div>
           <div class="bb-section" v-if="normalizedIngredients['lisand']?.length">
-            <div class="bb-section-header"><span class="bb-section-num">03</span><h2 class="bb-section-title">Kastmed & lisandid</h2><span class="bb-section-hint">vali mitu</span></div>
+            <div class="bb-section-header"><span class="bb-section-num">03</span><h2 class="bb-section-title">{{ t('bb.sec.sauces') }}</h2><span class="bb-section-hint">{{ t('bb.sec.sauces.hint') }}</span></div>
             <div class="bb-grid">
               <div v-for="ing in normalizedIngredients['lisand']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('lisand', ing.id) }" @click="toggleMulti('lisand', ing.id)">
                 <div class="bb-card-icon">🫙</div><div class="bb-card-name">{{ ing.name }}</div>
@@ -291,7 +291,7 @@
             </div>
           </div>
           <div class="bb-section" v-if="normalizedIngredients['juust']?.length">
-            <div class="bb-section-header"><span class="bb-section-num">04</span><h2 class="bb-section-title">Juust</h2><span class="bb-section-hint">vali mitu</span></div>
+            <div class="bb-section-header"><span class="bb-section-num">04</span><h2 class="bb-section-title">{{ t('bb.sec.cheese') }}</h2><span class="bb-section-hint">{{ t('bb.sec.cheese.hint') }}</span></div>
             <div class="bb-grid">
               <div v-for="ing in normalizedIngredients['juust']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('juust', ing.id) }" @click="toggleMulti('juust', ing.id)">
                 <div class="bb-card-icon">🧀</div><div class="bb-card-name">{{ ing.name }}</div>
@@ -304,22 +304,22 @@
           <div class="bb-save-card" :class="{ 'bb-save-card--editing': isEditing }">
             <div class="bb-save-card-header">
               <span class="bb-save-card-step">05</span>
-              <h2 class="bb-save-card-title">{{ isEditing ? 'Muuda burger' : 'Salvesta burger' }}</h2>
-              <button v-if="isEditing" @click="resetForm" class="bb-save-cancel" title="Tühista muutmine">
+              <h2 class="bb-save-card-title">{{ isEditing ? t('bb.edit.title') : t('bb.save.title') }}</h2>
+              <button v-if="isEditing" @click="resetForm" class="bb-save-cancel" :title="t('bb.cancel')">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                Tühista
+                {{ t('bb.cancel') }}
               </button>
             </div>
 
             <div class="bb-save-name-row">
-              <label class="bb-save-name-label">Burgeri nimi *</label>
-              <input v-model="burgerName" type="text" placeholder="nt. Robby's Special..." class="bb-save-name-input" maxlength="60"/>
+              <label class="bb-save-name-label">{{ t('bb.name.label') }}</label>
+              <input v-model="burgerName" type="text" :placeholder="t('bb.name.ph')" class="bb-save-name-input" maxlength="60"/>
               <span class="bb-save-name-count">{{ burgerName.length }}/60</span>
             </div>
 
             <div class="bb-save-summary" v-if="totalLayers > 0">
               <div class="bb-save-summary-left">
-                <span class="bb-save-summary-layers">{{ totalLayers }} koostisosa</span>
+                <span class="bb-save-summary-layers">{{ totalLayers }} {{ t('bb.ingredient') }}</span>
                 <div class="bb-save-summary-tags">
                   <span v-for="item in allSelectedFlat.slice(0,4)" :key="item.id" class="bb-save-tag">{{ item.name }}</span>
                   <span v-if="allSelectedFlat.length > 4" class="bb-save-tag bb-save-tag--more">+{{ allSelectedFlat.length - 4 }}</span>
@@ -329,18 +329,18 @@
             </div>
 
             <div class="bb-save-limit-warn" v-if="!canCreateMore && !isEditing">
-              <span>⚠</span> Oled jõudnud {{ maxBurgers }} burgeri piirini. Muuda olemasolevat burgerit allpool.
+              <span>⚠</span> {{ t('bb.limit.pre') }} {{ maxBurgers }} {{ t('bb.limit.warn') }}
             </div>
 
-            <p class="bb-save-validation" v-if="!burgerName.trim() && totalLayers > 0">Anna burgerile nimi, et salvestada</p>
-            <p class="bb-save-validation" v-else-if="burgerName.trim() && totalLayers === 0">Vali vähemalt üks koostisosa</p>
+            <p class="bb-save-validation" v-if="!burgerName.trim() && totalLayers > 0">{{ t('bb.valid.name') }}</p>
+            <p class="bb-save-validation" v-else-if="burgerName.trim() && totalLayers === 0">{{ t('bb.valid.ing') }}</p>
 
             <div class="bb-save-btns">
               <button @click="saveBurger(false)" :disabled="!canAct" class="bb-save-btn-draft">
-                {{ isEditing ? 'Uuenda mustand' : 'Salvesta mustandina' }}
+                {{ isEditing ? t('bb.btn.update') : t('bb.btn.draft') }}
               </button>
               <button @click="saveAndSubmit()" :disabled="!canAct" class="bb-save-btn-submit">
-                {{ isEditing ? 'Uuenda & saada kinnitamiseks' : 'Saada kinnitamiseks' }}
+                {{ isEditing ? t('bb.btn.update.submit') : t('bb.btn.submit') }}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
               </button>
             </div>
@@ -357,6 +357,8 @@ import MainLayout from '@/layouts/MainLayout.vue';
 import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import type { Ingredient, SelectedIngredient, CustomBurger } from '@/types/burger-types';
+import { useI18n } from '@/composables/useI18n';
+const { t } = useI18n();
 
 interface Props {
   ingredients: Record<string, Ingredient[]> | any;
@@ -379,34 +381,11 @@ const error   = (msg: string) => showToast(msg, 'err');
 const normalizedIngredients = computed(() => {
   const raw = props.ingredients as any;
   if (!raw) return {};
-
-  // Helper: deduplicate by name (keeps first/lowest-id occurrence)
-  const dedup = (arr: any[]) => {
-    const seen = new Set<string>();
-    return arr.filter((ing: any) => {
-      if (seen.has(ing.name)) return false;
-      seen.add(ing.name);
-      return true;
-    });
-  };
-
-  if (!Array.isArray(raw)) {
-    // Already grouped by category (object from Laravel groupBy)
-    const result: Record<string, any[]> = {};
-    Object.entries(raw).forEach(([cat, items]) => {
-      result[cat] = dedup(items as any[]);
-    });
-    return result;
-  }
-
-  // Flat array — group then dedup
+  if (!Array.isArray(raw)) return raw;
   const result: Record<string, any[]> = {};
   raw.forEach((ing: any) => {
     if (!result[ing.category]) result[ing.category] = [];
     result[ing.category].push(ing);
-  });
-  Object.keys(result).forEach(cat => {
-    result[cat] = dedup(result[cat]);
   });
   return result;
 });
@@ -476,13 +455,13 @@ const saveBurger = (submitForReview = false) => {
     router.put(`/burger-builder/${editingBurgerId.value}`, payload as any, {
       preserveScroll: true,
       onSuccess: () => { success(submitForReview ? 'Burger saadetud kinnitamiseks! ✓' : 'Burger uuendatud! ✓'); resetForm(); },
-      onError: () => error('Salvestamine ebaõnnestus'),
+      onError: () => error(t('bb.toast.save.err')),
     });
   } else {
     router.post('/burger-builder', payload as any, {
       preserveScroll: true,
       onSuccess: () => { success(submitForReview ? 'Burger saadetud kinnitamiseks! ✓' : 'Burger salvestatud! ✓'); resetForm(); },
-      onError: () => error('Salvestamine ebaõnnestus'),
+      onError: () => error(t('bb.toast.save.err')),
     });
   }
 };
@@ -490,7 +469,7 @@ const saveBurger = (submitForReview = false) => {
 const saveAndSubmit = () => saveBurger(true);
 
 const submitForReviewById = (id: number) => router.post(`/burger-builder/${id}/submit`, {}, { preserveScroll: true });
-const statusLabel = (status: string) => ({ draft:'Mustand', pending:'Ootab kinnitust', approved:'Kinnitatud', rejected:'Tagasi lükatud' }[status] ?? status);
+const statusLabel = (status: string) => ({ draft: t('bb.status.draft'), pending: t('bb.status.pending'), approved: t('bb.status.approved'), rejected: t('bb.status.rejected') }[status] ?? status);
 
 const quickOrder = (burger: CustomBurger) => {
   router.post('/cart/add', { burger_id: burger.id, quantity: 1 } as any, {

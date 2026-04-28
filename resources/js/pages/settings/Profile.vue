@@ -4,6 +4,9 @@ import { useToast } from '@/composables/useToast';
 
 const { success, error } = useToast();
 import { ref, computed } from 'vue';
+import { useI18n } from '@/composables/useI18n';
+
+const { t } = useI18n();
 import Navbar from '@/components/Navbar.vue';
 
 interface Props {
@@ -41,7 +44,7 @@ const deletePassword = ref('');
 const submitProfile = () => {
     profileForm.patch('/settings/profile', {
         preserveScroll: true,
-        onSuccess: () => success('Profiil edukalt uuendatud ✓'),
+        onSuccess: () => success(t('settings.profile.saved')),
         onError: () => error('Profiili uuendamine ebaõnnestus'),
     });
 };
@@ -49,7 +52,7 @@ const submitProfile = () => {
 const submitPassword = () => {
     passwordForm.put('/settings/password', {
         preserveScroll: true,
-        onSuccess: () => { passwordForm.reset(); success('Parool edukalt muudetud ✓'); },
+        onSuccess: () => { passwordForm.reset(); success(t('settings.password.updated')); },
         onError: () => error('Parooli muutmine ebaõnnestus'),
     });
 };
@@ -63,11 +66,11 @@ const confirmDelete = () => {
     });
 };
 
-const tabs = [
-    { id: 'profile', label: 'Profiil', icon: 'user' },
-    { id: 'password', label: 'Parool', icon: 'lock' },
-    { id: 'danger', label: 'Konto kustutamine', icon: 'trash' },
-];
+const tabs = computed(() => [
+    { id: 'profile', label: t('settings.profile.tab'), icon: 'user' },
+    { id: 'password', label: t('settings.password.tab'), icon: 'lock' },
+    { id: 'danger', label: t('settings.danger.tab'), icon: 'trash' },
+]);
 </script>
 
 <template>
@@ -133,28 +136,28 @@ const tabs = [
                                 </svg>
                             </div>
                             <div>
-                                <h2 class="text-white font-semibold text-sm">Profiili andmed</h2>
-                                <p class="text-gray-500 text-xs">Uuenda oma nime ja e-posti aadressi</p>
+                                <h2 class="text-white font-semibold text-sm">{{ t('settings.profile.heading') }}</h2>
+                                <p class="text-gray-500 text-xs">{{ t('settings.profile.sub') }}</p>
                             </div>
                         </div>
 
                         <form @submit.prevent="submitProfile" class="p-6 space-y-5">
                             <div>
-                                <label for="name" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Nimi</label>
+                                <label for="name" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{{ t('settings.profile.name') }}</label>
                                 <input
                                     id="name"
                                     v-model="profileForm.name"
                                     type="text"
                                     required
                                     autocomplete="name"
-                                    placeholder="Sinu täisnimi"
+                                    :placeholder="t('settings.profile.name.ph')"
                                     class="w-full px-4 py-3 bg-[#141414] border border-[#1E1E1E] rounded-xl text-white placeholder-gray-600 text-sm focus:outline-none focus:border-[#D2691E]/60 focus:bg-[#161616] focus:ring-1 focus:ring-[#D2691E]/30 transition-all duration-200"
                                 />
                                 <p v-if="profileForm.errors.name" class="mt-1.5 text-xs text-red-400">{{ profileForm.errors.name }}</p>
                             </div>
 
                             <div>
-                                <label for="email" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">E-posti aadress</label>
+                                <label for="email" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{{ t('settings.profile.email') }}</label>
                                 <input
                                     id="email"
                                     v-model="profileForm.email"
@@ -173,9 +176,9 @@ const tabs = [
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
                                 <div>
-                                    <p class="text-yellow-400 text-sm font-medium">E-post kinnitamata</p>
+                                    <p class="text-yellow-400 text-sm font-medium">{{ t('settings.profile.unverified') }}</p>
                                     <p class="text-yellow-500/70 text-xs mt-0.5">
-                                        Sinu e-posti aadress pole kinnitatud.
+                                        {{ t('settings.profile.unverified.sub') }}
                                         <Link href="/email/verification-notification" method="post" as="button" class="underline text-yellow-400 hover:text-yellow-300 transition-colors">
                                             Saada kinnituslink uuesti.
                                         </Link>
@@ -192,7 +195,7 @@ const tabs = [
                                     :disabled="profileForm.processing"
                                     class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-[#D2691E] to-[#B8571A] text-white hover:from-[#E07A2E] hover:to-[#D2691E] shadow-lg shadow-[#D2691E]/25 hover:shadow-[#D2691E]/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {{ profileForm.processing ? 'Salvestamine...' : 'Salvesta muutused' }}
+                                    {{ profileForm.processing ? t('settings.profile.saving') : t('settings.profile.save') }}
                                 </button>
 
                                 <Transition
@@ -231,7 +234,7 @@ const tabs = [
 
                         <form @submit.prevent="submitPassword" class="p-6 space-y-5">
                             <div>
-                                <label for="current_password" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Praegune parool</label>
+                                <label for="current_password" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{{ t('settings.password.current') }}</label>
                                 <input
                                     id="current_password"
                                     v-model="passwordForm.current_password"
@@ -244,7 +247,7 @@ const tabs = [
                             </div>
 
                             <div>
-                                <label for="password" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Uus parool</label>
+                                <label for="password" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{{ t('settings.password.new') }}</label>
                                 <input
                                     id="password"
                                     v-model="passwordForm.password"
@@ -257,7 +260,7 @@ const tabs = [
                             </div>
 
                             <div>
-                                <label for="password_confirmation" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Kinnita uus parool</label>
+                                <label for="password_confirmation" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{{ t('settings.password.confirm') }}</label>
                                 <input
                                     id="password_confirmation"
                                     v-model="passwordForm.password_confirmation"
@@ -275,7 +278,7 @@ const tabs = [
                                     :disabled="passwordForm.processing"
                                     class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-[#D2691E] to-[#B8571A] text-white hover:from-[#E07A2E] hover:to-[#D2691E] shadow-lg shadow-[#D2691E]/25 hover:shadow-[#D2691E]/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {{ passwordForm.processing ? 'Uuendamine...' : 'Uuenda parool' }}
+                                    {{ passwordForm.processing ? t('settings.password.updating') : t('settings.password.submit') }}
                                 </button>
 
                                 <Transition
@@ -307,18 +310,17 @@ const tabs = [
                                 </svg>
                             </div>
                             <div>
-                                <h2 class="text-red-400 font-semibold text-sm">Ohutsoon</h2>
-                                <p class="text-gray-500 text-xs">Pöördumatud toimingud</p>
+                                <h2 class="text-red-400 font-semibold text-sm">{{ t('settings.danger.heading') }}</h2>
+                                <p class="text-gray-500 text-xs">{{ t('settings.danger.sub') }}</p>
                             </div>
                         </div>
 
                         <div class="p-6">
                             <div class="flex items-start justify-between gap-6">
                                 <div>
-                                    <h3 class="text-white font-semibold mb-1">Kustuta konto</h3>
+                                    <h3 class="text-white font-semibold mb-1">{{ t('settings.danger.title') }}</h3>
                                     <p class="text-gray-500 text-sm leading-relaxed">
-                                        Pärast konto kustutamist kustutatakse kõik sinu andmed jäädavalt.
-                                        Enne konto kustutamist laadi alla kogu info, mida soovid alles hoida.
+                                        {{ t('settings.danger.desc') }}
                                     </p>
                                 </div>
                                 <button
@@ -354,20 +356,19 @@ const tabs = [
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-white font-bold">Kas oled kindel?</h3>
-                                <p class="text-gray-500 text-xs">See toiming on pöördumatu</p>
+                                <h3 class="text-white font-bold">{{ t('settings.modal.sure') }}</h3>
+                                <p class="text-gray-500 text-xs">{{ t('settings.modal.irreversible') }}</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="p-6 space-y-4">
                         <p class="text-gray-400 text-sm leading-relaxed">
-                            Pärast konto kustutamist kustutatakse kõik sinu ressursid ja andmed jäädavalt.
-                            Sisesta oma parool kustutamise kinnitamiseks.
+                            {{ t('settings.modal.desc') }}
                         </p>
 
                         <div>
-                            <label for="delete_password" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Parool</label>
+                            <label for="delete_password" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{{ t('settings.modal.password') }}</label>
                             <input
                                 id="delete_password"
                                 v-model="deletePassword"
@@ -390,7 +391,7 @@ const tabs = [
                                 :disabled="deleteForm.processing || !deletePassword"
                                 class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500 hover:border-red-500 hover:text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                             >
-                                {{ deleteForm.processing ? 'Kustutamine...' : 'Kustuta konto' }}
+                                {{ deleteForm.processing ? t('settings.modal.deleting') : t('settings.modal.delete') }}
                             </button>
                         </div>
                     </div>

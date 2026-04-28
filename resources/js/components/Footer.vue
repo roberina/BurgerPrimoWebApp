@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import { useScrollAnimation, useStaggerAnimation } from '@/composables/useScrollAnimation'
 import { useI18n } from '@/composables/useI18n'
@@ -15,11 +15,24 @@ const openSections = ref({ links: false, contact: false, hours: false })
 const toggle = (s: keyof typeof openSections.value) => { openSections.value[s] = !openSections.value[s] }
 
 const navLinks = computed(() => [
-  { label: t('nav.home'),          href: '/'               },
-  { label: t('nav.menu'),          href: '/menu'            },
-  { label: t('nav.entertainment'), href: '/#entertainment'  },
-  { label: t('nav.contact'),       href: '/#contact'        },
+  { label: t('nav.home'),          href: '/',               anchor: null            },
+  { label: t('nav.menu'),          href: '/menu',           anchor: null            },
+  { label: t('nav.entertainment'), href: '/',               anchor: 'entertainment' },
+  { label: t('nav.contact'),       href: '/',               anchor: 'contact'       },
 ])
+
+function handleNavClick(e: MouseEvent, link: { href: string; anchor: string | null }) {
+  if (!link.anchor) return // let Inertia Link handle it normally
+  e.preventDefault()
+  const onHome = window.location.pathname === '/'
+  if (onHome) {
+    document.getElementById(link.anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    history.replaceState(null, '', '/')
+  } else {
+    sessionStorage.setItem('scrollTo', link.anchor)
+    router.visit('/')
+  }
+}
 
 const hours = computed(() => [
   { days: t('footer.hours.mon'), time: '11:00 – 22:00' },
@@ -29,7 +42,7 @@ const hours = computed(() => [
 </script>
 
 <template>
-  <footer class="relative bg-[#060606] border-t border-white/5 overflow-hidden">
+  <footer class="relative overflow-hidden bg-[#060606] border-t border-white/5">
 
     <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#D2691E]/40 to-transparent" />
 
@@ -55,7 +68,7 @@ const hours = computed(() => [
             </span>
           </div>
 
-          <p class="text-gray-600 text-sm leading-relaxed mb-6">
+          <p class="text-sm leading-relaxed mb-6 text-gray-600">
             {{ t('footer.tagline') }}
           </p>
 
@@ -79,15 +92,16 @@ const hours = computed(() => [
             @click="toggle('links')"
           >
             <h4 class="text-white font-bold text-xs mb-4 uppercase tracking-[0.18em]">{{ t('footer.links') }}</h4>
-            <span class="md:hidden text-gray-400 mb-4 text-xs transition-transform duration-300" :class="openSections.links ? 'rotate-180' : ''">▾</span>
+            <span class="md:hidden text-gray-700 mb-4 text-xs transition-transform duration-300" :class="openSections.links ? 'rotate-180' : ''">▾</span>
           </button>
           <ul
             class="space-y-2.5 overflow-hidden transition-all duration-300"
             :class="openSections.links ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0 md:max-h-48 md:opacity-100'"
           >
-            <li v-for="link in navLinks" :key="link.href">
+            <li v-for="link in navLinks" :key="link.href + (link.anchor ?? '')">
               <Link
                 :href="link.href"
+                @click="(e: MouseEvent) => handleNavClick(e, link)"
                 class="group inline-flex items-center gap-1.5 text-gray-600 hover:text-[#D2691E] text-sm transition-colors duration-200"
               >
                 <span class="w-0 group-hover:w-2 h-px bg-[#D2691E] transition-all duration-300 rounded" />
@@ -103,19 +117,19 @@ const hours = computed(() => [
             @click="toggle('contact')"
           >
             <h4 class="text-white font-bold text-xs mb-4 uppercase tracking-[0.18em]">{{ t('footer.contact') }}</h4>
-            <span class="md:hidden text-gray-400 mb-4 text-xs transition-transform duration-300" :class="openSections.contact ? 'rotate-180' : ''">▾</span>
+            <span class="md:hidden text-gray-700 mb-4 text-xs transition-transform duration-300" :class="openSections.contact ? 'rotate-180' : ''">▾</span>
           </button>
           <ul
             class="space-y-2.5 overflow-hidden transition-all duration-300"
             :class="openSections.contact ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 md:max-h-40 md:opacity-100'"
           >
             <li>
-              <a href="tel:+37257438483" class="text-gray-600 hover:text-[#D2691E] text-sm transition-colors underline-sweep w-fit block">+372 5743 8483</a>
+              <a href="tel:+37257438483" class="text-sm transition-colors underline-sweep w-fit block text-gray-600 hover:text-[#D2691E]">+372 5743 8483</a>
             </li>
             <li>
-              <a href="mailto:info@burgerprimo.ee" class="text-gray-600 hover:text-[#D2691E] text-sm transition-colors underline-sweep w-fit block">info@burgerprimo.ee</a>
+              <a href="mailto:info@burgerprimo.ee" class="text-sm transition-colors underline-sweep w-fit block text-gray-600 hover:text-[#D2691E]">info@burgerprimo.ee</a>
             </li>
-            <li class="text-gray-400 text-sm leading-relaxed pt-1">
+            <li class="text-gray-700 text-sm leading-relaxed pt-1">
               Kauba tn 5/2<br />Kuressaare, 93819
             </li>
           </ul>
@@ -127,7 +141,7 @@ const hours = computed(() => [
             @click="toggle('hours')"
           >
             <h4 class="text-white font-bold text-xs mb-4 uppercase tracking-[0.18em]">{{ t('footer.hours') }}</h4>
-            <span class="md:hidden text-gray-400 mb-4 text-xs transition-transform duration-300" :class="openSections.hours ? 'rotate-180' : ''">▾</span>
+            <span class="md:hidden text-gray-700 mb-4 text-xs transition-transform duration-300" :class="openSections.hours ? 'rotate-180' : ''">▾</span>
           </button>
           <ul
             class="space-y-2.5 overflow-hidden transition-all duration-300"
@@ -138,7 +152,7 @@ const hours = computed(() => [
               :key="item.days"
               class="flex justify-between items-center text-sm gap-4"
             >
-              <span class="text-gray-400">{{ item.days }}</span>
+              <span class="text-gray-700">{{ item.days }}</span>
               <span class="text-gray-500 font-medium">{{ item.time }}</span>
             </li>
           </ul>
@@ -147,7 +161,7 @@ const hours = computed(() => [
       </div>
 
       <div class="border-t border-white/5 pt-7 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p class="text-gray-400 text-xs">
+        <p class="text-gray-700 text-xs">
           &copy; {{ currentYear }} Burger Primo. {{ t('footer.copy') }}
         </p>
       </div>

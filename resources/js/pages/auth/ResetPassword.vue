@@ -1,8 +1,7 @@
 <template>
   <div class="min-h-screen bg-[#0B0B0B] flex items-center justify-center px-4 py-12">
-    <Head title="Lähtesta parool" />
+    <Head :title="t('auth.reset.title')" />
 
-    <!-- Background Decoration -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="absolute -top-40 -right-40 w-96 h-96 bg-[#D2691E]/5 rounded-full blur-3xl"></div>
       <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-[#D2691E]/5 rounded-full blur-3xl"></div>
@@ -30,8 +29,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
           </div>
-          <h1 class="text-2xl font-bold text-white mb-2">Uus parool</h1>
-          <p class="text-gray-400 text-sm">Sisesta oma uus parool allpool</p>
+          <h1 class="text-2xl font-bold text-white mb-2">{{ t('auth.reset.title') }}</h1>
+          <p class="text-gray-400 text-sm">{{ t('auth.reset.sub') }}</p>
         </div>
 
         <!-- Form -->
@@ -39,7 +38,7 @@
           <!-- Email (readonly) -->
           <div class="mb-6">
             <label for="email" class="block text-sm font-semibold text-gray-300 mb-2">
-              E-posti aadress
+              {{ t('auth.reset.email') }}
             </label>
             <input
               id="email"
@@ -57,7 +56,7 @@
           <!-- New Password -->
           <div class="mb-6">
             <label for="password" class="block text-sm font-semibold text-gray-300 mb-2">
-              Uus parool
+              {{ t('auth.reset.password') }}
             </label>
             <input
               id="password"
@@ -78,7 +77,7 @@
           <!-- Confirm Password -->
           <div class="mb-6">
             <label for="password_confirmation" class="block text-sm font-semibold text-gray-300 mb-2">
-              Kinnita parool
+              {{ t('auth.reset.confirm') }}
             </label>
             <input
               id="password_confirmation"
@@ -111,16 +110,16 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span>{{ form.processing ? 'Lähtestamine...' : 'Lähtesta parool' }}</span>
+            <span>{{ form.processing ? t('auth.reset.ing') : t('auth.reset.submit') }}</span>
           </button>
         </form>
 
         <!-- Back to login -->
         <div class="mt-6 text-center">
           <p class="text-sm text-gray-400">
-            Meenus parool?
+            {{ t('auth.reset.remember') }}
             <Link href="/login" class="text-[#D2691E] hover:text-[#E07A2E] font-semibold transition-colors">
-              Logi sisse
+              {{ t('auth.reset.login') }}
             </Link>
           </p>
         </div>
@@ -135,7 +134,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Tagasi avalehele
+          {{ t('auth.back') }}
         </Link>
       </div>
     </div>
@@ -144,6 +143,9 @@
 
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { useI18n } from '@/composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   token: string;

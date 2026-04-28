@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-[#0B0B0B] flex items-center justify-center px-4 py-12">
-    <Head title="Registreeru" />
+    <Head :title="t('auth.register.title')" />
 
     <!-- Background Decoration -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -26,8 +26,8 @@
       <div class="bg-[#121212] border border-[#0B0B0B] rounded-2xl shadow-2xl p-8">
         <!-- Header -->
         <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-white mb-2">Loo konto</h1>
-          <p class="text-gray-400">Sisesta oma andmed konto loomiseks</p>
+          <h1 class="text-3xl font-bold text-white mb-2">{{ t('auth.register.title') }}</h1>
+          <p class="text-gray-400">{{ t('auth.register.sub') }}</p>
         </div>
 
         <!-- Register Form -->
@@ -35,7 +35,7 @@
           <!-- Name -->
           <div class="mb-6">
             <label for="name" class="block text-sm font-semibold text-gray-300 mb-2">
-              Nimi
+              {{ t('auth.register.name') }}
             </label>
             <input
               id="name"
@@ -44,7 +44,7 @@
               required
               autofocus
               autocomplete="name"
-              placeholder="Sinu täisnimi"
+              :placeholder="t('auth.register.name.ph')"
               class="w-full bg-[#0B0B0B] border border-[#1a1a1a] rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition-all"
               :class="{ 'border-red-500': form.errors.name }"
             />
@@ -56,7 +56,7 @@
           <!-- Email -->
           <div class="mb-6">
             <label for="email" class="block text-sm font-semibold text-gray-300 mb-2">
-              E-posti aadress
+              {{ t('auth.register.email') }}
             </label>
             <input
               id="email"
@@ -76,7 +76,7 @@
           <!-- Password -->
           <div class="mb-6">
             <label for="password" class="block text-sm font-semibold text-gray-300 mb-2">
-              Parool
+              {{ t('auth.register.password') }}
             </label>
             <input
               id="password"
@@ -96,7 +96,7 @@
           <!-- Confirm Password -->
           <div class="mb-6">
             <label for="password_confirmation" class="block text-sm font-semibold text-gray-300 mb-2">
-              Kinnita parool
+              {{ t('auth.register.confirm') }}
             </label>
             <input
               id="password_confirmation"
@@ -129,19 +129,19 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span>{{ form.processing ? 'Registreerimine...' : 'Loo konto' }}</span>
+            <span>{{ form.processing ? t('auth.register.ing') : t('auth.register.submit') }}</span>
           </button>
         </form>
 
         <!-- Login Link -->
         <div class="mt-6 text-center">
           <p class="text-sm text-gray-400">
-            Juba on konto?
+            {{ t('auth.register.have') }}
             <Link
               href="/login"
               class="text-[#D2691E] hover:text-[#E07A2E] font-semibold transition-colors"
             >
-              Logi sisse
+              {{ t('auth.register.login') }}
             </Link>
           </p>
         </div>
@@ -156,7 +156,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Tagasi avalehele
+          {{ t('auth.back') }}
         </Link>
       </div>
     </div>
@@ -165,6 +165,9 @@
 
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { useI18n } from '@/composables/useI18n';
+
+const { t } = useI18n();
 
 const form = useForm({
   name: '',

@@ -21,27 +21,27 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const passwordInput = useTemplateRef('passwordInput');
+import { useI18n } from '@/composables/useI18n';
+const { t } = useI18n();
 </script>
 
 <template>
     <div class="space-y-6">
         <HeadingSmall
-            title="Delete account"
-            description="Delete your account and all of its resources"
+            :title="t('settings.danger.title')"
+            :description="t('settings.danger.desc')"
         />
         <div
             class="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10"
         >
             <div class="relative space-y-0.5 text-red-600 dark:text-red-100">
-                <p class="font-medium">Warning</p>
-                <p class="text-sm">
-                    Please proceed with caution, this cannot be undone.
-                </p>
+                <p class="font-medium">{{ t('settings.danger.heading') }}</p>
+                <p class="text-sm">{{ t('settings.danger.sub') }}</p>
             </div>
             <Dialog>
                 <DialogTrigger as-child>
                     <Button variant="destructive" data-test="delete-user-button"
-                        >Delete account</Button
+                        >{{ t('settings.danger.btn') }}</Button
                     >
                 </DialogTrigger>
                 <DialogContent>
@@ -57,8 +57,7 @@ const passwordInput = useTemplateRef('passwordInput');
                     >
                         <DialogHeader class="space-y-3">
                             <DialogTitle
-                                >Are you sure you want to delete your
-                                account?</DialogTitle
+                                >{{ t('settings.modal.sure') }}</DialogTitle
                             >
                             <DialogDescription>
                                 Once your account is deleted, all of its
@@ -71,14 +70,14 @@ const passwordInput = useTemplateRef('passwordInput');
 
                         <div class="grid gap-2">
                             <Label for="password" class="sr-only"
-                                >Password</Label
+                                >{{ t('settings.modal.password') }}</Label
                             >
                             <Input
                                 id="password"
                                 type="password"
                                 name="password"
                                 ref="passwordInput"
-                                placeholder="Password"
+                                :placeholder="t('settings.modal.password')"
                             />
                             <InputError :message="errors.password" />
                         </div>

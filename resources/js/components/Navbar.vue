@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3'
+import { Link, router, usePage } from '@inertiajs/vue3'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import ToastContainer from '@/components/ToastContainer.vue'
 import LanguageToggle from '@/components/LanguageToggle.vue'
@@ -29,9 +29,9 @@ const activeAnchor = ref<string | null>(null)
 const isHomePage   = computed(() => page.url === '/')
 
 const homeDropdownItems = computed(() => [
-  { label: t('nav.popular'),       href: '/#popular',       anchor: 'popular'       },
-  { label: t('nav.entertainment'), href: '/#entertainment', anchor: 'entertainment' },
-  { label: t('nav.contact'),       href: '/#contact',       anchor: 'contact'       },
+  { label: t('nav.popular'),       anchor: 'popular'       },
+  { label: t('nav.entertainment'), anchor: 'entertainment' },
+  { label: t('nav.contact'),       anchor: 'contact'       },
 ])
 
 const navItems = computed(() => [
@@ -40,7 +40,7 @@ const navItems = computed(() => [
 ])
 
 type NavItem  = { label: string; href: string }
-type DropItem = { label: string; href: string; anchor: string }
+type DropItem = { label: string; anchor: string }
 
 function isActive(item: NavItem): boolean {
   if (item.href === '/menu') return page.url.startsWith('/menu')
@@ -56,8 +56,10 @@ function handleDropClick(item: DropItem, e: MouseEvent) {
   e.preventDefault()
   if (isHomePage.value) {
     document.getElementById(item.anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    history.replaceState(null, '', '/')
   } else {
-    window.location.href = item.href
+    sessionStorage.setItem('scrollTo', item.anchor)
+    router.visit('/')
   }
   homeDropOpen.value   = false
   mobileMenuOpen.value = false
@@ -102,7 +104,17 @@ function onScroll() {
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   scrolled.value = true
-  setTimeout(() => { mounted.value = true; setupSectionObserver() }, 50)
+  setTimeout(() => {
+    mounted.value = true
+    setupSectionObserver()
+    const scrollTo = sessionStorage.getItem('scrollTo')
+    if (scrollTo && isHomePage.value) {
+      sessionStorage.removeItem('scrollTo')
+      setTimeout(() => {
+        document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 100)
+    }
+  }, 50)
 })
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
@@ -173,7 +185,7 @@ const vClickOutside = {
             <Transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 scale-95 translate-y-1" enter-to-class="opacity-100 scale-100 translate-y-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
               <div v-if="homeDropOpen" class="absolute left-0 top-full mt-1 w-44 bg-[#0d0d0d] border border-white/8 rounded-2xl shadow-2xl shadow-black/70 py-1.5 overflow-hidden z-50">
                 <div class="h-0.5 bg-gradient-to-r from-transparent via-[#D2691E]/40 to-transparent mb-1" />
-                <a v-for="sub in homeDropdownItems" :key="sub.href" :href="sub.href" @click="handleDropClick(sub, $event)"
+                <a v-for="sub in homeDropdownItems" :key="sub.anchor" href="/" @click="handleDropClick(sub, $event)"
                   class="flex items-center px-4 py-2.5 text-sm transition-colors cursor-pointer"
                   :class="isDropActive(sub) ? 'text-white bg-[#D2691E]/10' : 'text-gray-400 hover:bg-white/5 hover:text-white'">{{ sub.label }}</a>
               </div>
@@ -206,8 +218,6 @@ const vClickOutside = {
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </Link>
-
-          <div class="w-px h-5 bg-white/8 mx-0.5" />
 
           <LanguageToggle />
 
@@ -272,7 +282,7 @@ const vClickOutside = {
             <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': mobileHomeOpen }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
           </button>
           <div v-if="mobileHomeOpen" class="pl-4 space-y-0.5">
-            <a v-for="sub in homeDropdownItems" :key="sub.href" :href="sub.href" @click="handleDropClick(sub, $event)"
+            <a v-for="sub in homeDropdownItems" :key="sub.anchor" href="/" @click="handleDropClick(sub, $event)"
               class="flex items-center px-4 py-2.5 rounded-xl text-sm transition-all cursor-pointer"
               :class="isDropActive(sub) ? 'text-white bg-[#D2691E]/10 border-l-2 border-[#D2691E]' : 'text-gray-500 hover:text-white hover:bg-white/5'">{{ sub.label }}</a>
           </div>
@@ -293,7 +303,7 @@ const vClickOutside = {
           </div>
 
           <div class="pt-3 mt-2 border-t border-white/6 space-y-1">
-            <div class="px-4 pb-2 w-fit">
+            <div class="flex items-center gap-3 px-4 pb-2">
               <LanguageToggle />
             </div>
             <template v-if="user">
