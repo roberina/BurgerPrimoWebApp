@@ -36,7 +36,6 @@ function scrollTo(id: string) {
     <div class="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6">
       <div class="px-2 py-10 md:px-14 md:py-12 flex flex-col items-center text-center">
 
-        <!-- Logo parallax -->
         <div
           class="mb-5 transition-transform duration-75 ease-linear"
           :style="{ transform: `translate(${logoX}px, ${logoY}px)` }"
@@ -49,7 +48,6 @@ function scrollTo(id: string) {
           />
         </div>
 
-        <!-- Eyebrow -->
         <div class="hero-eyebrow inline-flex items-center gap-3 mb-4">
           <div class="h-px w-8 bg-gradient-to-r from-transparent to-[#D2691E]/60" />
           <span class="inline-flex items-center gap-1.5 text-[#D2691E] text-xs font-semibold uppercase tracking-[0.3em]">
@@ -71,16 +69,14 @@ function scrollTo(id: string) {
           <span class="word text-white"><span class="word-inner">{{ t('hero.title4') }}</span></span>
         </h1>
 
-        <!-- Subtitle -->
         <p class="hero-subtitle text-base md:text-lg text-gray-300 font-light max-w-lg leading-relaxed mb-7">
           {{ t('hero.subtitle') }}
         </p>
 
-        <!-- CTAs -->
         <div class="hero-cta flex flex-col sm:flex-row gap-3 mb-8">
           <Link
             href="/menu"
-            class="btn-magnetic group inline-flex items-center gap-2.5 px-8 py-4 bg-[#D2691E] text-white font-bold rounded-2xl text-sm uppercase tracking-wider shadow-lg shadow-[#D2691E]/25"
+            class="btn-magnetic group inline-flex items-center gap-2.5 px-8 py-4 bg-[#A8450E] text-white font-bold rounded-2xl text-sm uppercase tracking-wider shadow-lg shadow-[#D2691E]/25"
           >
             {{ t('hero.cta.menu') }}
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

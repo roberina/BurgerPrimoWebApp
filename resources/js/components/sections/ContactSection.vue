@@ -146,8 +146,8 @@ function submitContact() {
                   </div>
 
                   <div>
-                    <label class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">{{ t('contact.form.subject') }}</label>
-                    <select v-model="form.subject" class="primo-input w-full px-4 py-3 text-sm bg-black/40 border border-white/10 rounded-xl text-white appearance-none cursor-pointer">
+                    <label for="contact-subject" class="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">{{ t('contact.form.subject') }}</label>
+                    <select id="contact-subject" v-model="form.subject" class="primo-input w-full px-4 py-3 text-sm bg-black/40 border border-white/10 rounded-xl text-white appearance-none cursor-pointer">
                       <option v-for="s in subjects" :key="s.value" :value="s.value">{{ s.label }}</option>
                     </select>
                   </div>

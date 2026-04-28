@@ -24,7 +24,15 @@ defineProps<{ announcements?: Announcement[] }>()
 </script>
 
 <template>
-  <Head title="Kontakt — Burger Primo" />
+  <Head title="Kontakt — Burger Primo">
+    <meta name="description" content="Võta Burger Primoga ühendust. Leiad meid Kuressaarest – kirjuta meile või tule kohale!" head-key="description" />
+    <meta name="robots" content="index, follow" head-key="robots" />
+    <meta property="og:title" content="Kontakt — Burger Primo" head-key="og:title" />
+    <meta property="og:description" content="Võta Burger Primoga ühendust. Leiad meid Kuressaarest – kirjuta meile või tule kohale!" head-key="og:description" />
+    <meta property="og:type" content="website" head-key="og:type" />
+    <meta property="og:url" content="https://burgerprimo.ee/kontakt" head-key="og:url" />
+    <meta property="og:image" content="/img/Logo45.png" head-key="og:image" />
+  </Head>
 
   <div class="min-h-screen bg-[#0B0B0B] text-white">
     <Navbar />
@@ -33,7 +41,6 @@ defineProps<{ announcements?: Announcement[] }>()
       :announcements="announcements"
     />
 
-    <!-- Hero banner for standalone page -->
     <div class="relative overflow-hidden pt-20">
       <div
         class="absolute inset-0 bg-cover bg-center"

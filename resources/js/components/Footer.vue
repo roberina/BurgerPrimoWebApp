@@ -79,7 +79,7 @@ const hours = computed(() => [
             @click="toggle('links')"
           >
             <h4 class="text-white font-bold text-xs mb-4 uppercase tracking-[0.18em]">{{ t('footer.links') }}</h4>
-            <span class="md:hidden text-gray-700 mb-4 text-xs transition-transform duration-300" :class="openSections.links ? 'rotate-180' : ''">▾</span>
+            <span class="md:hidden text-gray-400 mb-4 text-xs transition-transform duration-300" :class="openSections.links ? 'rotate-180' : ''">▾</span>
           </button>
           <ul
             class="space-y-2.5 overflow-hidden transition-all duration-300"
@@ -103,7 +103,7 @@ const hours = computed(() => [
             @click="toggle('contact')"
           >
             <h4 class="text-white font-bold text-xs mb-4 uppercase tracking-[0.18em]">{{ t('footer.contact') }}</h4>
-            <span class="md:hidden text-gray-700 mb-4 text-xs transition-transform duration-300" :class="openSections.contact ? 'rotate-180' : ''">▾</span>
+            <span class="md:hidden text-gray-400 mb-4 text-xs transition-transform duration-300" :class="openSections.contact ? 'rotate-180' : ''">▾</span>
           </button>
           <ul
             class="space-y-2.5 overflow-hidden transition-all duration-300"
@@ -115,7 +115,7 @@ const hours = computed(() => [
             <li>
               <a href="mailto:info@burgerprimo.ee" class="text-gray-600 hover:text-[#D2691E] text-sm transition-colors underline-sweep w-fit block">info@burgerprimo.ee</a>
             </li>
-            <li class="text-gray-700 text-sm leading-relaxed pt-1">
+            <li class="text-gray-400 text-sm leading-relaxed pt-1">
               Kauba tn 5/2<br />Kuressaare, 93819
             </li>
           </ul>
@@ -127,7 +127,7 @@ const hours = computed(() => [
             @click="toggle('hours')"
           >
             <h4 class="text-white font-bold text-xs mb-4 uppercase tracking-[0.18em]">{{ t('footer.hours') }}</h4>
-            <span class="md:hidden text-gray-700 mb-4 text-xs transition-transform duration-300" :class="openSections.hours ? 'rotate-180' : ''">▾</span>
+            <span class="md:hidden text-gray-400 mb-4 text-xs transition-transform duration-300" :class="openSections.hours ? 'rotate-180' : ''">▾</span>
           </button>
           <ul
             class="space-y-2.5 overflow-hidden transition-all duration-300"
@@ -138,7 +138,7 @@ const hours = computed(() => [
               :key="item.days"
               class="flex justify-between items-center text-sm gap-4"
             >
-              <span class="text-gray-700">{{ item.days }}</span>
+              <span class="text-gray-400">{{ item.days }}</span>
               <span class="text-gray-500 font-medium">{{ item.time }}</span>
             </li>
           </ul>
@@ -147,7 +147,7 @@ const hours = computed(() => [
       </div>
 
       <div class="border-t border-white/5 pt-7 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p class="text-gray-700 text-xs">
+        <p class="text-gray-400 text-xs">
           &copy; {{ currentYear }} Burger Primo. {{ t('footer.copy') }}
         </p>
       </div>

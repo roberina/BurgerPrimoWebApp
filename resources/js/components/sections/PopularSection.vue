@@ -105,7 +105,7 @@ const onTouchEnd   = (e: TouchEvent) => {
                 <span class="text-6xl font-black text-white/20">{{ item.name.charAt(0) }}</span>
               </div>
               <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
-              <div v-if="item.discount_percentage" class="absolute top-3 right-3 px-2.5 py-1 bg-[#D2691E] text-white text-xs font-black rounded-xl shadow-lg overflow-hidden">
+              <div v-if="item.discount_percentage" class="absolute top-3 right-3 px-2.5 py-1 bg-[#A8450E] text-white text-xs font-black rounded-xl shadow-lg overflow-hidden">
                 <span class="relative z-10">-{{ item.discount_percentage }}%</span>
                 <div class="absolute inset-0 shimmer" />
               </div>
@@ -113,11 +113,11 @@ const onTouchEnd   = (e: TouchEvent) => {
             </div>
             <div class="p-5">
               <h3 class="text-base font-bold text-white mb-1.5 group-hover:text-[#F5DEB3] transition-colors duration-300">{{ item.name }}</h3>
-              <p class="text-gray-500 text-xs line-clamp-2 mb-4 leading-relaxed">{{ item.description }}</p>
+              <p class="text-gray-400 text-xs line-clamp-2 mb-4 leading-relaxed">{{ item.description }}</p>
               <div class="flex items-center justify-between">
                 <div class="flex items-baseline gap-2">
                   <span class="text-xl font-black text-[#D2691E]">€{{ Number(item.price).toFixed(2) }}</span>
-                  <span v-if="item.original_price && Number(item.original_price) > Number(item.price)" class="text-xs text-gray-600 line-through">€{{ Number(item.original_price).toFixed(2) }}</span>
+                  <span v-if="item.original_price && Number(item.original_price) > Number(item.price)" class="text-xs text-gray-400 line-through">€{{ Number(item.original_price).toFixed(2) }}</span>
                 </div>
                 <div class="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:bg-[#D2691E] group-hover:border-[#D2691E] group-hover:scale-110">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-gray-500 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -148,11 +148,11 @@ const onTouchEnd   = (e: TouchEvent) => {
                 <div class="glass-card overflow-hidden">
                   <div class="aspect-[4/3] overflow-hidden relative bg-black/30">
                     <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover" />
-                    <div v-if="item.discount_percentage" class="absolute top-3 right-3 px-2.5 py-1 bg-[#D2691E] text-white text-xs font-black rounded-xl">-{{ item.discount_percentage }}%</div>
+                    <div v-if="item.discount_percentage" class="absolute top-3 right-3 px-2.5 py-1 bg-[#A8450E] text-white text-xs font-black rounded-xl">-{{ item.discount_percentage }}%</div>
                   </div>
                   <div class="p-5">
                     <h3 class="text-base font-bold text-white mb-1.5">{{ item.name }}</h3>
-                    <p class="text-gray-500 text-xs line-clamp-2 mb-4">{{ item.description }}</p>
+                    <p class="text-gray-400 text-xs line-clamp-2 mb-4">{{ item.description }}</p>
                     <span class="text-xl font-black text-[#D2691E]">€{{ Number(item.price).toFixed(2) }}</span>
                   </div>
                 </div>
@@ -170,7 +170,6 @@ const onTouchEnd   = (e: TouchEvent) => {
           </div>
         </div>
 
-        <!-- CTA -->
         <div :ref="(el) => ctaRef = el as any" class="text-center">
           <Link href="/menu" class="btn-magnetic group inline-flex items-center gap-3 px-9 py-3.5 border border-[#D2691E]/40 text-[#D2691E] font-bold rounded-2xl text-sm uppercase tracking-wider hover:bg-[#D2691E] hover:text-white hover:border-[#D2691E] transition-colors duration-200">
             {{ t('popular.cta') }}

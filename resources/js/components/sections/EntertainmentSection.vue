@@ -89,14 +89,14 @@ onUnmounted(() => clearInterval(timer))
               </Transition>
             </div>
             <div class="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-10" />
-            <button @click="prev" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center hover:bg-[#D2691E] transition-all duration-200">
+            <button @click="prev" aria-label="Eelmine" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center hover:bg-[#D2691E] transition-all duration-200">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </button>
-            <button @click="next" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center hover:bg-[#D2691E] transition-all duration-200">
+            <button @click="next" aria-label="Järgmine" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm text-white flex items-center justify-center hover:bg-[#D2691E] transition-all duration-200">
               <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
             </button>
             <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-              <button v-for="(_, i) in images" :key="i" @click="goTo(i)" class="rounded-full transition-all duration-300" :class="i === currentSlide ? 'w-6 h-2 bg-[#D2691E]' : 'w-2 h-2 bg-white/35 hover:bg-white/60'" />
+              <button v-for="(_, i) in images" :key="i" @click="goTo(i)" :aria-label="`Slaid ${i + 1}`" :aria-current="i === currentSlide ? 'true' : undefined" class="rounded-full transition-all duration-300" :class="i === currentSlide ? 'w-6 h-2 bg-[#D2691E]' : 'w-2 h-2 bg-white/35 hover:bg-white/60'" />
             </div>
           </div>
 
