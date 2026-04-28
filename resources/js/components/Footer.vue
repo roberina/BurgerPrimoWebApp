@@ -29,7 +29,7 @@ const hours = computed(() => [
 </script>
 
 <template>
-  <footer class="relative bg-[#060606] border-t border-white/5 overflow-hidden">
+  <footer class="relative overflow-hidden bg-[#060606] border-t border-white/5">
 
     <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#D2691E]/40 to-transparent" />
 
@@ -55,7 +55,7 @@ const hours = computed(() => [
             </span>
           </div>
 
-          <p class="text-gray-600 text-sm leading-relaxed mb-6">
+          <p class="text-sm leading-relaxed mb-6 text-gray-600">
             {{ t('footer.tagline') }}
           </p>
 
@@ -78,7 +78,7 @@ const hours = computed(() => [
             class="w-full flex items-center justify-between md:cursor-default md:pointer-events-none group"
             @click="toggle('links')"
           >
-            <h4 class="text-white font-bold text-xs mb-4 uppercase tracking-[0.18em]">{{ t('footer.links') }}</h4>
+            <h4 class="font-bold text-xs mb-4 uppercase tracking-[0.18em] text-white">{{ t('footer.links') }}</h4>
             <span class="md:hidden text-gray-400 mb-4 text-xs transition-transform duration-300" :class="openSections.links ? 'rotate-180' : ''">▾</span>
           </button>
           <ul
@@ -88,7 +88,7 @@ const hours = computed(() => [
             <li v-for="link in navLinks" :key="link.href">
               <Link
                 :href="link.href"
-                class="group inline-flex items-center gap-1.5 text-gray-600 hover:text-[#D2691E] text-sm transition-colors duration-200"
+                class="group inline-flex items-center gap-1.5 text-sm transition-colors duration-200 text-gray-600 hover:text-[#D2691E]"
               >
                 <span class="w-0 group-hover:w-2 h-px bg-[#D2691E] transition-all duration-300 rounded" />
                 {{ link.label }}
@@ -102,7 +102,7 @@ const hours = computed(() => [
             class="w-full flex items-center justify-between md:cursor-default md:pointer-events-none"
             @click="toggle('contact')"
           >
-            <h4 class="text-white font-bold text-xs mb-4 uppercase tracking-[0.18em]">{{ t('footer.contact') }}</h4>
+            <h4 class="font-bold text-xs mb-4 uppercase tracking-[0.18em] text-white">{{ t('footer.contact') }}</h4>
             <span class="md:hidden text-gray-400 mb-4 text-xs transition-transform duration-300" :class="openSections.contact ? 'rotate-180' : ''">▾</span>
           </button>
           <ul
@@ -110,12 +110,12 @@ const hours = computed(() => [
             :class="openSections.contact ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 md:max-h-40 md:opacity-100'"
           >
             <li>
-              <a href="tel:+37257438483" class="text-gray-600 hover:text-[#D2691E] text-sm transition-colors underline-sweep w-fit block">+372 5743 8483</a>
+              <a href="tel:+37257438483" class="text-sm transition-colors underline-sweep w-fit block text-gray-600 hover:text-[#D2691E]">+372 5743 8483</a>
             </li>
             <li>
-              <a href="mailto:info@burgerprimo.ee" class="text-gray-600 hover:text-[#D2691E] text-sm transition-colors underline-sweep w-fit block">info@burgerprimo.ee</a>
+              <a href="mailto:info@burgerprimo.ee" class="text-sm transition-colors underline-sweep w-fit block text-gray-600 hover:text-[#D2691E]">info@burgerprimo.ee</a>
             </li>
-            <li class="text-gray-400 text-sm leading-relaxed pt-1">
+            <li class="text-sm leading-relaxed pt-1 text-gray-500">
               Kauba tn 5/2<br />Kuressaare, 93819
             </li>
           </ul>
@@ -126,7 +126,7 @@ const hours = computed(() => [
             class="w-full flex items-center justify-between md:cursor-default md:pointer-events-none"
             @click="toggle('hours')"
           >
-            <h4 class="text-white font-bold text-xs mb-4 uppercase tracking-[0.18em]">{{ t('footer.hours') }}</h4>
+            <h4 class="font-bold text-xs mb-4 uppercase tracking-[0.18em] text-white">{{ t('footer.hours') }}</h4>
             <span class="md:hidden text-gray-400 mb-4 text-xs transition-transform duration-300" :class="openSections.hours ? 'rotate-180' : ''">▾</span>
           </button>
           <ul
@@ -139,15 +139,15 @@ const hours = computed(() => [
               class="flex justify-between items-center text-sm gap-4"
             >
               <span class="text-gray-400">{{ item.days }}</span>
-              <span class="text-gray-500 font-medium">{{ item.time }}</span>
+              <span class="font-medium text-gray-500">{{ item.time }}</span>
             </li>
           </ul>
         </div>
 
       </div>
 
-      <div class="border-t border-white/5 pt-7 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p class="text-gray-400 text-xs">
+      <div class="pt-7 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/5">
+        <p class="text-xs text-gray-500">
           &copy; {{ currentYear }} Burger Primo. {{ t('footer.copy') }}
         </p>
       </div>

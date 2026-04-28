@@ -47,6 +47,8 @@ const translations: Record<Locale, Record<string, string>> = {
         'menu.empty':          'Menüü on hetkel tühi',
         'menu.empty.sub':      'Tulge hiljem tagasi!',
         'menu.cat.empty':      'Selles kategoorias pole hetkel tooteid',
+        'menu.filter':         'Filtreeri',
+        'menu.all':            'Kõik',
 
 
         'login.welcome':       'Tere tulemast tagasi!',
@@ -208,6 +210,8 @@ const translations: Record<Locale, Record<string, string>> = {
         'menu.empty':          'Menu is currently empty',
         'menu.empty.sub':      'Come back later!',
         'menu.cat.empty':      'No items in this category right now',
+        'menu.filter':         'Filter',
+        'menu.all':            'All',
 
 
         'login.welcome':       'Welcome back!',

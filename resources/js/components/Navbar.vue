@@ -206,8 +206,6 @@ const vClickOutside = {
             </svg>
           </Link>
 
-          <div class="w-px h-5 bg-white/8 mx-0.5" />
-
           <LanguageToggle />
 
           <div class="w-px h-5 bg-white/8 mx-0.5" />
@@ -284,7 +282,7 @@ const vClickOutside = {
           </div>
 
           <div class="pt-3 mt-2 border-t border-white/6 space-y-1">
-            <div class="px-4 pb-2 w-fit">
+            <div class="flex items-center gap-3 px-4 pb-2">
               <LanguageToggle />
             </div>
             <template v-if="user">
