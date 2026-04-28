@@ -46,36 +46,37 @@ createInertiaApp({
 initializeTheme();
 
 // Register service worker + handle push subscriptions
+let _swRegistration: ServiceWorkerRegistration | null = null;
+
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/build/sw.js').then(async (registration) => {
-        if (!('PushManager' in window)) return;
+        _swRegistration = registration;
 
-        // Re-use existing subscription or skip if permission denied
+        if (!('PushManager' in window)) return;
         if (Notification.permission === 'denied') return;
 
         const existing = await registration.pushManager.getSubscription();
         if (existing) {
-            // Already subscribed — ensure backend has it
             sendSubscriptionToServer(existing);
-            return;
         }
-
-        // Ask for permission once (after brief delay so page settles)
-        setTimeout(async () => {
-            const permission = await Notification.requestPermission();
-            if (permission !== 'granted') return;
-            try {
-                const sub = await registration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUint8Array(
-                        import.meta.env.VITE_VAPID_PUBLIC_KEY as string
-                    ),
-                });
-                sendSubscriptionToServer(sub);
-            } catch (_) { /* user denied or browser blocked */ }
-        }, 4000);
     });
 }
+
+// Called by NotificationPrompt.vue when the user clicks "Enable"
+(window as any).__requestPushPermission = async (): Promise<'granted' | 'denied' | 'default'> => {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted' || !_swRegistration) return permission;
+    try {
+        const sub = await _swRegistration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(
+                import.meta.env.VITE_VAPID_PUBLIC_KEY as string
+            ),
+        });
+        sendSubscriptionToServer(sub);
+    } catch (_) { /* browser blocked */ }
+    return permission;
+};
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);

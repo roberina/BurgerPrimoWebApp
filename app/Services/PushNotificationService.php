@@ -9,19 +9,27 @@ use Minishlink\WebPush\WebPush;
 
 class PushNotificationService
 {
-    private WebPush $webPush;
+    private ?WebPush $webPush = null;
 
-    public function __construct()
+    private function webPush(): WebPush
     {
-        $auth = [
-            'VAPID' => [
-                'subject'    => config('services.vapid.subject'),
-                'publicKey'  => config('services.vapid.public_key'),
-                'privateKey' => config('services.vapid.private_key'),
-            ],
-        ];
+        if ($this->webPush === null) {
+            $auth = [
+                'VAPID' => [
+                    'subject'    => config('services.vapid.subject'),
+                    'publicKey'  => config('services.vapid.public_key'),
+                    'privateKey' => config('services.vapid.private_key'),
+                ],
+            ];
 
-        $this->webPush = new WebPush($auth);
+            // The library emits E_USER_NOTICE when bcmath/gmp aren't in the
+            // web-server PHP context. Suppress it — it's a speed hint, not an error.
+            $prev = error_reporting(error_reporting() & ~E_USER_NOTICE);
+            $this->webPush = new WebPush($auth);
+            error_reporting($prev);
+        }
+
+        return $this->webPush;
     }
 
     public function sendToAll(string $title, string $body, string $url = '/'): void
@@ -32,10 +40,11 @@ class PushNotificationService
             return;
         }
 
+        $webPush = $this->webPush();
         $payload = json_encode(['title' => $title, 'body' => $body, 'url' => $url]);
 
         foreach ($subscriptions as $sub) {
-            $this->webPush->queueNotification(
+            $webPush->queueNotification(
                 Subscription::create([
                     'endpoint'        => $sub->endpoint,
                     'keys' => [
@@ -48,7 +57,7 @@ class PushNotificationService
         }
 
         /** @var MessageSentReport $report */
-        foreach ($this->webPush->flush() as $report) {
+        foreach ($webPush->flush() as $report) {
             if (!$report->isSuccess()) {
                 // Remove expired/invalid subscriptions
                 PushSubscription::where('endpoint', $report->getEndpoint())->delete();
