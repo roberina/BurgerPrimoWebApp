@@ -33,11 +33,34 @@
         </div>
       </div>
 
-      <div v-if="activeOrders.length === 0 && completedOrders.length === 0"
+      <div v-if="availableOrders.length === 0 && activeOrders.length === 0 && completedOrders.length === 0"
            class="text-center py-16">
         <div class="text-6xl mb-4">🛵</div>
-        <p class="text-gray-400 font-semibold">Hetkel pole sulle ühtegi tellimust määratud</p>
+        <p class="text-gray-400 font-semibold">Hetkel pole saadaval ühtegi tellimust</p>
         <p class="text-gray-600 text-sm mt-1">Uued tellimused ilmuvad siia automaatselt</p>
+      </div>
+
+      <!-- Saadaval tellimused -->
+      <div v-if="availableOrders.length > 0" class="mb-8">
+        <h2 class="text-xs uppercase tracking-widest text-orange-400 font-bold mb-3">Saadaval</h2>
+        <div class="space-y-3">
+          <Link
+            v-for="order in availableOrders"
+            :key="order.id"
+            :href="`/courier/orders/${order.id}`"
+            class="block bg-[#111] border border-orange-500/30 rounded-2xl p-4 hover:border-orange-500/60 transition"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono font-bold text-[#D2691E]">{{ order.order_number }}</span>
+              <span class="text-xs px-2 py-1 rounded-full bg-orange-900/40 text-orange-400 font-semibold">Võta vastu</span>
+            </div>
+            <p class="text-sm text-gray-400 truncate">{{ order.delivery_address ?? 'Sihtkoht täpsustamata' }}</p>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-xs text-gray-600">{{ order.items.length }} ese(t)</span>
+              <span class="text-sm font-bold text-white">{{ Number(order.total_amount).toFixed(2) }}€</span>
+            </div>
+          </Link>
+        </div>
       </div>
 
       <!-- Aktiivsed tellimused -->
@@ -105,7 +128,7 @@ interface Order {
   items: OrderItem[];
 }
 
-const props = defineProps<{ orders: Order[]; courierOnline: boolean }>();
+const props = defineProps<{ orders: Order[]; availableOrders: Order[]; courierOnline: boolean }>();
 
 const page = usePage();
 const isOnline = ref(props.courierOnline);
@@ -134,8 +157,8 @@ let refreshInterval: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
   refreshInterval = setInterval(() => {
-    router.reload({ only: ['orders'] });
-  }, 5000);
+    router.reload({ only: ['orders', 'availableOrders'] });
+  }, 1500);
 });
 
 onUnmounted(() => {
