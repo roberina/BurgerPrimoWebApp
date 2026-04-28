@@ -92,7 +92,7 @@ const translations: Record<Locale, Record<string, string>> = {
         'orders.empty.heading':    'Tellimusi pole veel',
         'orders.empty.sub':        'Telli oma esimene burger!',
         'orders.empty.cta':        'Avasta menüüd',
-        'orders.cta':              'Telli veel burgereid',
+        'orders.cta':              'Telli veel',
         'orders.dismiss':          'Sulge teade',
 
 
@@ -207,6 +207,7 @@ const translations: Record<Locale, Record<string, string>> = {
         'bb.cancel':           'Tühista',
         'bb.name.label':       'Burgeri nimi *',
         'bb.name.ph':          'nt. Robby\'s Special...',
+        'bb.name.your':        'Sinu burger',
         'bb.ingredient':       'koostisosa',
         'bb.limit.warn':       'burgeri piirini. Muuda olemasolevat burgerit allpool.',
         'bb.limit.pre':        'Oled jõudnud',
@@ -520,7 +521,7 @@ const translations: Record<Locale, Record<string, string>> = {
         'orders.empty.heading':    'No orders yet',
         'orders.empty.sub':        'Order your first burger!',
         'orders.empty.cta':        'Explore menu',
-        'orders.cta':              'Order more burgers',
+        'orders.cta':              'Order more',
         'orders.dismiss':          'Dismiss',
 
 
@@ -635,6 +636,7 @@ const translations: Record<Locale, Record<string, string>> = {
         'bb.cancel':           'Cancel',
         'bb.name.label':       'Burger name *',
         'bb.name.ph':          'e.g. Robby\'s Special...',
+        'bb.name.your':        'Your burger',
         'bb.ingredient':       'ingredient',
         'bb.limit.warn':       'burger limit reached. Edit an existing burger below.',
         'bb.limit.pre':        'You\'ve hit the',

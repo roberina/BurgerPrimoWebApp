@@ -1,6 +1,15 @@
 <template>
+  <Head>
+    <meta name="description" content="Burger Primo pakub käsitsi valmistatud burgereid, krõbedaid snäkke ja maitsvaid jooke Kuressaares. Telli kohale või tule kohale!" head-key="description" />
+    <meta name="robots" content="index, follow" head-key="robots" />
+    <meta property="og:title" content="Burger Primo — Parimad burgerid Kuressaares" head-key="og:title" />
+    <meta property="og:description" content="Burger Primo pakub käsitsi valmistatud burgereid, krõbedaid snäkke ja maitsvaid jooke Kuressaares. Telli kohale või tule kohale!" head-key="og:description" />
+    <meta property="og:type" content="website" head-key="og:type" />
+    <meta property="og:url" content="https://burgerprimo.ee" head-key="og:url" />
+    <meta property="og:image" content="/img/Logo45.png" head-key="og:image" />   
+  </Head>  
   <MainLayout>
-    <!-- TOAST NOTIFICATIONS -->
+
     <Teleport to="body">
       <div class="bb-toasts">
         <TransitionGroup name="toast">
@@ -25,7 +34,7 @@
         <div class="bb-left">
           <div class="bb-burger-panel">
             <div class="bb-burger-title">
-              <span class="bb-eyebrow">Sinu burger</span>
+              <span class="bb-eyebrow">{{ t('bb.name.your') }}</span>
               <span class="bb-burger-name-display" v-if="burgerName">{{ burgerName }}</span>
             </div>
 
@@ -354,6 +363,7 @@
 
 <script setup lang="ts">
 import MainLayout from '@/layouts/MainLayout.vue';
+import { Head } from '@inertiajs/vue3';
 import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import type { Ingredient, SelectedIngredient, CustomBurger } from '@/types/burger-types';

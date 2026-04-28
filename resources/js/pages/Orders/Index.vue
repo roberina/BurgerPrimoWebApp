@@ -1,4 +1,13 @@
 <template>
+    <Head>
+    <meta name="description" content="Burger Primo pakub käsitsi valmistatud burgereid, krõbedaid snäkke ja maitsvaid jooke Kuressaares. Telli kohale või tule kohale!" head-key="description" />
+    <meta name="robots" content="index, follow" head-key="robots" />
+    <meta property="og:title" content="Burger Primo — Parimad burgerid Kuressaares" head-key="og:title" />
+    <meta property="og:description" content="Burger Primo pakub käsitsi valmistatud burgereid, krõbedaid snäkke ja maitsvaid jooke Kuressaares. Telli kohale või tule kohale!" head-key="og:description" />
+    <meta property="og:type" content="website" head-key="og:type" />
+    <meta property="og:url" content="https://burgerprimo.ee" head-key="og:url" />
+    <meta property="og:image" content="/img/Logo45.png" head-key="og:image" />
+  </Head>
   <div class="min-h-screen bg-[#0B0B0B] text-white pt-16 lg:pt-20">
     <Navbar />
 
@@ -138,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, Head } from '@inertiajs/vue3';
 import { useI18n } from '@/composables/useI18n';
 import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
 import Navbar from '@/components/Navbar.vue';

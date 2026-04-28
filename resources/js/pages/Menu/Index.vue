@@ -1,5 +1,5 @@
 <template>
-  <Head title="Menüü — Burger Primo">
+  <Head>
     <meta name="description" content="Vaata Burger Primo täielikku menüüd – burgerid, snäkid, joogid ja palju muud. Telli juba täna!" head-key="description" />
     <meta name="robots" content="index, follow" head-key="robots" />
     <meta property="og:title" content="Menüü — Burger Primo" head-key="og:title" />
