@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useI18n } from '@/composables/useI18n';
 
 interface AddonOption { id: number; name: string; price: number; slug: string | null }
 interface Addons {
@@ -23,6 +24,8 @@ const emit = defineEmits<{
   close: [];
   added: [];
 }>();
+
+const { t } = useI18n();
 
 const scrollRef = ref<HTMLElement | null>(null);
 
@@ -145,7 +148,7 @@ const addToCart = () => {
                 </div>
                 <div>
                   <h2 class="text-xl font-bold text-white">{{ item.name }}</h2>
-                  <p class="text-sm text-gray-400">Kohanda oma tellimust</p>
+                  <p class="text-sm text-gray-400">{{ t('addon.customize') }}</p>
                 </div>
               </div>
               <button @click="emit('close')" class="w-9 h-9 rounded-lg bg-[#1a1a1a] hover:bg-[#D2691E] text-gray-400 hover:text-white transition-colors flex items-center justify-center">
@@ -157,7 +160,7 @@ const addToCart = () => {
             <div v-if="loading" class="flex-1 flex items-center justify-center py-20">
               <div class="flex flex-col items-center gap-3">
                 <div class="w-8 h-8 border-2 border-[#D2691E] border-t-transparent rounded-full animate-spin"></div>
-                <p class="text-sm text-gray-500">Laen lisandeid...</p>
+                <p class="text-sm text-gray-500">{{ t('addon.loading') }}</p>
               </div>
             </div>
 
@@ -167,7 +170,7 @@ const addToCart = () => {
               <!-- SIZE -->
               <section v-if="addons.size?.length">
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">📏</span> Suurus
+                  <span class="text-[#D2691E]">📏</span> {{ t('addon.size') }}
                 </h3>
                 <div class="grid grid-cols-3 gap-3">
                   <button
@@ -192,7 +195,7 @@ const addToCart = () => {
               <!-- DRINKS -->
               <section v-if="addons.drink?.length">
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">🥤</span> Joogid
+                  <span class="text-[#D2691E]">🥤</span> {{ t('addon.drinks') }}
                 </h3>
                 <div class="space-y-2">
                   <label
@@ -218,7 +221,7 @@ const addToCart = () => {
               <!-- SAUCES -->
               <section v-if="addons.sauce?.length">
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">🧴</span> Kastmed
+                  <span class="text-[#D2691E]">🧴</span> {{ t('addon.sauces') }}
                 </h3>
                 <div class="grid grid-cols-2 gap-2">
                   <label
@@ -236,7 +239,7 @@ const addToCart = () => {
                     <div class="flex-1 min-w-0">
                       <div class="text-white text-sm font-medium truncate">{{ sauce.name }}</div>
                       <div :class="sauce.price > 0 ? 'text-[#D2691E]' : 'text-gray-600'" class="text-xs font-semibold">
-                        {{ sauce.price > 0 ? `+€${sauce.price.toFixed(2)}` : 'Tasuta' }}
+                        {{ sauce.price > 0 ? `+€${sauce.price.toFixed(2)}` : t('addon.free') }}
                       </div>
                     </div>
                   </label>
@@ -246,7 +249,7 @@ const addToCart = () => {
               <!-- FRIES -->
               <section v-if="addons.fries?.length">
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">🍟</span> Friikartul
+                  <span class="text-[#D2691E]">🍟</span> {{ t('addon.fries') }}
                 </h3>
                 <div class="space-y-2">
                   <label
@@ -265,7 +268,7 @@ const addToCart = () => {
                       <span class="text-white text-sm font-medium">{{ fry.name }}</span>
                     </div>
                     <span :class="fry.price > 0 ? 'text-[#D2691E] font-bold' : 'text-gray-600'" class="text-sm">
-                      {{ fry.price > 0 ? `+€${fry.price.toFixed(2)}` : 'Ei lisandu' }}
+                      {{ fry.price > 0 ? `+€${fry.price.toFixed(2)}` : t('addon.no.extra') }}
                     </span>
                   </label>
                 </div>
@@ -274,27 +277,27 @@ const addToCart = () => {
               <!-- UTENSILS -->
               <section>
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">🍴</span> Söögiriistad
+                  <span class="text-[#D2691E]">🍴</span> {{ t('addon.utensils') }}
                 </h3>
                 <label class="flex items-center gap-3 p-3.5 rounded-xl bg-[#0B0B0B] hover:bg-[#D2691E]/8 cursor-pointer transition-colors border-2 border-transparent hover:border-[#D2691E]/20"
                   :class="needsUtensils ? 'border-[#D2691E]/30 bg-[#D2691E]/8' : ''"
                 >
                   <input type="checkbox" v-model="needsUtensils" class="w-4 h-4 rounded border-gray-600 bg-[#121212] text-[#D2691E] focus:ring-[#D2691E] focus:ring-offset-[#0B0B0B]" />
-                  <span class="text-white text-sm font-medium">Soovin söögiriistu</span>
-                  <span class="ml-auto text-gray-600 text-xs">Tasuta</span>
+                  <span class="text-white text-sm font-medium">{{ t('addon.utensils.want') }}</span>
+                  <span class="ml-auto text-gray-600 text-xs">{{ t('addon.free') }}</span>
                 </label>
               </section>
 
               <!-- SPECIAL INSTRUCTIONS -->
               <section>
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">📝</span> Erisoovidused
+                  <span class="text-[#D2691E]">📝</span> {{ t('addon.special') }}
                 </h3>
                 <textarea
                   v-model="specialInstructions"
                   rows="3"
                   class="w-full bg-[#0B0B0B] border-2 border-[#1a1a1a] rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:border-[#D2691E] focus:ring-0 transition-colors resize-none"
-                  placeholder="Nt: ilma sibulata, ekstra juust..."
+                  :placeholder="t('addon.special.ph')"
                 />
               </section>
             </div>
@@ -303,7 +306,7 @@ const addToCart = () => {
             <div class="flex-shrink-0 bg-[#0B0B0B] px-6 py-4 border-t border-[#1a1a1a] rounded-b-2xl">
               <div class="flex items-center justify-between mb-4">
                 <div class="text-gray-400 text-sm">
-                  Kokku: <span class="text-xs text-gray-600 ml-1">(€{{ Number(item.price).toFixed(2) }} + lisandid)</span>
+                  {{ t('addon.total') }} <span class="text-xs text-gray-600 ml-1">(€{{ Number(item.price).toFixed(2) }} {{ t('addon.base.note') }})</span>
                 </div>
                 <span class="text-3xl font-bold text-[#D2691E]">€{{ totalPrice }}</span>
               </div>
@@ -316,7 +319,7 @@ const addToCart = () => {
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
-                {{ submitting ? 'Lisandub...' : 'Lisa korvi' }}
+                {{ submitting ? t('addon.adding') : t('addon.add') }}
               </button>
             </div>
 

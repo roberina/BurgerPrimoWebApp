@@ -151,9 +151,9 @@
                 <span class="w-2 h-2 rounded-full flex-shrink-0"
                       :class="deliveryStatus.available ? 'bg-green-400 animate-pulse' : 'bg-gray-600'"></span>
                 <span v-if="deliveryStatus.available">
-                  {{ deliveryStatus.couriers }} kuller{{ deliveryStatus.couriers === 1 ? '' : 'it' }} saadaval · ~{{ deliveryStatus.eta }}
+                  {{ deliveryStatus.couriers }} kuller{{ deliveryStatus.couriers === 1 ? '' : 'it' }} {{ t('cart.couriers.available') }} · ~{{ deliveryStatus.eta }}
                 </span>
-                <span v-else>Kohaletoimetamine pole hetkel saadaval</span>
+                <span v-else>{{ t('cart.delivery.unavailable') }}</span>
               </div>
 
               <div class="grid grid-cols-3 gap-3">
@@ -167,7 +167,7 @@
                 </button>
                 <button type="button" @click="deliveryMethod = 'delivery'" :class="deliveryMethod === 'delivery' ? 'border-[#D2691E] bg-[#D2691E]/10 text-white' : 'border-white/8 text-gray-500 hover:border-white/20 hover:text-gray-300'" class="py-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 22V12h6v10" /></svg>
-                  <span class="text-xs font-semibold">Telli koju</span>
+                  <span class="text-xs font-semibold">{{ t('cart.delivery') }}</span>
                 </button>
               </div>
             </div>

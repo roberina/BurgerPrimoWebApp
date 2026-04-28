@@ -77,7 +77,7 @@
               <span class="font-mono font-bold text-[#D2691E]">{{ order.order_number }}</span>
               <span class="text-xs px-2 py-1 rounded-full bg-cyan-900/40 text-cyan-400 font-semibold">Teel</span>
             </div>
-            <p class="text-sm text-gray-400 truncate">{{ order.delivery_address ?? 'Sihtkoht täpsustamata' }}</p>
+            <p class="text-sm text-gray-400 truncate">{{ order.delivery_address ?? t('courier.destination') }}</p>
             <div class="flex items-center justify-between mt-2">
               <span class="text-xs text-gray-600">{{ order.items.length }} ese(t)</span>
               <span class="text-sm font-bold text-white">{{ Number(order.total_amount).toFixed(2) }}€</span>
@@ -114,6 +114,9 @@
 import Navbar from '@/components/Navbar.vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useI18n } from '@/composables/useI18n';
+
+const { t } = useI18n();
 
 interface OrderItem { burger_name: string; quantity: number; price: number; }
 interface Order {

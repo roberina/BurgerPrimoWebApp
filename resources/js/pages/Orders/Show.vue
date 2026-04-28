@@ -126,11 +126,7 @@
         <!-- Status Bar -->
         <div class="bg-[#0d0d0d] px-6 py-4 flex items-center justify-between border-b border-[#1a1a1a]">
           <div>
-            <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Olek</p>
-            <span :class="getStatusClass(order.status)">{{ getStatusLabel(order.status) }}</span>
-          </div>
-          <div class="text-right">
-            <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Esitatud</p>
+            <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">{{ t('order.show.submitted.label') }}</p>
             <p class="text-sm text-gray-300 font-medium">{{ formatDate(order.created_at) }}</p>
           </div>
         </div>
@@ -191,7 +187,7 @@
 
           <!-- Customer Notes -->
           <div v-if="order.customer_notes" class="bg-[#0d0d0d] rounded-xl px-4 py-3">
-            <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Sinu märkused</p>
+            <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">{{ t('order.show.notes') }}</p>
             <p class="text-sm text-gray-300">{{ order.customer_notes }}</p>
           </div>
 
@@ -335,6 +331,7 @@ interface Order {
   delivery_lat?: number | null;
   delivery_lng?: number | null;
   delivery_address?: string | null;
+  delivery_method?: string | null;
 }
 
 interface Props {
@@ -390,15 +387,23 @@ const saveDeliveryLocation = () => {
   });
 };
 
-// Status progress steps
-const statusSteps = [
-  { key: 'pending',    label: t('order.step.pending') },
-  { key: 'confirmed',  label: t('order.step.confirmed') },
-  { key: 'preparing',  label: t('order.step.preparing') },
-  { key: 'ready',      label: t('order.step.ready') },
-  { key: 'delivering', label: t('order.step.delivering') },
-  { key: 'completed',  label: t('order.step.completed') },
-];
+// Status progress steps — computed so labels react to locale changes
+// The "delivering" step is only shown for delivery orders
+const isDeliveryOrder = computed(() => props.order.delivery_method === 'delivery');
+
+const statusSteps = computed(() => {
+  const steps = [
+    { key: 'pending',    label: t('order.step.pending') },
+    { key: 'confirmed',  label: t('order.step.confirmed') },
+    { key: 'preparing',  label: t('order.step.preparing') },
+    { key: 'ready',      label: t('order.step.ready') },
+    { key: 'completed',  label: t('order.step.completed') },
+  ];
+  if (isDeliveryOrder.value) {
+    steps.splice(4, 0, { key: 'delivering', label: t('order.step.delivering') });
+  }
+  return steps;
+});
 
 const statusOrder = ['pending', 'confirmed', 'preparing', 'ready', 'delivering', 'completed', 'cancelled', 'rejected'];
 

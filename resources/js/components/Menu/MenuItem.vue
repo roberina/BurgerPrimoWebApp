@@ -9,7 +9,7 @@
     <div class="flex-1 p-4 flex flex-col justify-between min-w-0">
       <div>
         <div class="flex items-center gap-2 mb-1.5">
-          <span v-if="item.is_featured" class="text-xs bg-yellow-500/15 text-yellow-400 px-2 py-0.5 rounded-full font-semibold">★ Populaarne</span>
+          <span v-if="item.is_featured" class="text-xs bg-yellow-500/15 text-yellow-400 px-2 py-0.5 rounded-full font-semibold">{{ t('menu.item.popular') }}</span>
           <span v-if="item.discount_percentage" class="text-xs bg-[#D2691E]/15 text-[#D2691E] px-2 py-0.5 rounded-full font-semibold">-{{ item.discount_percentage }}%</span>
         </div>
         <h3 class="font-bold text-sm leading-snug text-white">{{ item.name }}</h3>
@@ -39,7 +39,7 @@
       <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
       <div v-else class="w-full h-full flex items-center justify-center text-6xl">🍔</div>
       <div class="absolute top-3 left-3 flex gap-2">
-        <span v-if="item.is_featured" class="bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold">★ Populaarne</span>
+        <span v-if="item.is_featured" class="bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold">{{ t('menu.item.popular') }}</span>
         <span v-if="item.discount_percentage" class="bg-[#D2691E] text-white px-3 py-1 rounded-full text-xs font-bold">-{{ item.discount_percentage }}%</span>
       </div>
       <button @click.stop="toggleFavorite" class="absolute top-3 right-3 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-lg flex items-center justify-center transition-all duration-200 z-10 cursor-pointer">
@@ -135,7 +135,7 @@ const openAddonModal = async () => {
 };
 
 const closeAddonModal = () => { showAddonModal.value = false; };
-const onAdded = () => { closeAddonModal(); success(`${props.item.name} lisatud ostukorvi! 🛒`); };
+const onAdded = () => { closeAddonModal(); success(`${props.item.name} ${t('toast.cart.added')}`); };
 </script>
 
 <style scoped>

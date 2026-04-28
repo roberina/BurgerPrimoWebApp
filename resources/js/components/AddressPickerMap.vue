@@ -40,7 +40,7 @@
     <div
       ref="mapContainer"
       class="w-full rounded-xl overflow-hidden border border-gray-800"
-      style="height: 280px;"
+      style="height: 280px; isolation: isolate; z-index: 0;"
     ></div>
 
     <!-- Selected address -->
