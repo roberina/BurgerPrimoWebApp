@@ -40,4 +40,10 @@ return [
         'secret_key' => env('STRIPE_SECRET_KEY'),
     ],
 
+    'vapid' => [
+        'public_key'  => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+        'subject'     => env('VAPID_SUBJECT', 'mailto:info@burgerprimo.ee'),
+    ],
+
 ];

@@ -112,10 +112,7 @@ const closeSidebar = () => {
           </div>
           <span class="text-lg font-bold">Admin</span>
         </Link>
-        <button
-          @click="toggleSidebar"
-          class="p-2 hover:bg-gray-800 rounded-lg transition"
-        >
+        <button @click="toggleSidebar" class="p-2 hover:bg-gray-800 rounded-lg transition">
           <Menu :size="24" />
         </button>
       </div>
@@ -131,9 +128,10 @@ const closeSidebar = () => {
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed top-0 left-0 bottom-0 w-64 bg-[#111111] border-r border-gray-800 z-50 transition-transform duration-300 flex flex-col',
+        'fixed top-0 left-0 bottom-0 w-64 bg-[#111111] border-r border-gray-800 z-50 transition-transform duration-300',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       ]"
+      style="display: grid; grid-template-rows: auto 1fr auto;"
     >
       <!-- Logo -->
       <div class="p-6 border-b border-gray-800">
@@ -146,8 +144,6 @@ const closeSidebar = () => {
             <p class="text-xs text-gray-400">Admin</p>
           </div>
         </Link>
-        
-        <!-- Close button for mobile -->
         <button
           @click="closeSidebar"
           class="lg:hidden absolute top-6 right-6 p-2 hover:bg-gray-800 rounded-lg transition"
@@ -157,7 +153,7 @@ const closeSidebar = () => {
       </div>
 
       <!-- Navigation -->
-      <nav class="p-4 space-y-1 flex-1 overflow-y-auto">
+      <nav class="overflow-y-auto p-4 space-y-1" style="-webkit-overflow-scrolling: touch;">
         <Link
           v-for="item in navigation"
           :key="item.url"
@@ -186,7 +182,6 @@ const closeSidebar = () => {
             <p class="text-xs text-gray-400 truncate">{{ user?.email || 'admin@burgerprimo.ee' }}</p>
           </div>
         </div>
-        
         <a
           href="/"
           class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 hover:text-white rounded-lg font-semibold transition mb-2"

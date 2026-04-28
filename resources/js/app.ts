@@ -44,3 +44,58 @@ createInertiaApp({
 
 // This will set light / dark mode on page load...
 initializeTheme();
+
+// Register service worker + handle push subscriptions
+let _swRegistration: ServiceWorkerRegistration | null = null;
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/build/sw.js').then(async (registration) => {
+        _swRegistration = registration;
+
+        if (!('PushManager' in window)) return;
+        if (Notification.permission === 'denied') return;
+
+        const existing = await registration.pushManager.getSubscription();
+        if (existing) {
+            sendSubscriptionToServer(existing);
+        }
+    });
+}
+
+// Called by NotificationPrompt.vue when the user clicks "Enable"
+(window as any).__requestPushPermission = async (): Promise<'granted' | 'denied' | 'default'> => {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted' || !_swRegistration) return permission;
+    try {
+        const sub = await _swRegistration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(
+                import.meta.env.VITE_VAPID_PUBLIC_KEY as string
+            ),
+        });
+        sendSubscriptionToServer(sub);
+    } catch (_) { /* browser blocked */ }
+    return permission;
+};
+
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(base64);
+    return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+}
+
+function sendSubscriptionToServer(sub: PushSubscription): void {
+    const key = sub.getKey('p256dh');
+    const auth = sub.getKey('auth');
+    if (!key || !auth) return;
+    fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            endpoint:   sub.endpoint,
+            public_key: btoa(String.fromCharCode(...new Uint8Array(key))),
+            auth_token: btoa(String.fromCharCode(...new Uint8Array(auth))),
+        }),
+    });
+}

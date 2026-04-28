@@ -5,6 +5,7 @@
       <slot />
     </main>
     <Footer />
+    <NotificationPrompt />
   </div>
 </template>
 
@@ -13,6 +14,7 @@ import { computed, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import Navbar from '@/components/Navbar.vue';
 import Footer from '@/components/Footer.vue';
+import NotificationPrompt from '@/components/NotificationPrompt.vue';
 import { useToast } from '@/composables/useToast';
 
 const page = usePage();

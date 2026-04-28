@@ -16,9 +16,16 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CourierController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ReviewController;
 
 Route::get('/api/addons', [AddonItemController::class, 'publicIndex']);
+
+$nocsrf = \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class;
+Route::post('/api/push/subscribe', [PushSubscriptionController::class, 'store'])
+    ->withoutMiddleware([$nocsrf]);
+Route::post('/api/push/unsubscribe', [PushSubscriptionController::class, 'destroy'])
+    ->withoutMiddleware([$nocsrf]);
 
 // Courier tracking — public routes protected by unique token (no login needed)
 Route::get('/courier/track/{token}', [CourierController::class, 'track'])->name('courier.track');
