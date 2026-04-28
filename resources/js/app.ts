@@ -44,3 +44,14 @@ createInertiaApp({
 
 // This will set light / dark mode on page load...
 initializeTheme();
+
+// Register service worker for PWA
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/build/sw.js')
+        .then(registration => {
+            console.log('SW registered: ', registration);
+        })
+        .catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+        });
+}
