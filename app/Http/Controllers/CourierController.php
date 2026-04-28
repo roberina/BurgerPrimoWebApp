@@ -33,7 +33,13 @@ class CourierController extends Controller
             abort(403);
         }
 
-        $orders = Order::where('courier_user_id', $user->id)
+        $availableOrders = Order::where('status', 'awaiting_courier')
+            ->with('items')
+            ->latest()
+            ->get()
+            ->map(fn ($o) => $this->formatOrder($o));
+
+        $myOrders = Order::where('courier_user_id', $user->id)
             ->whereIn('status', ['delivering', 'completed'])
             ->with('items')
             ->latest()
@@ -41,8 +47,9 @@ class CourierController extends Controller
             ->map(fn ($o) => $this->formatOrder($o));
 
         return Inertia::render('Courier/Dashboard', [
-            'orders'        => $orders,
-            'courierOnline' => (bool) $user->courier_online,
+            'orders'          => $myOrders,
+            'availableOrders' => $availableOrders,
+            'courierOnline'   => (bool) $user->courier_online,
         ]);
     }
 
@@ -50,7 +57,10 @@ class CourierController extends Controller
     {
         $user = auth()->user();
 
-        if ($order->courier_user_id !== $user->id && !$user->is_admin) {
+        $isAssigned = $order->courier_user_id === $user->id;
+        $isAvailable = $order->status === 'awaiting_courier';
+
+        if (!$isAssigned && !$isAvailable && !$user->is_admin) {
             abort(403);
         }
 
@@ -70,8 +80,20 @@ class CourierController extends Controller
     {
         $user = auth()->user();
 
-        if ($order->courier_user_id !== $user->id && !$user->is_admin) {
+        if (!$user->is_courier && !$user->is_admin) {
             abort(403);
+        }
+
+        // Atomic update — only succeeds if order is still awaiting a courier
+        $updated = Order::where('id', $order->id)
+            ->where('status', 'awaiting_courier')
+            ->update([
+                'status'          => 'delivering',
+                'courier_user_id' => $user->id,
+            ]);
+
+        if (!$updated) {
+            return response()->json(['success' => false, 'message' => 'Tellimus on juba teise kulleri poolt võetud.'], 409);
         }
 
         return response()->json(['success' => true]);
@@ -81,17 +103,24 @@ class CourierController extends Controller
     {
         $user = auth()->user();
 
-        if ($order->courier_user_id !== $user->id && !$user->is_admin) {
+        $isAssigned = $order->courier_user_id === $user->id;
+        $isAvailable = $order->status === 'awaiting_courier';
+
+        if (!$isAssigned && !$isAvailable && !$user->is_admin) {
             abort(403);
         }
 
-        $order->update([
-            'status'           => 'ready',
-            'courier_user_id'  => null,
-            'courier_lat'      => null,
-            'courier_lng'      => null,
-            'courier_updated_at' => null,
-        ]);
+        // If courier already accepted and then declines, put back to awaiting_courier
+        if ($order->status === 'delivering' && $isAssigned) {
+            $order->update([
+                'status'             => 'awaiting_courier',
+                'courier_user_id'    => null,
+                'courier_lat'        => null,
+                'courier_lng'        => null,
+                'courier_updated_at' => null,
+            ]);
+        }
+        // If still awaiting, just return — order remains available for others
 
         return response()->json(['success' => true]);
     }

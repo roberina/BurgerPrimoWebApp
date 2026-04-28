@@ -10,6 +10,7 @@ interface User {
   name: string
   email: string
   is_admin: boolean
+  is_courier: boolean
 }
 
 const page = usePage()
@@ -223,6 +224,14 @@ const vClickOutside = {
           <div class="w-px h-5 bg-white/8 mx-0.5" />
 
           <template v-if="user">
+            <Link v-if="user.is_courier && !user.is_admin" href="/courier/dashboard"
+              class="btn-magnetic px-3 py-1.5 rounded-xl bg-cyan-500/8 border border-cyan-500/18 text-cyan-400 text-xs font-bold hover:bg-cyan-500/18 transition-all flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Kuller
+            </Link>
+
             <Link v-if="user.is_admin" href="/admin/dashboard"
               class="btn-magnetic px-3 py-1.5 rounded-xl bg-yellow-500/8 border border-yellow-500/18 text-yellow-400 text-xs font-bold hover:bg-yellow-500/18 transition-all flex items-center gap-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -299,6 +308,7 @@ const vClickOutside = {
             </div>
             <template v-if="user">
               <p class="px-4 py-1 text-[10px] text-gray-700 uppercase tracking-wider font-bold">Konto</p>
+              <Link v-if="user.is_courier && !user.is_admin" href="/courier/dashboard" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm font-medium text-cyan-400 bg-cyan-500/6 hover:bg-cyan-500/12 transition-all">🛵 Kulleri töölaud</Link>
               <Link v-if="user.is_admin" href="/admin/dashboard" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm font-medium text-yellow-400 bg-yellow-500/6 hover:bg-yellow-500/12 transition-all">⚙️ Admin Dashboard</Link>
               <Link href="/settings/profile" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-all">👤 {{ t('nav.profile') }}</Link>
               <Link href="/logout" method="post" as="button" @click="mobileMenuOpen = false" class="block w-full text-left px-4 py-3 rounded-xl text-sm text-red-500 hover:bg-red-500/8 transition-all">🚪 {{ t('nav.logout') }}</Link>
