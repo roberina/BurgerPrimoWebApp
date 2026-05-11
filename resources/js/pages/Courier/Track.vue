@@ -22,10 +22,12 @@
           <!-- Header -->
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-[#D2691E]/15 rounded-xl flex items-center justify-center text-xl">🍔</div>
+              <div class="w-10 h-10 bg-orange-500/15 rounded-xl flex items-center justify-center">
+                <Flame :size="18" class="text-orange-400" />
+              </div>
               <div>
                 <p class="text-xs text-gray-500 uppercase tracking-widest">Uus tellimus</p>
-                <p class="font-mono font-bold text-[#D2691E] text-base">{{ order.order_number }}</p>
+                <p class="font-mono font-bold text-orange-500 text-base">{{ order.order_number }}</p>
               </div>
             </div>
             <p class="text-2xl font-bold text-white">{{ Number(order.total_amount).toFixed(2) }}€</p>
@@ -42,13 +44,13 @@
                 <p class="font-semibold text-sm">{{ item.burger_name }}</p>
                 <p class="text-xs text-gray-500">{{ item.quantity }}x</p>
               </div>
-              <p class="font-bold text-[#D2691E] text-sm">{{ Number(item.price * item.quantity).toFixed(2) }}€</p>
+              <p class="font-bold text-orange-500 text-sm">{{ Number(item.price * item.quantity).toFixed(2) }}€</p>
             </div>
           </div>
 
           <!-- Sihtkoht -->
           <div class="flex items-center gap-3 bg-[#111111] rounded-2xl border border-white/6 px-4 py-3">
-            <span class="text-xl">🏠</span>
+            <MapPin :size="18" class="text-orange-400 flex-shrink-0" />
             <p class="text-sm text-gray-300 leading-snug flex-1">
               {{ order.delivery_address ?? 'Sihtkoht täpsustamata' }}
             </p>
@@ -62,15 +64,16 @@
             <button
               @click="declineOrder"
               :disabled="deciding"
-              class="py-4 rounded-2xl font-bold text-base transition bg-white/6 hover:bg-white/12 border border-white/10 text-gray-300 disabled:opacity-50"
-            >✕ Keeldun</button>
+              class="py-4 rounded-2xl font-bold text-base transition bg-white/6 hover:bg-white/12 border border-white/10 text-gray-300 disabled:opacity-50 flex items-center justify-center gap-2"
+            ><X :size="16" /> Keeldun</button>
             <button
               @click="acceptOrder"
               :disabled="deciding"
-              class="py-4 rounded-2xl font-bold text-base transition disabled:opacity-50"
+              class="py-4 rounded-2xl font-bold text-base transition disabled:opacity-50 flex items-center justify-center gap-2"
               style="background: linear-gradient(135deg, #16a34a, #15803d); color: white;"
             >
-              {{ deciding ? '...' : '✓ Võtan vastu' }}
+              <span v-if="!deciding" class="flex items-center gap-2"><Check :size="16" /> Võtan vastu</span>
+              <span v-else>...</span>
             </button>
           </div>
 
@@ -82,21 +85,22 @@
     <template v-else-if="phase === 'delivered'">
       <div class="flex-1 flex flex-col items-center justify-center px-5 text-center gap-5">
         <div class="relative">
-          <div class="text-8xl mb-2 animate-bounce">🏠</div>
-          <div class="absolute -top-2 -right-4 text-3xl animate-spin" style="animation-duration:3s">⭐</div>
-          <div class="absolute -bottom-2 -left-4 text-2xl animate-ping" style="animation-duration:2s">✨</div>
+          <div class="animate-bounce mb-2">
+            <Home :size="80" class="text-green-400" />
+          </div>
+          <Star :size="28" class="absolute -top-2 -right-4 text-yellow-400 fill-yellow-400 animate-spin" style="animation-duration:3s" />
         </div>
         <div class="space-y-2 mt-4">
           <h2 class="text-3xl font-black text-white">Tarne lõpetatud!</h2>
-          <p class="text-green-400 font-semibold text-lg">Suurepärane töö 🎉</p>
-          <p class="text-gray-400 text-sm mt-2">Tellimus <span class="font-mono text-[#D2691E] font-bold">{{ order.order_number }}</span> on edukalt kohale toimetatud.</p>
+          <p class="text-green-400 font-semibold text-lg">Suurepärane töö</p>
+          <p class="text-gray-400 text-sm mt-2">Tellimus <span class="font-mono text-orange-500 font-bold">{{ order.order_number }}</span> on edukalt kohale toimetatud.</p>
         </div>
         <div class="w-20 h-1 rounded-full mt-2" style="background: linear-gradient(90deg, #16a34a, #4ade80)"></div>
         <button
           @click="closeDelivered"
-          class="mt-4 px-8 py-3 rounded-2xl font-bold text-white text-base transition hover:opacity-90"
+          class="mt-4 px-8 py-3 rounded-2xl font-bold text-white text-base transition hover:opacity-90 inline-flex items-center gap-2"
           style="background: linear-gradient(135deg, #374151, #1f2937); border: 1px solid rgba(255,255,255,0.1);">
-          Sulge ✕
+          <X :size="16" /> Sulge
         </button>
       </div>
     </template>
@@ -104,7 +108,7 @@
     <!-- ───── KEELDUTUD ───── -->
     <template v-else-if="phase === 'declined'">
       <div class="flex-1 flex flex-col items-center justify-center px-5 text-center gap-4">
-        <div class="text-6xl mb-2">👋</div>
+        <CheckCircle2 :size="64" class="text-zinc-600 mb-2" />
         <h2 class="text-2xl font-bold">Tellimus edastatud</h2>
         <p class="text-gray-400 text-sm">Keeldusid tellimuse vastuvõtmisest.<br>Restoran leiab teise kulleri.</p>
       </div>
@@ -139,12 +143,12 @@
 
           <!-- GPS otsib -->
           <div v-if="!isTracking && !stopped && !gpsError" class="flex items-center gap-2 px-4 py-2 bg-blue-900/30 border-t border-blue-700/20">
-            <span class="text-sm animate-pulse">📡</span>
+            <Wifi :size="14" class="text-blue-400 animate-pulse flex-shrink-0" />
             <p class="text-xs text-blue-300">GPS asukoha otsimine...</p>
           </div>
           <!-- GPS viga -->
           <div v-if="gpsError" class="flex items-center gap-2 px-4 py-2 bg-red-900/30 border-t border-red-700/20">
-            <span class="text-sm">⚠️</span>
+            <AlertTriangle :size="14" class="text-red-400 flex-shrink-0" />
             <p class="text-xs text-red-300">{{ gpsError }}</p>
           </div>
         </div>
@@ -173,17 +177,17 @@
               <!-- Nupud -->
               <div class="flex flex-col gap-2">
                 <button v-if="!stopped" @click="stopTracking"
-                  class="w-10 h-10 rounded-full bg-red-600/20 border border-red-800/50 flex items-center justify-center text-red-400 font-bold text-sm">
-                  ✕
+                  class="w-10 h-10 rounded-full bg-red-600/20 border border-red-800/50 flex items-center justify-center text-red-400">
+                  <X :size="16" />
                 </button>
               </div>
             </div>
 
             <!-- Tellimus info -->
             <div class="flex items-center gap-2 bg-[#0f1e2e]/60 rounded-xl px-4 py-2.5 border border-white/6">
-              <span class="text-base">🏠</span>
+              <MapPin :size="16" class="text-orange-500 flex-shrink-0" />
               <div class="flex-1 min-w-0">
-                <span class="font-mono text-xs text-[#D2691E] font-bold mr-2">{{ order.order_number }}</span>
+                <span class="font-mono text-xs text-orange-500 font-bold mr-2">{{ order.order_number }}</span>
                 <span v-if="order.delivery_address" class="text-xs text-gray-400 truncate">{{ order.delivery_address }}</span>
               </div>
               <div v-if="lastUpdate" class="text-right shrink-0">
@@ -210,14 +214,14 @@
                 style="background: linear-gradient(135deg, #16a34a, #15803d); color: white; box-shadow: 0 0 24px rgba(22,163,74,0.5);"
               >
                 <span v-if="!markingDelivered" class="flex items-center justify-center gap-2">
-                  🏠 Olen kohal — tarne lõpetatud
+                  <Home :size="20" /> Olen kohal — tarne lõpetatud
                 </span>
                 <span v-else>...</span>
               </button>
             </div>
 
             <div v-if="stopped && phase !== 'delivered'" class="text-center mt-3">
-              <p class="text-sm text-gray-400">Jälgimine peatatud ✓</p>
+              <p class="text-sm text-gray-400 flex items-center justify-center gap-1.5"><Check :size="14" class="text-green-500" /> Jälgimine peatatud</p>
             </div>
           </div>
         </div>
@@ -230,6 +234,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { AlertTriangle, Check, CheckCircle2, Flame, Home, MapPin, Star, Wifi, X } from 'lucide-vue-next';
 
 interface OrderItem {
   burger_name: string;
@@ -502,7 +507,7 @@ const makeHomeIcon = () =>
     html: `
       <div style="position:relative;width:44px;height:44px">
         <div style="position:absolute;inset:0;background:rgba(210,105,30,0.2);border-radius:50%;animation:ping2 1.8s cubic-bezier(0,0,0.2,1) infinite"></div>
-        <div style="position:absolute;inset:6px;background:#D2691E;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(210,105,30,0.5)">🏠</div>
+        <div style="position:absolute;inset:6px;background:#ea580c;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(210,105,30,0.5)">🏠</div>
       </div>
       <style>@keyframes ping2{75%,100%{transform:scale(1.8);opacity:0}}</style>
     `,
@@ -626,7 +631,7 @@ const initPreviewMap = async () => {
       html: `
         <div style="position:relative;width:38px;height:38px">
           <div style="position:absolute;inset:0;background:rgba(210,105,30,0.25);border-radius:50%;animation:pingp 1.8s cubic-bezier(0,0,0.2,1) infinite"></div>
-          <div style="position:absolute;inset:5px;background:#D2691E;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 3px 8px rgba(210,105,30,0.6)">🏠</div>
+          <div style="position:absolute;inset:5px;background:#ea580c;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 3px 8px rgba(210,105,30,0.6)">🏠</div>
         </div>
         <style>@keyframes pingp{75%,100%{transform:scale(1.8);opacity:0}}</style>
       `,

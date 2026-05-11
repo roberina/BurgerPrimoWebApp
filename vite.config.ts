@@ -30,6 +30,9 @@ export default defineConfig({
             srcDir: 'resources/js',
             filename: 'sw.js',
             registerType: 'autoUpdate',
+            devOptions: {
+                enabled: false,
+            },
             manifest: {
                 name: 'Burger Primo',
                 short_name: 'Burger Primo',
