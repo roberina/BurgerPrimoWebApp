@@ -1,103 +1,90 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-vue-next';
-import { useToast } from '@/composables/useToast';
+import { ref, reactive } from 'vue'
+import { Link, router } from '@inertiajs/vue3'
+import AdminLayout from '@/layouts/AdminLayout.vue'
+import { Head } from '@inertiajs/vue3'
+import { useToast } from '@/composables/useToast'
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, ChefHat, Leaf, Droplets, Package, Wheat, Flame } from 'lucide-vue-next'
 
-const { success, error } = useToast();
-
-const modal = reactive({ show: false, title: '', message: '', confirmLabel: 'Kinnita', onConfirm: () => {} });
-const openModal = (opts: Omit<typeof modal, 'show'>) => { Object.assign(modal, { show: true, ...opts }); };
+const { success, error } = useToast()
 
 interface Ingredient {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  is_available: boolean;
+  id: number
+  name: string
+  category: string
+  price: number
+  is_available: boolean
 }
 
 interface Props {
-  ingredients: Record<string, Ingredient[]>;
-  stats: {
-    total: number;
-    buns: number;
-    patties: number;
-    vegetables: number;
-    sauces: number;
-    extras: number;
-  };
+  ingredients: Record<string, Ingredient[]>
+  stats: { total: number; buns: number; patties: number; vegetables: number; sauces: number; extras: number }
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 
-const categoryNames: Record<string, string> = {
-  buns: 'Saiakesed',
-  patties: 'Lihakotletid',
-  vegetables: 'Köögiviljad',
-  sauces: 'Kastmed',
-  extras: 'Lisandid',
-};
+const categoryMeta: Record<string, { label: string; icon: any; statKey: keyof Props['stats'] }> = {
+  buns:       { label: 'Saiakesed',    icon: Wheat,    statKey: 'buns' },
+  patties:    { label: 'Lihakotletid', icon: Flame,    statKey: 'patties' },
+  vegetables: { label: 'Köögiviljad',  icon: Leaf,     statKey: 'vegetables' },
+  sauces:     { label: 'Kastmed',      icon: Droplets, statKey: 'sauces' },
+  extras:     { label: 'Lisandid',     icon: Package,  statKey: 'extras' },
+}
 
-const categoryIcons: Record<string, string> = {
-  buns: '🍞',
-  patties: '🍖',
-  vegetables: '🥬',
-  sauces: '🧴',
-  extras: '🧀',
-};
+const activeCategory = ref<string>(Object.keys(props.ingredients)[0] ?? 'buns')
 
-const deleteIngredient = (id: number, name: string) => {
-  openModal({
-    title: 'Kustuta koostisosa',
-    message: `Kas oled kindel, et soovid kustutada "${name}"?`,
-    confirmLabel: 'Kustuta',
-    onConfirm: () => router.delete(`/admin/ingredients/${id}`, {
-      onSuccess: () => success('Koostisosa kustutatud'),
-      onError: () => error('Kustutamine ebaõnnestus'),
-    }),
-  });
-};
+const modal = reactive({ show: false, title: '', message: '', onConfirm: () => {} })
+const openModal = (opts: Omit<typeof modal, 'show'>) => Object.assign(modal, { show: true, ...opts })
 
-const toggleAvailability = (id: number) => {
-  router.post(`/admin/ingredients/${id}/toggle`, {}, {
+const deleteIngredient = (id: number, name: string) => openModal({
+  title: 'Kustuta koostisosa',
+  message: `„${name}" kustutatakse jäädavalt.`,
+  onConfirm: () => router.delete(`/admin/ingredients/${id}`, {
     preserveScroll: true,
-    onSuccess: () => success('Saadavus uuendatud'),
-  });
-};
+    onSuccess: () => success('Koostisosa kustutatud'),
+    onError: () => error('Kustutamine ebaõnnestus'),
+  }),
+})
+
+const toggle = (id: number) => router.post(`/admin/ingredients/${id}/toggle`, {}, {
+  preserveScroll: true,
+  onSuccess: () => success('Saadavus uuendatud'),
+})
+
+const formatPrice = (price: number) => price === 0 ? 'Tasuta' : `+€${Number(price).toFixed(2)}`
 </script>
 
 <template>
+  <Head title="Burger Koostisosad" />
   <AdminLayout>
     <template #header>
       <div class="flex items-center justify-between w-full">
         <div>
-          <h2 class="text-xl lg:text-2xl font-bold">Burger Koostisosad</h2>
-          <p class="text-sm text-gray-400 mt-1">Halda burgeri ehitaja koostisosi</p>
+          <h1 class="text-sm font-semibold text-zinc-100">Burger koostisosad</h1>
+          <p class="text-xs text-zinc-500">Burgeri ehitaja koostisosad kategooriate kaupa</p>
         </div>
         <Link
-          :href="'/admin/ingredients/create'"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold transition"
+          href="/admin/ingredients/create"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-md transition-colors"
         >
-          <Plus :size="20" />
-          Lisa koostisosa
+          <Plus :size="13" />
+          <span class="hidden sm:inline">Lisa koostisosa</span>
         </Link>
       </div>
-    
-    <!-- Confirm Modal -->
+    </template>
+
+    <!-- Delete modal -->
     <Teleport to="body">
-      <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100">
+      <Transition enter-active-class="transition-opacity duration-150" enter-from-class="opacity-0" enter-to-class="opacity-100">
         <div v-if="modal.show" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="modal.show = false">
-          <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-          <div class="relative bg-[#161616] border border-white/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
-            <div class="h-1 w-full bg-gradient-to-r from-[#D2691E] to-[#B8571A]" />
-            <div class="p-6">
-              <h3 class="text-lg font-bold text-white mb-1">{{ modal.title }}</h3>
-              <p class="text-sm text-gray-400">{{ modal.message }}</p>
-              <div class="flex gap-3 mt-6">
-                <button @click="modal.show = false" class="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition font-semibold text-sm">Tühista</button>
-                <button @click="modal.onConfirm(); modal.show = false" class="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition">{{ modal.confirmLabel }}</button>
+          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div class="relative bg-[#18181b] border border-[#27272a] rounded-xl shadow-2xl w-full max-w-sm">
+            <div class="p-5">
+              <h3 class="text-sm font-semibold text-zinc-100 mb-1">{{ modal.title }}</h3>
+              <p class="text-xs text-zinc-400">{{ modal.message }}</p>
+              <div class="flex gap-2 mt-5">
+                <button @click="modal.show = false" class="flex-1 py-2 rounded-md border border-[#3f3f46] text-zinc-400 hover:text-zinc-100 hover:bg-[#27272a] text-xs font-medium transition-colors">Tühista</button>
+                <button @click="modal.onConfirm(); modal.show = false" class="flex-1 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-colors">Kustuta</button>
               </div>
             </div>
           </div>
@@ -105,105 +92,82 @@ const toggleAvailability = (id: number) => {
       </Transition>
     </Teleport>
 
-</template>
-
     <!-- Stats -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-      <div class="bg-[#111111] border border-gray-800 rounded-xl p-4">
-        <p class="text-sm text-gray-400 mb-1">Kokku</p>
-        <p class="text-3xl font-bold text-white">{{ stats.total }}</p>
+    <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-5">
+      <div class="bg-[#18181b] border border-[#27272a] rounded-lg px-3 py-3 text-center sm:col-span-1 col-span-3">
+        <p class="text-xl font-bold text-zinc-100">{{ stats.total }}</p>
+        <p class="text-[10px] text-zinc-600 mt-0.5">Kokku</p>
       </div>
-      <div class="bg-[#111111] border border-gray-800 rounded-xl p-4">
-        <p class="text-sm text-gray-400 mb-1">🍞 Saiakesed</p>
-        <p class="text-3xl font-bold text-white">{{ stats.buns }}</p>
-      </div>
-      <div class="bg-[#111111] border border-gray-800 rounded-xl p-4">
-        <p class="text-sm text-gray-400 mb-1">🍖 Lihakotletid</p>
-        <p class="text-3xl font-bold text-white">{{ stats.patties }}</p>
-      </div>
-      <div class="bg-[#111111] border border-gray-800 rounded-xl p-4">
-        <p class="text-sm text-gray-400 mb-1">🥬 Köögiviljad</p>
-        <p class="text-3xl font-bold text-white">{{ stats.vegetables }}</p>
-      </div>
-      <div class="bg-[#111111] border border-gray-800 rounded-xl p-4">
-        <p class="text-sm text-gray-400 mb-1">🧴 Kastmed</p>
-        <p class="text-3xl font-bold text-white">{{ stats.sauces }}</p>
-      </div>
-      <div class="bg-[#111111] border border-gray-800 rounded-xl p-4">
-        <p class="text-sm text-gray-400 mb-1">🧀 Lisandid</p>
-        <p class="text-3xl font-bold text-white">{{ stats.extras }}</p>
+      <div v-for="(meta, key) in categoryMeta" :key="key" class="bg-[#18181b] border border-[#27272a] rounded-lg px-3 py-3 text-center">
+        <p class="text-xl font-bold text-zinc-100">{{ stats[meta.statKey] }}</p>
+        <p class="text-[10px] text-zinc-600 mt-0.5">{{ meta.label }}</p>
       </div>
     </div>
 
-    <!-- Ingredients by Category -->
-    <div class="space-y-6">
-      <div v-for="(items, category) in ingredients" :key="category">
-        <div class="flex items-center gap-3 mb-4">
-          <span class="text-2xl">{{ categoryIcons[category] }}</span>
-          <h3 class="text-xl font-bold text-white">{{ categoryNames[category] }}</h3>
-          <span class="text-sm text-gray-400">({{ items.length }})</span>
-        </div>
+    <!-- Category tabs -->
+    <div class="flex gap-1 mb-5 overflow-x-auto pb-1">
+      <button
+        v-for="(meta, key) in categoryMeta"
+        :key="key"
+        @click="activeCategory = key"
+        :class="['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-shrink-0', activeCategory === key ? 'bg-orange-500/15 text-orange-400' : 'bg-[#18181b] border border-[#27272a] text-zinc-400 hover:text-zinc-100 hover:bg-[#27272a]']"
+      >
+        <component :is="meta.icon" :size="13" />
+        {{ meta.label }}
+        <span :class="['inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold', activeCategory === key ? 'bg-orange-500/20 text-orange-300' : 'bg-[#27272a] text-zinc-600']">
+          {{ ingredients[activeCategory]?.length ?? 0 }}
+        </span>
+      </button>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div
-            v-for="ingredient in items"
-            :key="ingredient.id"
-            :class="[
-              'bg-[#111111] border rounded-xl p-4 transition-all',
-              ingredient.is_available 
-                ? 'border-gray-800 hover:border-orange-600' 
-                : 'border-gray-800 opacity-50'
-            ]"
-          >
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex-1">
-                <h4 class="text-lg font-bold text-white mb-1">{{ ingredient.name }}</h4>
-                <p class="text-2xl font-bold text-orange-500">€{{ Number(ingredient.price).toFixed(2) }}</p>
-              </div>
-              <button
-                @click="toggleAvailability(ingredient.id)"
-                :class="[
-                  'p-2 rounded-lg transition-colors',
-                  ingredient.is_available
-                    ? 'bg-green-600/20 text-green-500 hover:bg-green-600/30'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                ]"
-                :title="ingredient.is_available ? 'Saadaval' : 'Pole saadaval'"
-              >
-                <component :is="ingredient.is_available ? Eye : EyeOff" :size="20" />
-              </button>
-            </div>
+    <!-- Table -->
+    <div class="bg-[#18181b] border border-[#27272a] rounded-lg overflow-hidden">
+      <div class="grid grid-cols-12 px-4 py-2.5 border-b border-[#27272a] text-xs font-medium text-zinc-500">
+        <div class="col-span-5">Nimi</div>
+        <div class="col-span-3">Hind</div>
+        <div class="col-span-2">Staatus</div>
+        <div class="col-span-2 text-right">Tegevus</div>
+      </div>
 
-            <div class="flex gap-2">
-              <Link
-                :href="`/admin/ingredients/${ingredient.id}/edit`"
-                class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-[#0a0a0a] hover:bg-gray-800 text-white rounded-lg font-semibold transition"
-              >
-                <Edit :size="16" />
-                Muuda
-              </Link>
-              <button
-                @click="deleteIngredient(ingredient.id, ingredient.name)"
-                class="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-500 rounded-lg font-semibold transition flex items-center gap-2"
-              >
-                <Trash2 :size="16" />
-              </button>
-            </div>
+      <div v-if="ingredients[activeCategory]?.length > 0" class="divide-y divide-[#27272a]">
+        <div
+          v-for="item in ingredients[activeCategory]"
+          :key="item.id"
+          class="grid grid-cols-12 items-center px-4 py-3 hover:bg-[#27272a]/30 transition-colors"
+          :class="!item.is_available ? 'opacity-50' : ''"
+        >
+          <div class="col-span-5">
+            <span class="text-sm font-medium text-zinc-100">{{ item.name }}</span>
+          </div>
+          <div class="col-span-3">
+            <span :class="item.price === 0 ? 'text-zinc-500' : 'text-orange-400 font-medium'" class="text-sm">{{ formatPrice(item.price) }}</span>
+          </div>
+          <div class="col-span-2">
+            <span :class="item.is_available ? 'bg-green-500/15 text-green-400' : 'bg-[#27272a] text-zinc-500'" class="text-xs font-medium px-2 py-0.5 rounded-full">
+              {{ item.is_available ? 'Saadaval' : 'Peidetud' }}
+            </span>
+          </div>
+          <div class="col-span-2 flex items-center justify-end gap-0.5">
+            <button @click="toggle(item.id)" :title="item.is_available ? 'Peida' : 'Näita'" :class="item.is_available ? 'text-green-400 hover:bg-green-500/10' : 'text-zinc-600 hover:bg-[#27272a] hover:text-zinc-400'" class="p-1.5 rounded-md transition-all">
+              <ToggleRight v-if="item.is_available" :size="14" /><ToggleLeft v-else :size="14" />
+            </button>
+            <Link :href="`/admin/ingredients/${item.id}/edit`" class="p-1.5 rounded-md text-zinc-500 hover:text-orange-400 hover:bg-orange-500/10 transition-all">
+              <Pencil :size="12" />
+            </Link>
+            <button @click="deleteIngredient(item.id, item.name)" class="p-1.5 rounded-md text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-all">
+              <Trash2 :size="12" />
+            </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Empty State -->
-    <div v-if="stats.total === 0" class="text-center py-16 bg-[#111111] rounded-xl border border-gray-800">
-      <p class="text-xl font-semibold text-gray-400 mb-4">Koostisosi pole veel lisatud</p>
-      <Link
-        :href="'/admin/ingredients/create'"
-        class="inline-flex items-center gap-2 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold transition"
-      >
-        <Plus :size="20" />
-        Lisa esimene koostisosa
-      </Link>
+      <div v-else class="flex flex-col items-center py-12 text-center">
+        <ChefHat :size="24" class="text-zinc-700 mb-3" />
+        <p class="text-sm text-zinc-500 mb-1">Seda tüüpi koostisosi pole veel lisatud</p>
+        <Link href="/admin/ingredients/create" class="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-md transition-colors">
+          <Plus :size="13" /> Lisa esimene
+        </Link>
+      </div>
     </div>
   </AdminLayout>
 </template>

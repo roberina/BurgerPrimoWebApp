@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
+import { Head } from '@inertiajs/vue3'
 import { useToast } from '@/composables/useToast'
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Check } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Check, Package } from 'lucide-vue-next'
 
 const { success, error } = useToast()
 
@@ -22,28 +23,15 @@ const props = defineProps<{
   typeLabels: Record<string, string>
 }>()
 
-// Flash messages
 const page = usePage()
 const flash = computed(() => (page.props.flash as any) ?? {})
 
-// Watch flash and show toasts
-import { watch } from 'vue'
 watch(() => flash.value, (f) => {
   if (f?.success) success(f.success)
-  if (f?.error)   error(f.error)
+  if (f?.error) error(f.error)
 }, { deep: true })
 
-// Active tab
 const activeType = ref<string>(Object.keys(props.grouped)[0] ?? 'size')
-
-const typeIcons: Record<string, string> = {
-  size:  '📏',
-  drink: '🥤',
-  sauce: '🧴',
-  fries: '🍟',
-}
-
-// Modal state
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
 
@@ -77,86 +65,147 @@ const closeModal = () => {
 }
 
 const submit = () => {
-  if (!form.name.trim()) {
-    error('Nimi on kohustuslik')
-    return
-  }
+  if (!form.name.trim()) { error('Nimi on kohustuslik'); return }
   const data = { ...form, price: Number(form.price) || 0, sort_order: Number(form.sort_order) || 0 }
-
   if (editingId.value) {
-    router.put(`/admin/addons/${editingId.value}`, data, {
-      preserveScroll: true,
-      onSuccess: closeModal,
-    })
+    router.put(`/admin/addons/${editingId.value}`, data, { preserveScroll: true, onSuccess: closeModal })
   } else {
-    router.post('/admin/addons', data, {
-      preserveScroll: true,
-      onSuccess: closeModal,
-    })
+    router.post('/admin/addons', data, { preserveScroll: true, onSuccess: closeModal })
   }
 }
 
-// Modal confirm for delete
 const deleteModal = reactive({ show: false, id: 0, name: '' })
-const confirmDelete = (item: AddonItem) => {
-  deleteModal.id = item.id
-  deleteModal.name = item.name
-  deleteModal.show = true
-}
-const doDelete = () => {
-  router.delete(`/admin/addons/${deleteModal.id}`, { preserveScroll: true })
-  deleteModal.show = false
-}
+const confirmDelete = (item: AddonItem) => { deleteModal.id = item.id; deleteModal.name = item.name; deleteModal.show = true }
+const doDelete = () => { router.delete(`/admin/addons/${deleteModal.id}`, { preserveScroll: true }); deleteModal.show = false }
 
-const toggle = (item: AddonItem) => {
-  router.post(`/admin/addons/${item.id}/toggle`, {}, { preserveScroll: true })
-}
+const toggle = (item: AddonItem) => router.post(`/admin/addons/${item.id}/toggle`, {}, { preserveScroll: true })
 
-const formatPrice = (price: number) =>
-  price === 0 ? 'Tasuta' : `+€${Number(price).toFixed(2)}`
+const formatPrice = (price: number) => price === 0 ? 'Tasuta' : `+€${Number(price).toFixed(2)}`
 </script>
 
 <template>
+  <Head title="Lisandid" />
   <AdminLayout>
     <template #header>
       <div class="flex items-center justify-between w-full">
         <div>
-          <h2 class="text-xl lg:text-2xl font-bold">Lisandite haldus</h2>
-          <p class="text-sm text-gray-400 mt-1">Halda menüü lisandeid: suurused, joogid, kastmed, friikartulid</p>
+          <h1 class="text-sm font-semibold text-zinc-100">Lisandite haldus</h1>
+          <p class="text-xs text-zinc-500">Suurused, joogid, kastmed, friikartulid</p>
         </div>
         <button
           @click="openCreate"
-          class="flex items-center gap-2 px-4 py-2 bg-[#D2691E] hover:bg-[#B8571A] text-white rounded-lg font-semibold transition text-sm"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-md transition-colors"
         >
-          <Plus :size="16" /> Lisa lisand
+          <Plus :size="13" />
+          <span class="hidden sm:inline">Lisa lisand</span>
         </button>
       </div>
     </template>
 
+    <!-- Delete confirm modal -->
+    <Teleport to="body">
+      <Transition enter-active-class="transition-opacity duration-150" enter-from-class="opacity-0" enter-to-class="opacity-100">
+        <div v-if="deleteModal.show" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="deleteModal.show = false">
+          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div class="relative bg-[#18181b] border border-[#27272a] rounded-xl shadow-2xl w-full max-w-sm">
+            <div class="p-5">
+              <h3 class="text-sm font-semibold text-zinc-100 mb-1">Kustuta lisand</h3>
+              <p class="text-xs text-zinc-400">„{{ deleteModal.name }}" kustutatakse jäädavalt.</p>
+              <div class="flex gap-2 mt-5">
+                <button @click="deleteModal.show = false" class="flex-1 py-2 rounded-md border border-[#3f3f46] text-zinc-400 hover:text-zinc-100 hover:bg-[#27272a] text-xs font-medium transition-colors">Tühista</button>
+                <button @click="doDelete" class="flex-1 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition-colors">Kustuta</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- Create/Edit modal -->
+    <Teleport to="body">
+      <Transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="closeModal">
+          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeModal" />
+          <div class="relative z-10 w-full max-w-md bg-[#18181b] border border-[#27272a] rounded-xl shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-[#27272a]">
+              <h3 class="text-sm font-semibold text-zinc-100">{{ editingId ? 'Muuda lisandit' : 'Lisa uus lisand' }}</h3>
+              <button @click="closeModal" class="p-1.5 rounded-md text-zinc-500 hover:text-zinc-100 hover:bg-[#27272a] transition"><X :size="15" /></button>
+            </div>
+
+            <div class="px-5 py-4 space-y-4">
+              <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1.5">Tüüp</label>
+                <div class="grid grid-cols-4 gap-2">
+                  <button
+                    v-for="(label, t) in typeLabels"
+                    :key="t"
+                    @click="form.type = t as any"
+                    :class="['flex flex-col items-center gap-1 py-2.5 rounded-lg border-2 text-xs font-medium transition-all', form.type === t ? 'border-orange-500/50 bg-orange-500/10 text-orange-400' : 'border-[#27272a] bg-[#09090b] text-zinc-500 hover:border-orange-500/30 hover:text-zinc-300']"
+                  >
+                    {{ label }}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1.5">Nimi *</label>
+                <input v-model="form.name" type="text" placeholder="nt. Coca-Cola 0.5L" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1.5">Lisahind (€)</label>
+                <input v-model.number="form.price" type="number" min="0" step="0.01" placeholder="0.00" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors" />
+                <p class="text-xs text-zinc-700 mt-1">0.00 = tasuta / kaasas arvel</p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-zinc-400 mb-1.5">Slug (valikuline)</label>
+                  <input v-model="form.slug" type="text" placeholder="nt. coca-cola" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-zinc-400 mb-1.5">Järjekord</label>
+                  <input v-model.number="form.sort_order" type="number" min="0" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 text-center focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors" />
+                </div>
+              </div>
+
+              <label class="flex items-center gap-2.5 cursor-pointer">
+                <input v-model="form.is_available" type="checkbox" class="w-4 h-4 rounded border-[#3f3f46] bg-[#09090b] text-orange-600 focus:ring-orange-600 focus:ring-offset-0" />
+                <span class="text-sm text-zinc-300">Saadaval klientidele</span>
+              </label>
+            </div>
+
+            <div class="px-5 pb-5 flex gap-2 justify-end border-t border-[#27272a] pt-4">
+              <button @click="closeModal" class="px-4 py-2 rounded-md text-xs font-medium text-zinc-400 hover:text-zinc-100 bg-[#27272a] hover:bg-[#3f3f46] transition">Tühista</button>
+              <button @click="submit" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-medium text-white bg-orange-600 hover:bg-orange-700 transition">
+                <Check :size="13" />
+                {{ editingId ? 'Salvesta' : 'Lisa lisand' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- Type tabs -->
-    <div class="flex gap-2 mb-6 overflow-x-auto pb-1">
+    <div class="flex gap-1 mb-5 overflow-x-auto pb-1">
       <button
         v-for="(label, type) in typeLabels"
         :key="type"
         @click="activeType = type"
-        :class="[
-          'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex-shrink-0',
-          activeType === type
-            ? 'bg-[#D2691E] text-white shadow-lg shadow-[#D2691E]/20'
-            : 'bg-[#121212] border border-[#1e1e1e] text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
-        ]"
+        :class="['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-shrink-0', activeType === type ? 'bg-orange-500/15 text-orange-400' : 'bg-[#18181b] border border-[#27272a] text-zinc-400 hover:text-zinc-100 hover:bg-[#27272a]']"
       >
-        <span>{{ typeIcons[type] }}</span>
         {{ label }}
-        <span class="text-xs opacity-70">({{ grouped[type]?.length ?? 0 }})</span>
+        <span :class="['inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold', activeType === type ? 'bg-orange-500/20 text-orange-300' : 'bg-[#27272a] text-zinc-600']">
+          {{ grouped[type]?.length ?? 0 }}
+        </span>
       </button>
     </div>
 
-    <!-- Items list -->
-    <div class="bg-[#121212] border border-[#1e1e1e] rounded-xl overflow-hidden">
-      <!-- Table header -->
-      <div class="grid grid-cols-12 px-5 py-3 bg-[#0d0d0d] border-b border-[#1e1e1e] text-xs font-semibold text-gray-500 uppercase tracking-wider">
-        <div class="col-span-1">Järjek.</div>
+    <!-- Items table -->
+    <div class="bg-[#18181b] border border-[#27272a] rounded-lg overflow-hidden">
+      <div class="grid grid-cols-12 px-4 py-2.5 border-b border-[#27272a] text-xs font-medium text-zinc-500">
+        <div class="col-span-1">#</div>
         <div class="col-span-4">Nimi</div>
         <div class="col-span-2">Slug</div>
         <div class="col-span-2">Hind</div>
@@ -164,255 +213,50 @@ const formatPrice = (price: number) =>
         <div class="col-span-1 text-right">Tegevus</div>
       </div>
 
-      <div v-if="grouped[activeType]?.length > 0" class="divide-y divide-[#1a1a1a]">
+      <div v-if="grouped[activeType]?.length > 0" class="divide-y divide-[#27272a]">
         <div
           v-for="item in grouped[activeType]"
           :key="item.id"
-          class="grid grid-cols-12 items-center px-5 py-4 hover:bg-[#161616] transition-colors"
+          class="grid grid-cols-12 items-center px-4 py-3 hover:bg-[#27272a]/30 transition-colors"
           :class="!item.is_available ? 'opacity-50' : ''"
         >
-          <!-- Sort order -->
-          <div class="col-span-1 text-gray-600 font-mono text-sm">#{{ item.sort_order }}</div>
-
-          <!-- Name -->
-          <div class="col-span-4">
-            <span class="font-semibold text-white text-sm">{{ item.name }}</span>
-          </div>
-
-          <!-- Slug -->
+          <div class="col-span-1 text-zinc-600 font-mono text-xs">{{ item.sort_order }}</div>
+          <div class="col-span-4"><span class="text-sm font-medium text-zinc-100">{{ item.name }}</span></div>
           <div class="col-span-2">
-            <code v-if="item.slug" class="text-xs text-[#D2691E] bg-[#0a0a0a] px-2 py-0.5 rounded border border-[#1e1e1e]">
-              {{ item.slug }}
-            </code>
-            <span v-else class="text-gray-700 text-xs">—</span>
+            <code v-if="item.slug" class="text-xs text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/20">{{ item.slug }}</code>
+            <span v-else class="text-zinc-700 text-xs">—</span>
           </div>
-
-          <!-- Price -->
           <div class="col-span-2">
-            <span
-              :class="item.price === 0 ? 'text-gray-500' : 'text-[#D2691E] font-bold'"
-              class="text-sm"
-            >{{ formatPrice(item.price) }}</span>
+            <span :class="item.price === 0 ? 'text-zinc-500' : 'text-orange-400 font-medium'" class="text-sm">{{ formatPrice(item.price) }}</span>
           </div>
-
-          <!-- Status -->
           <div class="col-span-2">
-            <span
-              :class="item.is_available
-                ? 'bg-green-500/15 text-green-400'
-                : 'bg-gray-700/30 text-gray-500'"
-              class="text-xs font-medium px-2.5 py-1 rounded-full"
-            >
-              {{ item.is_available ? '● Saadaval' : '○ Peidetud' }}
+            <span :class="item.is_available ? 'bg-green-500/15 text-green-400' : 'bg-[#27272a] text-zinc-500'" class="text-xs font-medium px-2 py-0.5 rounded-full">
+              {{ item.is_available ? 'Saadaval' : 'Peidetud' }}
             </span>
           </div>
-
-          <!-- Actions -->
-          <div class="col-span-1 flex items-center justify-end gap-1">
-            <button
-              @click="toggle(item)"
-              :title="item.is_available ? 'Peida' : 'Näita'"
-              :class="item.is_available ? 'text-green-400 hover:bg-green-500/10' : 'text-gray-600 hover:bg-[#1e1e1e] hover:text-gray-400'"
-              class="p-1.5 rounded-lg transition-all"
-            >
-              <ToggleRight v-if="item.is_available" :size="16" />
-              <ToggleLeft v-else :size="16" />
+          <div class="col-span-1 flex items-center justify-end gap-0.5">
+            <button @click="toggle(item)" :title="item.is_available ? 'Peida' : 'Näita'" :class="item.is_available ? 'text-green-400 hover:bg-green-500/10' : 'text-zinc-600 hover:bg-[#27272a] hover:text-zinc-400'" class="p-1.5 rounded-md transition-all">
+              <ToggleRight v-if="item.is_available" :size="14" /><ToggleLeft v-else :size="14" />
             </button>
-            <button
-              @click="openEdit(item)"
-              class="p-1.5 rounded-lg text-gray-500 hover:text-[#D2691E] hover:bg-[#D2691E]/10 transition-all"
-            >
-              <Pencil :size="14" />
-            </button>
-            <button
-              @click="confirmDelete(item)"
-              class="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-all"
-            >
-              <Trash2 :size="14" />
-            </button>
+            <button @click="openEdit(item)" class="p-1.5 rounded-md text-zinc-500 hover:text-orange-400 hover:bg-orange-500/10 transition-all"><Pencil :size="12" /></button>
+            <button @click="confirmDelete(item)" class="p-1.5 rounded-md text-zinc-600 hover:text-red-400 hover:bg-red-500/10 transition-all"><Trash2 :size="12" /></button>
           </div>
         </div>
       </div>
 
-      <!-- Empty state -->
-      <div v-else class="text-center py-16 text-gray-600">
-        <p class="text-4xl mb-3">{{ typeIcons[activeType] }}</p>
-        <p class="text-sm">Seda tüüpi lisandeid pole veel lisatud.</p>
-        <button @click="openCreate" class="mt-4 px-4 py-2 bg-[#D2691E] text-white rounded-lg text-sm font-semibold hover:bg-[#B8571A] transition">
+      <div v-else class="flex flex-col items-center py-12 text-center">
+        <Package :size="24" class="text-zinc-700 mb-3" />
+        <p class="text-sm text-zinc-500 mb-1">Seda tüüpi lisandeid pole veel lisatud</p>
+        <button @click="openCreate" class="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-md transition-colors">
+          <Plus :size="13" />
           Lisa esimene
         </button>
       </div>
     </div>
 
-    <!-- Info card -->
-    <div class="mt-6 bg-[#0d1520] border border-blue-500/20 rounded-xl p-4 text-sm text-blue-300">
-      <p class="font-semibold mb-1">ℹ️ Kuidas lisandid töötavad</p>
-      <p class="text-blue-400/70 leading-relaxed">
-        Lisandid kuvatakse kliendile menüü toote lisamise modaalaknas. <strong>Suurused</strong> on valikuga (üks korraga),
-        <strong>joogid</strong> ja <strong>kastmed</strong> on märkeruuduga (mitu korraga),
-        <strong>friikartulid</strong> on raadionupuga (üks korraga). Slug <code class="text-blue-300">none</code> friikartuli juures tähendab "Ei soovi" valikut.
-      </p>
+    <div class="mt-4 bg-[#18181b] border border-[#27272a] rounded-lg px-4 py-3 text-xs text-zinc-500 leading-relaxed">
+      <span class="font-medium text-zinc-400">Kuidas lisandid töötavad: </span>
+      Lisandid kuvatakse kliendile menüü toote lisamise aknas. Suurused on valikuga (üks korraga), joogid ja kastmed on märkeruuduga (mitu korraga), friikartulid on raadionupuga (üks korraga). Slug <code class="text-zinc-400">none</code> friikartuli juures tähendab "Ei soovi" valikut.
     </div>
-
-    <!-- ── Create/Edit Modal ── -->
-    <Teleport to="body">
-      <Transition
-        enter-active-class="transition duration-200 ease-out"
-        enter-from-class="opacity-0"
-        enter-to-class="opacity-100"
-        leave-active-class="transition duration-150 ease-in"
-        leave-from-class="opacity-100"
-        leave-to-class="opacity-0"
-      >
-        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="closeModal">
-          <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="closeModal" />
-          <Transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="opacity-0 scale-95 translate-y-2"
-            enter-to-class="opacity-100 scale-100 translate-y-0"
-          >
-            <div v-if="showModal" class="relative z-10 w-full max-w-md bg-[#111111] border border-[#222222] rounded-2xl shadow-2xl overflow-hidden">
-              <!-- Header -->
-              <div class="flex items-center justify-between px-6 py-4 border-b border-[#1e1e1e]">
-                <h3 class="text-lg font-bold text-white">
-                  {{ editingId ? 'Muuda lisandit' : 'Lisa uus lisand' }}
-                </h3>
-                <button @click="closeModal" class="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-[#1e1e1e] transition">
-                  <X :size="18" />
-                </button>
-              </div>
-
-              <!-- Body -->
-              <div class="px-6 py-5 space-y-4">
-                <!-- Type -->
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Tüüp</label>
-                  <div class="grid grid-cols-4 gap-2">
-                    <button
-                      v-for="(label, t) in typeLabels"
-                      :key="t"
-                      @click="form.type = t as any"
-                      :class="[
-                        'flex flex-col items-center gap-1 py-2.5 rounded-xl border-2 text-xs font-semibold transition-all',
-                        form.type === t
-                          ? 'border-[#D2691E] bg-[#D2691E]/10 text-white'
-                          : 'border-[#1e1e1e] bg-[#0B0B0B] text-gray-500 hover:border-[#D2691E]/40'
-                      ]"
-                    >
-                      <span class="text-lg">{{ typeIcons[t] }}</span>
-                      {{ label }}
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Name -->
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Nimi *</label>
-                  <input
-                    v-model="form.name"
-                    type="text"
-                    placeholder="nt. Coca-Cola 0.5L"
-                    class="w-full px-4 py-2.5 bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#D2691E] transition"
-                  />
-                </div>
-
-                <!-- Price -->
-                <div>
-                  <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Lisahind (€)</label>
-                  <input
-                    v-model.number="form.price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                    class="w-full px-4 py-2.5 bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#D2691E] transition"
-                  />
-                  <p class="text-xs text-gray-600 mt-1">0.00 = tasuta / kaasas arvel</p>
-                </div>
-
-                <!-- Slug + Sort order in row -->
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Slug (valikuline)</label>
-                    <input
-                      v-model="form.slug"
-                      type="text"
-                      placeholder="nt. coca-cola"
-                      class="w-full px-4 py-2.5 bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg text-white text-sm placeholder-gray-600 focus:outline-none focus:border-[#D2691E] transition"
-                    />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Järjekord</label>
-                    <input
-                      v-model.number="form.sort_order"
-                      type="number"
-                      min="0"
-                      class="w-full px-4 py-2.5 bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg text-white text-sm text-center focus:outline-none focus:border-[#D2691E] transition"
-                    />
-                  </div>
-                </div>
-
-                <!-- Available toggle -->
-                <div class="flex items-center gap-3">
-                  <div
-                    @click="form.is_available = !form.is_available"
-                    class="relative w-11 h-6 rounded-full cursor-pointer transition-all"
-                    :class="form.is_available ? 'bg-[#D2691E]' : 'bg-[#2a2a2a]'"
-                  >
-                    <span
-                      class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"
-                      :class="form.is_available ? 'translate-x-5' : 'translate-x-0'"
-                    />
-                  </div>
-                  <span class="text-sm font-medium text-gray-300">Saadaval klientidele</span>
-                </div>
-              </div>
-
-              <!-- Footer -->
-              <div class="px-6 pb-5 flex gap-3 justify-end">
-                <button @click="closeModal" class="px-5 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white bg-[#1a1a1a] hover:bg-[#222222] transition">
-                  Tühista
-                </button>
-                <button
-                  @click="submit"
-                  class="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#D2691E] hover:bg-[#B8571A] transition shadow-lg shadow-[#D2691E]/20"
-                >
-                  <Check :size="16" />
-                  {{ editingId ? 'Salvesta' : 'Lisa lisand' }}
-                </button>
-              </div>
-            </div>
-          </Transition>
-        </div>
-      </Transition>
-    </Teleport>
-
-    <!-- ── Delete Confirm Modal ── -->
-    <Teleport to="body">
-      <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100">
-        <div v-if="deleteModal.show" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="deleteModal.show = false">
-          <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-          <div class="relative z-10 w-full max-w-sm bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl p-6 shadow-2xl">
-            <div class="flex items-center gap-4 mb-4">
-              <div class="w-12 h-12 rounded-xl bg-red-500/15 text-red-400 flex items-center justify-center flex-shrink-0">
-                <Trash2 :size="22" />
-              </div>
-              <div>
-                <h3 class="text-lg font-bold text-white">Kustuta lisand</h3>
-                <p class="text-sm text-gray-400 mt-0.5">„{{ deleteModal.name }}" kustutatakse jäädavalt.</p>
-              </div>
-            </div>
-            <div class="flex gap-3 mt-6">
-              <button @click="deleteModal.show = false" class="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition font-semibold text-sm">
-                Tühista
-              </button>
-              <button @click="doDelete" class="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition">
-                Kustuta
-              </button>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
   </AdminLayout>
 </template>

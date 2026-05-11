@@ -35,7 +35,7 @@
 
       <div v-if="availableOrders.length === 0 && activeOrders.length === 0 && completedOrders.length === 0"
            class="text-center py-16">
-        <div class="text-6xl mb-4">🛵</div>
+        <Bike :size="48" class="text-zinc-700 mb-4 mx-auto" />
         <p class="text-gray-400 font-semibold">Hetkel pole saadaval ühtegi tellimust</p>
         <p class="text-gray-600 text-sm mt-1">Uued tellimused ilmuvad siia automaatselt</p>
       </div>
@@ -51,7 +51,7 @@
             class="block bg-[#111] border border-orange-500/30 rounded-2xl p-4 hover:border-orange-500/60 transition"
           >
             <div class="flex items-center justify-between mb-2">
-              <span class="font-mono font-bold text-[#D2691E]">{{ order.order_number }}</span>
+              <span class="font-mono font-bold text-orange-500">{{ order.order_number }}</span>
               <span class="text-xs px-2 py-1 rounded-full bg-orange-900/40 text-orange-400 font-semibold">Võta vastu</span>
             </div>
             <p class="text-sm text-gray-400 truncate">{{ order.delivery_address ?? 'Sihtkoht täpsustamata' }}</p>
@@ -74,7 +74,7 @@
             class="block bg-[#111] border border-white/8 rounded-2xl p-4 hover:border-cyan-500/40 transition"
           >
             <div class="flex items-center justify-between mb-2">
-              <span class="font-mono font-bold text-[#D2691E]">{{ order.order_number }}</span>
+              <span class="font-mono font-bold text-orange-500">{{ order.order_number }}</span>
               <span class="text-xs px-2 py-1 rounded-full bg-cyan-900/40 text-cyan-400 font-semibold">Teel</span>
             </div>
             <p class="text-sm text-gray-400 truncate">{{ order.delivery_address ?? t('courier.destination') }}</p>
@@ -115,6 +115,7 @@ import Navbar from '@/components/Navbar.vue';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useI18n } from '@/composables/useI18n';
+import { Bike } from 'lucide-vue-next';
 
 const { t } = useI18n();
 
