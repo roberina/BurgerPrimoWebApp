@@ -172,13 +172,13 @@ const addToCart = () => {
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
                   <span class="text-[#D2691E]">📏</span> {{ t('addon.size') }}
                 </h3>
-                <div class="grid grid-cols-3 gap-3 cursor-pointer">
+                <div class="grid grid-cols-3 gap-3">
                   <button
                     v-for="size in addons.size"
                     :key="size.id"
                     @click="selectedSizeId = size.id"
                     :class="[
-                      'px-4 py-3.5 rounded-xl border-2 transition-all text-left',
+                      'px-4 py-3.5 rounded-xl border-2 transition-all text-left cursor-pointer',
                       selectedSizeId === size.id
                         ? 'border-[#D2691E] bg-[#D2691E]/10 text-white'
                         : 'border-[#1a1a1a] bg-[#0B0B0B] text-gray-400 hover:border-[#D2691E]/40 hover:text-white'
@@ -308,12 +308,12 @@ const addToCart = () => {
                 <div class="text-gray-400 text-sm">
                   {{ t('addon.total') }} <span class="text-xs text-gray-600 ml-1">({{ Number(item.price).toFixed(2) }}€ {{ t('addon.base.note') }})</span>
                 </div>
-                <span class="text-3xl font-bold text-[#D2691E] cursor-pointer">{{ totalPrice }}€</span>
+                <span class="text-3xl font-bold text-[#D2691E]">{{ totalPrice }}€</span>
               </div>
               <button
                 @click="addToCart"
                 :disabled="submitting || loading"
-                class="w-full bg-gradient-to-r from-[#D2691E] to-[#B8571A] hover:from-[#E07A2E] hover:to-[#D2691E] disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-base transition-all shadow-lg hover:shadow-[#D2691E]/50 flex items-center justify-center gap-2"
+                class="w-full bg-gradient-to-r from-[#D2691E] to-[#B8571A] hover:from-[#E07A2E] hover:to-[#D2691E] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed text-white py-4 rounded-xl font-bold text-base transition-all shadow-lg hover:shadow-[#D2691E]/50 flex items-center justify-center gap-2"
               >
                 <svg v-if="submitting" class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>

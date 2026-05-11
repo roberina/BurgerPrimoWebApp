@@ -12,7 +12,7 @@
           @keydown.escape="suggestions = []"
           @keydown.enter.prevent="suggestions.length && selectSuggestion(suggestions[0])"
           type="text"
-          placeholder="Otsi aadressi Saaremaal..."
+          :placeholder="t('map.search.ph')"
           class="flex-1 bg-transparent py-3 text-white text-sm focus:outline-none placeholder-gray-600"
         />
         <button v-if="searchQuery" @click="clearSearch" class="text-gray-600 hover:text-gray-400 transition-colors">
@@ -49,13 +49,16 @@
         <span class="text-green-400 text-sm mt-0.5">✓</span>
         <span class="text-sm text-gray-300 leading-snug">{{ modelAddress }}</span>
       </div>
-      <p v-else class="text-xs text-gray-600">Kliki kaardil või lohista maja ikooni oma aadressile</p>
+      <p v-else class="text-xs text-gray-600">{{ t('map.click.hint') }}</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
+import { useI18n } from '@/composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   modelLat: number | null;
@@ -201,7 +204,7 @@ onMounted(async () => {
   homeMarker = L.marker([startLat, startLng], {
     icon: makeHomeIcon(),
     draggable: true,
-  }).addTo(map).bindPopup('Sinu sihtkoht', { offset: [0, -16] });
+  }).addTo(map).bindPopup(t('map.your.dest'), { offset: [0, -16] });
 
   homeMarker.on('dragend', () => {
     const { lat, lng } = homeMarker.getLatLng();

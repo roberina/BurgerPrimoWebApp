@@ -78,13 +78,13 @@ const addToCart = () => {
           enter-to-class="opacity-100 translate-y-0 scale-100"
         >
           <div
-            class="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col cursor-pointer"
+            class="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col cursor-default"
             style="background: #111; border: 1px solid #1e1e1e; box-shadow: 0 32px 80px rgba(0,0,0,0.9);"
           >
             <!-- Close button -->
             <button
               @click="emit('close')"
-              class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all"
+              class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer"
               style="background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -139,11 +139,11 @@ const addToCart = () => {
               <div style="border-top: 1px solid #1e1e1e;"></div>
 
               <!-- Buttons -->
-              <div class="flex gap-3 cursor-pointer">
+              <div class="flex gap-3">
                 <!-- Customize -->
                 <button
                   @click="emit('customize')"
-                  class="flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2"
+                  class="flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
                   style="background: #1a1a1a; border: 1px solid #2a2a2a; color: #ccc;"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -156,7 +156,7 @@ const addToCart = () => {
                 <button
                   @click="addToCart"
                   :disabled="submitting"
-                  class="flex-[2] py-3.5 rounded-xl font-bold text-sm text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  class="flex-2 py-3.5 rounded-xl font-bold text-sm text-white transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   style="background: linear-gradient(135deg, #D2691E, #B8571A); box-shadow: 0 4px 20px rgba(210,105,30,0.35);"
                 >
                   <svg v-if="submitting" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">

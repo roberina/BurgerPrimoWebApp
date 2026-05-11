@@ -24,7 +24,7 @@
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 bg-[#D2691E]/15 rounded-xl flex items-center justify-center text-xl">🍔</div>
               <div>
-                <p class="text-xs text-gray-500 uppercase tracking-widest">Uus tellimus</p>
+                <p class="text-xs text-gray-500 uppercase tracking-widest">{{ t('courier.new_order') }}</p>
                 <p class="font-mono font-bold text-[#D2691E] text-base">{{ order.order_number }}</p>
               </div>
             </div>
@@ -50,7 +50,7 @@
           <div class="flex items-center gap-3 bg-[#111111] rounded-2xl border border-white/6 px-4 py-3">
             <span class="text-xl">🏠</span>
             <p class="text-sm text-gray-300 leading-snug flex-1">
-              {{ order.delivery_address ?? 'Sihtkoht täpsustamata' }}
+              {{ order.delivery_address ?? t('courier.destination') }}
             </p>
           </div>
 
@@ -63,14 +63,14 @@
               @click="declineOrder"
               :disabled="deciding"
               class="py-4 rounded-2xl font-bold text-base transition bg-white/6 hover:bg-white/12 border border-white/10 text-gray-300 disabled:opacity-50"
-            >✕ Keeldun</button>
+            >{{ t('courier.decline') }}</button>
             <button
               @click="acceptOrder"
               :disabled="deciding"
               class="py-4 rounded-2xl font-bold text-base transition disabled:opacity-50"
               style="background: linear-gradient(135deg, #16a34a, #15803d); color: white;"
             >
-              {{ deciding ? '...' : '✓ Võtan vastu' }}
+              {{ deciding ? '...' : t('courier.accept') }}
             </button>
           </div>
 
@@ -87,16 +87,16 @@
           <div class="absolute -bottom-2 -left-4 text-2xl animate-ping" style="animation-duration:2s">✨</div>
         </div>
         <div class="space-y-2 mt-4">
-          <h2 class="text-3xl font-black text-white">Tarne lõpetatud!</h2>
-          <p class="text-green-400 font-semibold text-lg">Suurepärane töö 🎉</p>
-          <p class="text-gray-400 text-sm mt-2">Tellimus <span class="font-mono text-[#D2691E] font-bold">{{ order.order_number }}</span> on edukalt kohale toimetatud.</p>
+          <h2 class="text-3xl font-black text-white">{{ t('courier.delivered.title') }}</h2>
+          <p class="text-green-400 font-semibold text-lg">{{ t('courier.delivered.sub') }}</p>
+          <p class="text-gray-400 text-sm mt-2">{{ t('orders.courier.order') }} <span class="font-mono text-[#D2691E] font-bold">{{ order.order_number }}</span> {{ t('courier.delivered.msg') }}</p>
         </div>
         <div class="w-20 h-1 rounded-full mt-2" style="background: linear-gradient(90deg, #16a34a, #4ade80)"></div>
         <button
           @click="closeDelivered"
           class="mt-4 px-8 py-3 rounded-2xl font-bold text-white text-base transition hover:opacity-90"
           style="background: linear-gradient(135deg, #374151, #1f2937); border: 1px solid rgba(255,255,255,0.1);">
-          Sulge ✕
+          {{ t('courier.close') }}
         </button>
       </div>
     </template>
@@ -105,8 +105,8 @@
     <template v-else-if="phase === 'declined'">
       <div class="flex-1 flex flex-col items-center justify-center px-5 text-center gap-4">
         <div class="text-6xl mb-2">👋</div>
-        <h2 class="text-2xl font-bold">Tellimus edastatud</h2>
-        <p class="text-gray-400 text-sm">Keeldusid tellimuse vastuvõtmisest.<br>Restoran leiab teise kulleri.</p>
+        <h2 class="text-2xl font-bold">{{ t('courier.declined.title') }}</h2>
+        <p class="text-gray-400 text-sm">{{ t('courier.declined.sub') }}<br>{{ t('courier.declined.sub2') }}</p>
       </div>
     </template>
 
@@ -132,15 +132,15 @@
 
           <!-- Järgmine juhis -->
           <div v-if="nextNavStep" class="flex items-center gap-2 px-4 py-1.5 bg-[#0f1e2e]/90 backdrop-blur-sm">
-            <span class="text-[10px] text-gray-500 uppercase tracking-widest flex-shrink-0">ja siis</span>
+            <span class="text-[10px] text-gray-500 uppercase tracking-widest flex-shrink-0">{{ t('courier.next') }}</span>
             <div v-html="nextManeuverSvg" class="text-gray-300 w-4 h-4 flex-shrink-0"></div>
-            <span class="text-xs text-gray-300 truncate">{{ nextNavStep.name || 'Jätka' }}</span>
+            <span class="text-xs text-gray-300 truncate">{{ nextNavStep.name || t('courier.continue') }}</span>
           </div>
 
           <!-- GPS otsib -->
           <div v-if="!isTracking && !stopped && !gpsError" class="flex items-center gap-2 px-4 py-2 bg-blue-900/30 border-t border-blue-700/20">
             <span class="text-sm animate-pulse">📡</span>
-            <p class="text-xs text-blue-300">GPS asukoha otsimine...</p>
+            <p class="text-xs text-blue-300">{{ t('courier.gps.searching') }}</p>
           </div>
           <!-- GPS viga -->
           <div v-if="gpsError" class="flex items-center gap-2 px-4 py-2 bg-red-900/30 border-t border-red-700/20">
@@ -195,7 +195,7 @@
             <div v-if="distToDestination !== null && distToDestination > 200 && !stopped"
                  class="mt-2 text-center">
               <span class="text-xs text-gray-500">
-                Sihtkohani ~{{ distToDestination >= 1000
+                {{ t('courier.dist.to') }} ~{{ distToDestination >= 1000
                   ? (distToDestination / 1000).toFixed(1) + ' km'
                   : Math.round(distToDestination) + ' m' }}
               </span>
@@ -210,14 +210,14 @@
                 style="background: linear-gradient(135deg, #16a34a, #15803d); color: white; box-shadow: 0 0 24px rgba(22,163,74,0.5);"
               >
                 <span v-if="!markingDelivered" class="flex items-center justify-center gap-2">
-                  🏠 Olen kohal — tarne lõpetatud
+                  {{ t('courier.arrive') }}
                 </span>
                 <span v-else>...</span>
               </button>
             </div>
 
             <div v-if="stopped && phase !== 'delivered'" class="text-center mt-3">
-              <p class="text-sm text-gray-400">Jälgimine peatatud ✓</p>
+              <p class="text-sm text-gray-400">{{ t('courier.stopped') }}</p>
             </div>
           </div>
         </div>
@@ -230,6 +230,9 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useI18n } from '@/composables/useI18n';
+
+const { t } = useI18n();
 
 interface OrderItem {
   burger_name: string;
@@ -285,7 +288,7 @@ const stopDecidingPoll = () => {
 watch(() => props.order.status, (newStatus) => {
   if (phase.value === 'deciding' && newStatus !== 'awaiting_courier') {
     stopDecidingPoll();
-    decideError.value = 'Tellimus on teise kulleri poolt võetud.';
+    decideError.value = t('courier.taken');
     setTimeout(() => { window.location.href = props.dashboardUrl ?? '/'; }, 2000);
   }
 });
@@ -297,14 +300,14 @@ const acceptOrder = async () => {
   try {
     const res = await fetch(props.acceptUrl, { method: 'POST', headers: authHeaders() });
     if (res.status === 409) {
-      decideError.value = 'Tellimus on juba teise kulleri poolt võetud.';
+      decideError.value = t('courier.taken');
       setTimeout(() => { window.location.href = props.dashboardUrl ?? '/'; }, 2000);
       return;
     }
     phase.value = 'tracking';
     setTimeout(() => startTracking(), 100);
   } catch {
-    decideError.value = 'Viga. Proovi uuesti.';
+    decideError.value = t('courier.error.generic');
   }
   deciding.value = false;
 };
@@ -321,7 +324,7 @@ const declineOrder = async () => {
       phase.value = 'declined';
     }
   } catch {
-    decideError.value = 'Viga. Proovi uuesti.';
+    decideError.value = t('courier.error.generic');
   }
   deciding.value = false;
 };
@@ -419,7 +422,7 @@ const currentNavStep = computed(() => routeSteps.value[currentStepIndex.value] ?
 const nextNavStep = computed(() => routeSteps.value[currentStepIndex.value + 1] ?? null);
 const currentManeuverSvg = computed(() => getManeuverSvg(currentNavStep.value, 40));
 const nextManeuverSvg = computed(() => getManeuverSvg(nextNavStep.value, 16));
-const currentStepStreet = computed(() => currentNavStep.value?.name || 'Jätka otse');
+const currentStepStreet = computed(() => currentNavStep.value?.name || t('courier.step.straight'));
 const currentSpeedValue = computed(() => currentSpeed.value !== null ? Math.round(currentSpeed.value) : 0);
 const distanceToNextFormatted = computed(() => {
   const d = distanceToNextManeuver.value;
@@ -527,7 +530,7 @@ const initMap = async (lat: number, lng: number) => {
   const destLng = props.order.delivery_lng;
   if (destLat && destLng) {
     L.marker([destLat, destLng], { icon: makeHomeIcon() })
-      .addTo(map).bindPopup(props.order.delivery_address ?? 'Sihtkoht');
+      .addTo(map).bindPopup(props.order.delivery_address ?? t('order.show.dest'));
   }
 
   courierMarker = L.marker([lat, lng], { icon: makeCourierIcon(), draggable: false })
@@ -564,12 +567,12 @@ const startTracking = () => {
       if (err.code === 1) {
         const isHttp = location.protocol === 'http:' && location.hostname !== 'localhost';
         gpsError.value = isHttp
-          ? 'GPS ei tööta HTTP saidil. Vaja on HTTPS-i.'
-          : 'Asukoha luba on keelatud. Luba brauseris selle saidi asukoht.';
+          ? t('courier.error.http')
+          : t('courier.error.denied');
       } else if (err.code === 2) {
-        gpsError.value = 'GPS signaal puudub. Liigu õue või luba asukoht seadete kaudu.';
+        gpsError.value = t('courier.error.signal');
       } else if (err.code === 3) {
-        gpsError.value = 'GPS aegus. Proovi uuesti.';
+        gpsError.value = t('courier.error.timeout');
       }
     },
     { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 },
