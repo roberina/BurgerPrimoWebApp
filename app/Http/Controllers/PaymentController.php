@@ -165,7 +165,7 @@ class PaymentController extends Controller
                 'user_id' => auth()->id(),
                 'order_number' => Order::generateOrderNumber(),
                 'total_amount' => $paymentIntent->amount / 100, // Convert from cents
-                'status' => 'pending',
+                'status' => Order::PENDING_CONFIRMATION,
                 'customer_notes' => $validated['customer_notes'] ?? null,
                 'delivery_method' => $validated['delivery_method'],
                 'payment_intent_id' => $validated['payment_intent_id'],

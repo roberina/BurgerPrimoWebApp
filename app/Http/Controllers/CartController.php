@@ -281,10 +281,9 @@ class CartController extends Controller
             'user_id' => auth()->id(),
             'order_number' => Order::generateOrderNumber(),
             'total_amount' => 0,
-            'status' => 'pending',
+            'status' => Order::PENDING_CONFIRMATION,
             'customer_notes' => $validated['customer_notes'] ?? null,
-            'delivery_method' => $validated['delivery_method'],  // ADD THIS
-
+            'delivery_method' => $validated['delivery_method'],
         ]);
 
         $totalAmount = 0;

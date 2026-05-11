@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Services\OrderStateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -10,16 +11,11 @@ use Inertia\Response;
 
 class CourierController extends Controller
 {
-    // ─── Account-based methods ────────────────────────────────
+    public function __construct(private OrderStateService $state) {}
 
     public function toggleOnline(): JsonResponse
     {
         $user = auth()->user();
-
-        if (!$user->is_courier && !$user->is_admin) {
-            abort(403);
-        }
-
         $user->update(['courier_online' => !$user->courier_online]);
 
         return response()->json(['online' => $user->courier_online]);
@@ -29,18 +25,14 @@ class CourierController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->is_courier && !$user->is_admin) {
-            abort(403);
-        }
-
-        $availableOrders = Order::where('status', 'awaiting_courier')
+        $availableOrders = Order::where('status', Order::AWAITING_COURIER)
             ->with('items')
             ->latest()
             ->get()
-            ->map(fn ($o) => $this->formatOrder($o));
+            ->map(fn ($o) => $this->formatAvailableOrder($o));
 
         $myOrders = Order::where('courier_user_id', $user->id)
-            ->whereIn('status', ['delivering', 'completed'])
+            ->whereIn('status', [Order::PICKED_UP, Order::DELIVERED])
             ->with('items')
             ->latest()
             ->get()
@@ -57,8 +49,8 @@ class CourierController extends Controller
     {
         $user = auth()->user();
 
-        $isAssigned = $order->courier_user_id === $user->id;
-        $isAvailable = $order->status === 'awaiting_courier';
+        $isAssigned  = $order->courier_user_id === $user->id;
+        $isAvailable = $order->status === Order::AWAITING_COURIER;
 
         if (!$isAssigned && !$isAvailable && !$user->is_admin) {
             abort(403);
@@ -80,19 +72,9 @@ class CourierController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user->is_courier && !$user->is_admin) {
-            abort(403);
-        }
+        $claimed = $this->state->claimAndPickUp($order, $user->id);
 
-        // Atomic update — only succeeds if order is still awaiting a courier
-        $updated = Order::where('id', $order->id)
-            ->where('status', 'awaiting_courier')
-            ->update([
-                'status'          => 'delivering',
-                'courier_user_id' => $user->id,
-            ]);
-
-        if (!$updated) {
+        if (!$claimed) {
             return response()->json(['success' => false, 'message' => 'Tellimus on juba teise kulleri poolt võetud.'], 409);
         }
 
@@ -103,24 +85,20 @@ class CourierController extends Controller
     {
         $user = auth()->user();
 
-        $isAssigned = $order->courier_user_id === $user->id;
-        $isAvailable = $order->status === 'awaiting_courier';
+        $isAssigned  = $order->courier_user_id === $user->id;
+        $isAvailable = $order->status === Order::AWAITING_COURIER;
 
         if (!$isAssigned && !$isAvailable && !$user->is_admin) {
             abort(403);
         }
 
-        // If courier already accepted and then declines, put back to awaiting_courier
-        if ($order->status === 'delivering' && $isAssigned) {
-            $order->update([
-                'status'             => 'awaiting_courier',
-                'courier_user_id'    => null,
-                'courier_lat'        => null,
-                'courier_lng'        => null,
-                'courier_updated_at' => null,
-            ]);
+        if ($order->status === Order::PICKED_UP && $isAssigned) {
+            try {
+                $this->state->unclaimOrder($order, $user->id);
+            } catch (\RuntimeException $e) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            }
         }
-        // If still awaiting, just return — order remains available for others
 
         return response()->json(['success' => true]);
     }
@@ -133,10 +111,11 @@ class CourierController extends Controller
             abort(403);
         }
 
-        $order->update([
-            'status'             => 'completed',
-            'courier_updated_at' => now(),
-        ]);
+        try {
+            $this->state->markDelivered($order, $user->id);
+        } catch (\RuntimeException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
 
         return response()->json(['success' => true]);
     }
@@ -163,6 +142,7 @@ class CourierController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /** Full order data for the assigned courier (includes delivery address). */
     private function formatOrder(Order $order): array
     {
         return [
@@ -181,112 +161,22 @@ class CourierController extends Controller
         ];
     }
 
-    // ─── Token-based methods (legacy) ────────────────────────
-
-    /**
-     * Show the courier tracking page (runs on courier's phone).
-     * Accessible via unique token — no login required.
-     */
-    public function track(string $token): Response
+    /** Available-order data — delivery_address intentionally hidden until claimed. */
+    private function formatAvailableOrder(Order $order): array
     {
-        $order = Order::where('courier_token', $token)
-            ->whereIn('status', ['delivering'])
-            ->with('items')
-            ->firstOrFail();
-
-        return Inertia::render('Courier/Track', [
-            'order' => [
-                'id'               => $order->id,
-                'order_number'     => $order->order_number,
-                'status'           => $order->status,
-                'total_amount'     => (float) $order->total_amount,
-                'delivery_lat'     => $order->delivery_lat,
-                'delivery_lng'     => $order->delivery_lng,
-                'delivery_address' => $order->delivery_address,
-                'items'            => $order->items->map(fn ($item) => [
-                    'burger_name' => $item->burger_name,
-                    'quantity'    => $item->quantity,
-                    'price'       => (float) $item->price,
-                ]),
-            ],
-            'token'        => $token,
-            'updateUrl'    => url("/courier/location/{$token}"),
-            'acceptUrl'    => url("/courier/accept/{$token}"),
-            'declineUrl'   => url("/courier/decline/{$token}"),
-            'deliveredUrl' => url("/courier/delivered/{$token}"),
-        ]);
-    }
-
-    /**
-     * Courier accepts the delivery — nothing changes in DB, just confirms intent.
-     */
-    public function accept(string $token): JsonResponse
-    {
-        Order::where('courier_token', $token)
-            ->whereIn('status', ['delivering'])
-            ->firstOrFail();
-
-        return response()->json(['success' => true]);
-    }
-
-    /**
-     * Courier declines the delivery — order goes back to 'ready'.
-     */
-    public function decline(string $token): JsonResponse
-    {
-        $order = Order::where('courier_token', $token)
-            ->whereIn('status', ['delivering'])
-            ->firstOrFail();
-
-        $order->update([
-            'status'            => 'ready',
-            'courier_token'     => null,
-            'courier_lat'       => null,
-            'courier_lng'       => null,
-            'courier_updated_at' => null,
-        ]);
-
-        return response()->json(['success' => true]);
-    }
-
-    /**
-     * Courier marks the order as delivered.
-     */
-    public function delivered(string $token): JsonResponse
-    {
-        $order = Order::where('courier_token', $token)
-            ->whereIn('status', ['delivering'])
-            ->firstOrFail();
-
-        $order->update([
-            'status'             => 'completed',
-            'courier_token'      => null,
-            'courier_updated_at' => now(),
-        ]);
-
-        return response()->json(['success' => true]);
-    }
-
-    /**
-     * Receive GPS coordinates from the courier's phone.
-     */
-    public function updateLocation(Request $request, string $token): JsonResponse
-    {
-        $validated = $request->validate([
-            'lat' => 'required|numeric|between:-90,90',
-            'lng' => 'required|numeric|between:-180,180',
-        ]);
-
-        $order = Order::where('courier_token', $token)
-            ->whereIn('status', ['delivering'])
-            ->firstOrFail();
-
-        $order->update([
-            'courier_lat'        => $validated['lat'],
-            'courier_lng'        => $validated['lng'],
-            'courier_updated_at' => now(),
-        ]);
-
-        return response()->json(['success' => true]);
+        return [
+            'id'               => $order->id,
+            'order_number'     => $order->order_number,
+            'status'           => $order->status,
+            'total_amount'     => (float) $order->total_amount,
+            'delivery_lat'     => null,
+            'delivery_lng'     => null,
+            'delivery_address' => null,
+            'items'            => $order->items->map(fn ($item) => [
+                'burger_name' => $item->burger_name,
+                'quantity'    => $item->quantity,
+                'price'       => (float) $item->price,
+            ]),
+        ];
     }
 }

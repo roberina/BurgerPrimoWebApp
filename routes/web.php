@@ -22,25 +22,10 @@ use App\Http\Controllers\ReviewController;
 Route::get('/api/addons', [AddonItemController::class, 'publicIndex']);
 
 $nocsrf = \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class;
+
 Route::post('/api/push/subscribe', [PushSubscriptionController::class, 'store'])
     ->withoutMiddleware([$nocsrf]);
 Route::post('/api/push/unsubscribe', [PushSubscriptionController::class, 'destroy'])
-    ->withoutMiddleware([$nocsrf]);
-
-// Courier tracking — public routes protected by unique token (no login needed)
-Route::get('/courier/track/{token}', [CourierController::class, 'track'])->name('courier.track');
-$nocsrf = \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class;
-Route::post('/courier/location/{token}', [CourierController::class, 'updateLocation'])
-    ->name('courier.location')
-    ->withoutMiddleware([$nocsrf]);
-Route::post('/courier/accept/{token}', [CourierController::class, 'accept'])
-    ->name('courier.accept')
-    ->withoutMiddleware([$nocsrf]);
-Route::post('/courier/decline/{token}', [CourierController::class, 'decline'])
-    ->name('courier.decline')
-    ->withoutMiddleware([$nocsrf]);
-Route::post('/courier/delivered/{token}', [CourierController::class, 'delivered'])
-    ->name('courier.delivered')
     ->withoutMiddleware([$nocsrf]);
 
 Route::get('/', function () {
@@ -114,7 +99,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/orders/bulk-delete', [OrderController::class, 'bulkDelete'])->name('orders.bulk-delete');
 
     // Courier (account-based)
-    Route::middleware(['auth'])->prefix('courier')->name('courier.')->group(function () {
+    Route::middleware(['auth', 'courier'])->prefix('courier')->name('courier.')->group(function () {
         Route::get('/dashboard', [CourierController::class, 'dashboard'])->name('dashboard');
         Route::post('/toggle-online', [CourierController::class, 'toggleOnline'])->name('toggle-online');
         Route::get('/orders/{order}', [CourierController::class, 'showOrder'])->name('order.show');
@@ -133,11 +118,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::post('/orders/{order}/confirm', [AdminOrderController::class, 'confirm'])->name('orders.confirm');
-        Route::post('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
-        Route::post('/orders/bulk-status', [AdminOrderController::class, 'bulkUpdateStatus'])->name('orders.bulk-status');
-        Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
-        Route::post('/orders/{order}/reject', [AdminOrderController::class, 'reject'])->name('orders.reject');
-        Route::post('/orders/{order}/start-delivery', [AdminOrderController::class, 'startDelivery'])->name('orders.start-delivery');
+        Route::post('/orders/{order}/start-preparing', [AdminOrderController::class, 'startPreparing'])->name('orders.start-preparing');
+        Route::post('/orders/{order}/mark-ready', [AdminOrderController::class, 'markReady'])->name('orders.mark-ready');
+        Route::post('/orders/{order}/release-to-couriers', [AdminOrderController::class, 'releaseToCouriers'])->name('orders.release-to-couriers');
+        Route::post('/orders/{order}/recall-from-couriers', [AdminOrderController::class, 'recallFromCouriers'])->name('orders.recall-from-couriers');
+        Route::post('/orders/{order}/refund', [AdminOrderController::class, 'refund'])->name('orders.refund');
+        Route::delete('/orders/{order}', [AdminOrderController::class, 'bulkDelete'])->name('orders.destroy');
 
         // Burger Review
         Route::get('/burger-review', [App\Http\Controllers\Admin\BurgerReviewController::class, 'index'])->name('burger-review.index');

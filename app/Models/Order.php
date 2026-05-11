@@ -11,6 +11,16 @@ class Order extends Model
 {
     use HasFactory;
 
+    const PENDING_CONFIRMATION = 'pending_confirmation';
+    const CONFIRMED            = 'confirmed';
+    const PREPARING            = 'preparing';
+    const READY                = 'ready';
+    const AWAITING_COURIER     = 'awaiting_courier';
+    const PICKED_UP            = 'picked_up';
+    const DELIVERED            = 'delivered';
+    const CANCELLED            = 'cancelled';
+    const REFUNDED             = 'refunded';
+
     protected $fillable = [
         'user_id',
         'order_number',
@@ -66,7 +76,11 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    // Generate unique order number
+    public function statusHistory(): HasMany
+    {
+        return $this->hasMany(OrderStatusHistory::class);
+    }
+
     public static function generateOrderNumber(): string
     {
         do {
@@ -74,15 +88,5 @@ class Order extends Model
         } while (self::where('order_number', $number)->exists());
 
         return $number;
-    }
-
-    // Confirm order
-    public function confirm(int $adminId): void
-    {
-        $this->update([
-            'status' => 'confirmed',
-            'confirmed_at' => now(),
-            'confirmed_by' => $adminId,
-        ]);
     }
 }

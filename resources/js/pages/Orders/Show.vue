@@ -5,7 +5,7 @@
     <main class="max-w-3xl mx-auto px-6 py-12">
 
       <!-- ───── KOHALE TOIMETATUD ───── -->
-      <template v-if="order.status === 'completed'">
+      <template v-if="order.status === 'delivered'">
         <div class="flex flex-col items-center justify-center py-20 text-center gap-6">
           <!-- Animatsioon -->
           <div class="relative">
@@ -36,7 +36,7 @@
       </template>
 
       <!-- ───── KOHALETOIMETAMINE: Bolt-laadne vaade ───── -->
-      <template v-else-if="order.status === 'delivering'">
+      <template v-else-if="order.status === 'picked_up'">
 
         <!-- Suur kaart -->
         <div class="mb-4 rounded-2xl overflow-hidden shadow-2xl" style="isolation: isolate;">
@@ -106,7 +106,7 @@
       </template>
 
       <!-- ───── TAVALINE VAADE (kõik muud staatused) ───── -->
-      <template v-else-if="order.status !== 'completed'">
+      <template v-else-if="order.status !== 'delivered'">
 
       <!-- Success / Status Banner -->
       <div class="mb-8 rounded-2xl p-8 text-center"
@@ -316,7 +316,7 @@ const dismissArrivedBanner = () => {
 };
 
 watch(() => props.order.status, (newStatus, oldStatus) => {
-  if (oldStatus === 'delivering' && newStatus === 'completed') {
+  if (oldStatus === 'picked_up' && newStatus === 'delivered') {
     showArrivedBanner.value = true;
   }
 });
@@ -339,19 +339,19 @@ const isDeliveryOrder = computed(() => props.order.delivery_method === 'delivery
 
 const statusSteps = computed(() => {
   const steps = [
-    { key: 'pending',    label: t('order.step.pending') },
-    { key: 'confirmed',  label: t('order.step.confirmed') },
-    { key: 'preparing',  label: t('order.step.preparing') },
-    { key: 'ready',      label: t('order.step.ready') },
-    { key: 'completed',  label: t('order.step.completed') },
+    { key: 'pending_confirmation', label: t('order.step.pending') },
+    { key: 'confirmed',            label: t('order.step.confirmed') },
+    { key: 'preparing',            label: t('order.step.preparing') },
+    { key: 'ready',                label: t('order.step.ready') },
+    { key: 'delivered',            label: t('order.step.completed') },
   ];
   if (isDeliveryOrder.value) {
-    steps.splice(4, 0, { key: 'delivering', label: t('order.step.delivering') });
+    steps.splice(4, 0, { key: 'picked_up', label: t('order.step.delivering') });
   }
   return steps;
 });
 
-const statusOrder = ['pending', 'confirmed', 'preparing', 'ready', 'delivering', 'completed', 'cancelled', 'rejected'];
+const statusOrder = ['pending_confirmation', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'picked_up', 'delivered', 'cancelled', 'refunded'];
 
 const isStepDone = (stepKey: string): boolean => {
   const currentIndex = statusOrder.indexOf(props.order.status);
@@ -367,7 +367,7 @@ const getStepClass = (stepKey: string): string => {
 
 // Auto-refresh while order is active
 const isActive = computed(() =>
-  ['pending', 'confirmed', 'preparing', 'ready', 'delivering'].includes(props.order.status)
+  ['pending_confirmation', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'picked_up'].includes(props.order.status)
 );
 
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
@@ -393,28 +393,30 @@ onUnmounted(() => {
 
 const getStatusClass = (status: string): string => {
   const classes: Record<string, string> = {
-    pending:    'px-3 py-1 rounded-full bg-yellow-900/30 text-yellow-400 text-xs font-semibold',
-    confirmed:  'px-3 py-1 rounded-full bg-blue-900/30 text-blue-400 text-xs font-semibold',
-    preparing:  'px-3 py-1 rounded-full bg-purple-900/30 text-purple-400 text-xs font-semibold',
-    ready:      'px-3 py-1 rounded-full bg-[#D2691E]/20 text-[#D2691E] text-xs font-semibold',
-    delivering: 'px-3 py-1 rounded-full bg-cyan-900/30 text-cyan-400 text-xs font-semibold',
-    completed:  'px-3 py-1 rounded-full bg-green-900/30 text-green-400 text-xs font-semibold',
-    cancelled:  'px-3 py-1 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold',
-    rejected:   'px-3 py-1 rounded-full bg-red-900/30 text-red-400 text-xs font-semibold',
+    pending_confirmation: 'px-3 py-1 rounded-full bg-yellow-900/30 text-yellow-400 text-xs font-semibold',
+    confirmed:            'px-3 py-1 rounded-full bg-blue-900/30 text-blue-400 text-xs font-semibold',
+    preparing:            'px-3 py-1 rounded-full bg-purple-900/30 text-purple-400 text-xs font-semibold',
+    ready:                'px-3 py-1 rounded-full bg-[#D2691E]/20 text-[#D2691E] text-xs font-semibold',
+    awaiting_courier:     'px-3 py-1 rounded-full bg-orange-900/30 text-orange-400 text-xs font-semibold',
+    picked_up:            'px-3 py-1 rounded-full bg-cyan-900/30 text-cyan-400 text-xs font-semibold',
+    delivered:            'px-3 py-1 rounded-full bg-green-900/30 text-green-400 text-xs font-semibold',
+    cancelled:            'px-3 py-1 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold',
+    refunded:             'px-3 py-1 rounded-full bg-red-900/30 text-red-400 text-xs font-semibold',
   };
-  return classes[status] || classes.pending;
+  return classes[status] || classes.pending_confirmation;
 };
 
 const getStatusLabel = (status: string): string => {
   const labels: Record<string, string> = {
-    pending:    t('order.status.pending'),
-    confirmed:  t('order.status.confirmed'),
-    preparing:  t('order.status.preparing'),
-    ready:      t('order.status.ready'),
-    delivering: t('order.show.delivering'),
-    completed:  t('order.status.completed'),
-    cancelled:  t('order.status.cancelled'),
-    rejected:   t('order.status.rejected'),
+    pending_confirmation: t('order.status.pending'),
+    confirmed:            t('order.status.confirmed'),
+    preparing:            t('order.status.preparing'),
+    ready:                t('order.status.ready'),
+    awaiting_courier:     t('order.status.awaiting_courier'),
+    picked_up:            t('order.show.delivering'),
+    delivered:            t('order.status.completed'),
+    cancelled:            t('order.status.cancelled'),
+    refunded:             t('order.status.rejected'),
   };
   return labels[status] || status;
 };

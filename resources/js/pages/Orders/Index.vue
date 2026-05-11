@@ -79,7 +79,7 @@
         <div v-for="order in orders" :key="order.id" class="bg-[#121212] rounded-2xl overflow-hidden border border-[#1a1a1a] transition-all duration-200" :class="{ 'ring-2 ring-[#D2691E]': selectedOrders.includes(order.id) }">
           <div class="bg-[#0d0d0d] px-6 py-4 flex items-center justify-between border-b border-[#1a1a1a]">
             <div class="flex items-center gap-4">
-              <label v-if="order.status === 'completed'" class="flex items-center cursor-pointer">
+              <label v-if="order.status === 'delivered'" class="flex items-center cursor-pointer">
                 <input type="checkbox" :checked="selectedOrders.includes(order.id)" @change="toggleOrderSelection(order.id)" class="w-5 h-5 rounded border-gray-600 bg-[#121212] text-[#D2691E] focus:ring-[#D2691E] cursor-pointer" />
               </label>
               <div>
@@ -97,10 +97,10 @@
           </div>
 
           <div class="p-6 relative">
-            <button v-if="order.status === 'rejected'" @click="confirmDismiss(order.id)" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white flex items-center justify-center transition cursor-pointer" :title="t('orders.dismiss')">
+            <button v-if="order.status === 'refunded'" @click="confirmDismiss(order.id)" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white flex items-center justify-center transition cursor-pointer" :title="t('orders.dismiss')">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            <div v-if="order.status === 'rejected'" class="mb-4 bg-red-900/20 border border-red-800 rounded-xl px-4 py-3">
+            <div v-if="order.status === 'refunded'" class="mb-4 bg-red-900/20 border border-red-800 rounded-xl px-4 py-3">
               <p class="text-sm text-red-400 font-medium">{{ t('orders.rejected.notice') }}</p>
             </div>
             <div class="flex items-start justify-between mb-5">
@@ -131,8 +131,8 @@
             </div>
             <div class="flex gap-3 mt-5">
               <Link :href="`/orders/${order.id}`" class="flex-1 bg-[#1a1a1a] hover:bg-[#222] text-white px-4 py-2.5 rounded-xl font-semibold transition text-center text-sm border border-[#2a2a2a] hover:border-[#D2691E]/30">{{ t('orders.btn.details') }}</Link>
-              <button v-if="order.status === 'pending' || order.status === 'confirmed'" @click="confirmCancel(order.id)" class="flex-1 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white px-4 py-2.5 rounded-xl font-semibold transition text-sm border border-red-800/50 hover:border-red-600 cursor-pointer">{{ t('orders.btn.cancel') }}</button>
-              <Link v-if="order.status === 'completed'" href="/menu" class="flex-1 text-white px-4 py-2.5 rounded-xl font-semibold transition text-center text-sm hover:opacity-90" style="background-color: #D2691E">{{ t('orders.btn.reorder') }}</Link>
+              <button v-if="order.status === 'pending_confirmation' || order.status === 'confirmed'" @click="confirmCancel(order.id)" class="flex-1 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white px-4 py-2.5 rounded-xl font-semibold transition text-sm border border-red-800/50 hover:border-red-600 cursor-pointer">{{ t('orders.btn.cancel') }}</button>
+              <Link v-if="order.status === 'delivered'" href="/menu" class="flex-1 text-white px-4 py-2.5 rounded-xl font-semibold transition text-center text-sm hover:opacity-90" style="background-color: #D2691E">{{ t('orders.btn.reorder') }}</Link>
             </div>
           </div>
         </div>
@@ -167,8 +167,8 @@ const selectedOrders = ref<number[]>([]);
 const modal = reactive({ show: false, type: 'danger' as 'danger'|'warning', title: '', message: '', confirmLabel: '', onConfirm: () => {} });
 const openModal = (opts: Omit<typeof modal, 'show'>) => { Object.assign(modal, { show: true, ...opts }); };
 
-const hasActiveOrders = computed(() => props.orders.some(o => ['pending','confirmed','preparing','ready','delivering'].includes(o.status)));
-const deliveringOrder = computed(() => props.orders.find(o => o.status === 'delivering') ?? null);
+const hasActiveOrders = computed(() => props.orders.some(o => ['pending_confirmation','confirmed','preparing','ready','awaiting_courier','picked_up'].includes(o.status)));
+const deliveringOrder = computed(() => props.orders.find(o => o.status === 'picked_up') ?? null);
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 onMounted(() => { if (hasActiveOrders.value) refreshInterval = setInterval(() => router.reload({ only: ['orders'] }), 15000); });
 onUnmounted(() => { if (refreshInterval) clearInterval(refreshInterval); });
@@ -215,8 +215,29 @@ const confirmDismiss = (orderId: number) => {
   });
 };
 
-const getStatusClass = (s: string) => ({ pending:'px-3 py-1 rounded-full bg-yellow-900/30 text-yellow-400 text-xs font-semibold', confirmed:'px-3 py-1 rounded-full bg-blue-900/30 text-blue-400 text-xs font-semibold', preparing:'px-3 py-1 rounded-full bg-purple-900/30 text-purple-400 text-xs font-semibold', ready:'px-3 py-1 rounded-full bg-[#D2691E]/20 text-[#D2691E] text-xs font-semibold', completed:'px-3 py-1 rounded-full bg-green-900/30 text-green-400 text-xs font-semibold', cancelled:'px-3 py-1 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold', rejected:'px-3 py-1 rounded-full bg-red-900/30 text-red-400 text-xs font-semibold' }[s] || 'px-3 py-1 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold');
-const getStatusLabel = (s: string) => ({ pending:t('order.status.pending'), confirmed:t('order.status.confirmed'), preparing:t('order.status.preparing'), ready:t('order.status.ready'), completed:t('order.status.completed'), cancelled:t('order.status.cancelled'), rejected:t('order.status.rejected') }[s] || s);
+const getStatusClass = (s: string) => ({
+  pending_confirmation: 'px-3 py-1 rounded-full bg-yellow-900/30 text-yellow-400 text-xs font-semibold',
+  confirmed:            'px-3 py-1 rounded-full bg-blue-900/30 text-blue-400 text-xs font-semibold',
+  preparing:            'px-3 py-1 rounded-full bg-purple-900/30 text-purple-400 text-xs font-semibold',
+  ready:                'px-3 py-1 rounded-full bg-[#D2691E]/20 text-[#D2691E] text-xs font-semibold',
+  awaiting_courier:     'px-3 py-1 rounded-full bg-orange-900/30 text-orange-400 text-xs font-semibold',
+  picked_up:            'px-3 py-1 rounded-full bg-cyan-900/30 text-cyan-400 text-xs font-semibold',
+  delivered:            'px-3 py-1 rounded-full bg-green-900/30 text-green-400 text-xs font-semibold',
+  cancelled:            'px-3 py-1 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold',
+  refunded:             'px-3 py-1 rounded-full bg-red-900/30 text-red-400 text-xs font-semibold',
+}[s] || 'px-3 py-1 rounded-full bg-gray-800 text-gray-400 text-xs font-semibold');
+
+const getStatusLabel = (s: string) => ({
+  pending_confirmation: t('order.status.pending'),
+  confirmed:            t('order.status.confirmed'),
+  preparing:            t('order.status.preparing'),
+  ready:                t('order.status.ready'),
+  awaiting_courier:     t('order.status.awaiting_courier'),
+  picked_up:            t('order.show.delivering'),
+  delivered:            t('order.status.completed'),
+  cancelled:            t('order.status.cancelled'),
+  refunded:             t('order.status.rejected'),
+}[s] || s);
 const { locale } = useI18n();
 const formatDate = (d: string) => new Date(d).toLocaleString(locale.value === 'en' ? 'en-GB' : 'et-EE', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
 </script>

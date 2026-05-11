@@ -288,7 +288,7 @@ const stopDecidingPoll = () => {
 };
 
 watch(() => props.order.status, (newStatus) => {
-  if (phase.value === 'deciding' && newStatus !== 'awaiting_courier') {
+  if (phase.value === 'deciding' && !['awaiting_courier', 'picked_up'].includes(newStatus)) {
     stopDecidingPoll();
     decideError.value = 'Tellimus on teise kulleri poolt võetud.';
     setTimeout(() => { window.location.href = props.dashboardUrl ?? '/'; }, 2000);

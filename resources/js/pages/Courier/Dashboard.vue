@@ -135,8 +135,8 @@ const page = usePage();
 const isOnline = ref(props.courierOnline);
 const toggling = ref(false);
 
-const activeOrders = computed(() => props.orders.filter(o => o.status === 'delivering'));
-const completedOrders = computed(() => props.orders.filter(o => o.status === 'completed'));
+const activeOrders = computed(() => props.orders.filter(o => o.status === 'picked_up'));
+const completedOrders = computed(() => props.orders.filter(o => o.status === 'delivered'));
 
 const csrfToken = (): string =>
   (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '';
@@ -159,7 +159,7 @@ let refreshInterval: ReturnType<typeof setInterval> | null = null;
 onMounted(() => {
   refreshInterval = setInterval(() => {
     router.reload({ only: ['orders', 'availableOrders'] });
-  }, 1500);
+  }, 8000);
 });
 
 onUnmounted(() => {
