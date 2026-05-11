@@ -461,6 +461,20 @@ const translations: Record<Locale, Record<string, string>> = {
         'cart.delivery.unavailable':   'Kohaletoimetamine pole hetkel saadaval',
         'cart.delivery':               'Telli koju',
         'cart.couriers.available':     'saadaval',
+
+        'menu.sidebar.empty':          'Kategooriad puuduvad',
+
+        'map.search.ph':               'Otsi aadressi Saaremaal...',
+        'map.click.hint':              'Kliki kaardil või lohista maja ikooni oma aadressile',
+        'map.your.dest':               'Sinu sihtkoht',
+
+        'delivery.courier.otw':        'Kuller on teel 🛵',
+        'delivery.updated':            'Uuendatud',
+        'delivery.courier':            'Kuller',
+
+        'courier.close':               'Sulge ✕',
+        'courier.taken':               'Tellimus on teise kulleri poolt võetud.',
+        'courier.dist.to':             'Sihtkohani',
     },
 
     en: {
@@ -902,5 +916,19 @@ const translations: Record<Locale, Record<string, string>> = {
         'cart.delivery.unavailable':   'Delivery not available right now',
         'cart.delivery':               'Delivery',
         'cart.couriers.available':     'available',
+
+        'menu.sidebar.empty':          'No categories',
+
+        'map.search.ph':               'Search for an address on Saaremaa...',
+        'map.click.hint':              'Click on the map or drag the house icon to your address',
+        'map.your.dest':               'Your destination',
+
+        'delivery.courier.otw':        'Courier on the way 🛵',
+        'delivery.updated':            'Updated',
+        'delivery.courier':            'Courier',
+
+        'courier.close':               'Close ✕',
+        'courier.taken':               'Order has been taken by another courier.',
+        'courier.dist.to':             'To destination',
     },
 }

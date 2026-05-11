@@ -7,9 +7,9 @@
       <div v-if="courierLat" class="bg-black/80 backdrop-blur-sm rounded-xl px-4 py-3 flex items-center gap-3">
         <div class="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse flex-shrink-0"></div>
         <div class="flex-1 min-w-0">
-          <p class="text-white text-sm font-semibold">Kuller on teel 🛵</p>
+          <p class="text-white text-sm font-semibold">{{ t('delivery.courier.otw') }}</p>
           <p v-if="courierUpdatedAt" class="text-gray-400 text-xs truncate">
-            Uuendatud {{ formatTime(courierUpdatedAt) }}
+            {{ t('delivery.updated') }} {{ formatTime(courierUpdatedAt) }}
           </p>
         </div>
         <div v-if="etaLabel" class="shrink-0 text-right">
@@ -27,7 +27,7 @@
     <div class="absolute bottom-3 left-3 right-3 z-[1000] pointer-events-none">
       <div class="bg-black/80 backdrop-blur-sm rounded-xl px-4 py-2.5 flex items-center gap-2">
         <span class="text-base">🏠</span>
-        <p class="text-white text-xs font-medium truncate">{{ deliveryAddress || 'Sihtkoht määramata' }}</p>
+        <p class="text-white text-xs font-medium truncate">{{ deliveryAddress || t('order.show.dest.unknown') }}</p>
       </div>
     </div>
   </div>
@@ -150,14 +150,14 @@ onMounted(async () => {
   if (props.deliveryLat && props.deliveryLng) {
     L.marker([props.deliveryLat, props.deliveryLng], { icon: makeHomeIcon() })
       .addTo(map)
-      .bindPopup(props.deliveryAddress ?? 'Sihtkoht');
+      .bindPopup(props.deliveryAddress ?? t('order.show.dest'));
   }
 
   // Kulleri marker (kui asukoht on teada)
   if (props.courierLat && props.courierLng) {
     courierMarker = L.marker([props.courierLat, props.courierLng], { icon: makeCourierIcon() })
       .addTo(map)
-      .bindPopup('Kuller');
+      .bindPopup(t('delivery.courier'));
   }
 
   // Fit bounds — näita 🏠 ja 🛵
@@ -178,7 +178,7 @@ watch(
       courierMarker.setLatLng([lat, lng]);
       map.setView([lat, lng], map.getZoom(), { animate: true, duration: 0.8 });
     } else {
-      courierMarker = L.marker([lat, lng], { icon: makeCourierIcon() }).addTo(map).bindPopup('Kuller');
+      courierMarker = L.marker([lat, lng], { icon: makeCourierIcon() }).addTo(map).bindPopup(t('delivery.courier'));
       const fitPoints: [number, number][] = [[lat, lng]];
       if (props.deliveryLat && props.deliveryLng) fitPoints.push([props.deliveryLat, props.deliveryLng]);
       if (fitPoints.length > 1) map.fitBounds(fitPoints, { padding: [60, 60] });

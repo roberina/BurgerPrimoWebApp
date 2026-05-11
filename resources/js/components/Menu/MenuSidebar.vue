@@ -1,7 +1,7 @@
 <template>
   <aside
-    class="fixed left-0 bottom-0 w-64 z-30 hidden lg:flex flex-col bg-[#111111] border-r border-gray-800"
-    :style="{ top: navbarHeight + 'px' }"
+    class="fixed left-0 w-64 z-30 hidden lg:flex flex-col bg-[#111111] border-r border-gray-800"
+    :style="{ top: navbarHeight + 'px', bottom: sidebarBottom + 'px' }"
   >
     <!-- Search -->
     <div class="p-4 border-b border-gray-800">
@@ -90,7 +90,7 @@
 
         <!-- Empty state -->
         <p v-if="!hasFavorites && categories.length === 0" class="text-xs text-center mt-6 text-gray-600">
-          Kategooriad puuduvad
+          {{ t('menu.sidebar.empty') }}
         </p>
       </div>
     </div>
@@ -98,7 +98,29 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useI18n } from '@/composables/useI18n';
+
+const sidebarBottom = ref(0);
+
+function updateBottom() {
+  const footer = document.querySelector('footer');
+  if (!footer) return;
+  const footerTop = footer.getBoundingClientRect().top;
+  const visible = window.innerHeight - footerTop;
+  sidebarBottom.value = visible > 0 ? visible : 0;
+}
+
+onMounted(() => {
+  updateBottom();
+  window.addEventListener('scroll', updateBottom, { passive: true });
+  window.addEventListener('resize', updateBottom, { passive: true });
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', updateBottom);
+  window.removeEventListener('resize', updateBottom);
+});
 
 interface Category {
   id: number;

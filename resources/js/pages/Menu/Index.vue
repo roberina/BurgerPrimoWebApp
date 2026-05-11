@@ -177,8 +177,8 @@
 
         </template>
       </main>
-      <Footer />
     </div>
+    <Footer />
   </div>
 </template>
 
