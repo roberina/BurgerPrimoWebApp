@@ -53,7 +53,7 @@ class PaymentController extends Controller
         // Add packaging fee for takeaway (€0.20 per item)
         $packagingFee = 0;
         if ($deliveryMethod === 'takeaway') {
-            $itemCount = count($cart);
+            $itemCount = array_sum(array_column(array_values($cart), 'quantity'));
             $packagingFee = $itemCount * 0.20;
         }
 
@@ -100,7 +100,7 @@ class PaymentController extends Controller
 
         // Add packaging fee for takeaway
         if ($validated['delivery_method'] === 'takeaway') {
-            $itemCount = count($cart);
+            $itemCount = array_sum(array_column(array_values($cart), 'quantity'));
             $packagingFee = $itemCount * 0.20;
             $total += $packagingFee;
         }
@@ -289,6 +289,7 @@ class PaymentController extends Controller
                         'menu_item_id' => $cartItem['menu_item_id'],
                         'burger_name' => $cartItem['name'],
                         'ingredients' => $ingredientsData,
+                        'cart_data' => $cartItem,
                         'price' => $price,
                         'quantity' => $quantity,
                     ]);
@@ -297,7 +298,7 @@ class PaymentController extends Controller
 
             // Add packaging fee as an order item if takeaway
             if ($validated['delivery_method'] === 'takeaway') {
-                $itemCount = count($cart);
+                $itemCount = array_sum(array_column(array_values($cart), 'quantity'));
                 $packagingFee = $itemCount * 0.20;
                 
                 $order->items()->create([
@@ -310,8 +311,8 @@ class PaymentController extends Controller
                         'price'    => 0.20,
                     ]],
                     'cart_data' => ['burger_name_en' => 'Packaging fee'],
-                    'price'    => $packagingFee,
-                    'quantity' => 1,
+                    'price'    => 0.20,
+                    'quantity' => $itemCount,
                 ]);
             }
 

@@ -19,6 +19,7 @@ const navLinks = computed(() => [
   { label: t('nav.menu'),          href: '/menu',           anchor: null            },
   { label: t('nav.entertainment'), href: '/',               anchor: 'entertainment' },
   { label: t('nav.contact'),       href: '/',               anchor: 'contact'       },
+  { label: t('nav.popular'),        href: '/',              anchor: 'popular'       },     
 ])
 
 function handleNavClick(e: MouseEvent, link: { href: string; anchor: string | null }) {

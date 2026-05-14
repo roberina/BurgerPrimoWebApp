@@ -266,7 +266,7 @@ const openModal = (options: Omit<typeof modal.value, 'show'>) => {
   modal.value = { show: true, ...options }
 }
 
-const packagingFee = computed(() => deliveryMethod.value === 'takeaway' ? props.cartItems.length * 0.20 : 0)
+const packagingFee = computed(() => deliveryMethod.value === 'takeaway' ? props.cartItems.reduce((sum, item) => sum + item.quantity, 0) * 0.20 : 0)
 const finalTotal   = computed(() => props.total + packagingFee.value)
 
 const getSizeName = (size?: string) => ({

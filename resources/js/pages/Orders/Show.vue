@@ -88,7 +88,7 @@
                  class="flex items-center justify-between bg-[#0d0d0d] rounded-xl px-4 py-3">
               <div>
                 <p class="font-semibold text-sm">{{ ln(item.burger_name, item.cart_data?.burger_name_en) }}</p>
-                <p class="text-xs text-gray-500">{{ item.quantity }}} {{ t('order.show.qty') }}</p>
+                <p class="text-xs text-gray-500">{{ item.quantity }} {{ t('order.show.qty') }}</p>
               </div>
               <p class="font-bold text-[#D2691E] text-sm">{{ Number(item.price * item.quantity).toFixed(2) }}€</p>
             </div>
@@ -173,7 +173,7 @@
                 <div class="flex justify-between items-start">
                   <div>
                     <p class="font-semibold">{{ ln(item.burger_name, item.cart_data?.burger_name_en) }}</p>
-                    <p class="text-xs text-gray-500 mt-0.5">{{ item.quantity }}} {{ t('order.show.qty') }}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ item.quantity }} {{ t('order.show.qty') }}</p>
                     <div v-if="item.ingredients?.length" class="mt-2 space-y-0.5">
                       <p v-for="(ingredient, index) in item.ingredients" :key="index" class="text-xs text-gray-500">
                         {{ ingredient.quantity }}x {{ ln(ingredient.name, ingredient.name_en) }}
