@@ -116,6 +116,17 @@ class OrderController extends Controller
         return redirect()->back()->with('success', 'Tellimus tagasi kutsutud.');
     }
 
+    public function markCompleted(Order $order)
+    {
+        try {
+            $this->state->markDeliveredByAdmin($order, auth()->id());
+        } catch (\RuntimeException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', 'Tellimus märgitud lõpetatuks.');
+    }
+
     public function refund(Request $request, Order $order)
     {
         $validated = $request->validate([

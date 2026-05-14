@@ -96,6 +96,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/orders/{order}/reorder', [OrderController::class, 'reorder'])->name('orders.reorder');
     Route::patch('/orders/{order}/delivery-location', [OrderController::class, 'updateDeliveryLocation'])->name('orders.delivery-location');
     Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
     Route::post('/orders/bulk-delete', [OrderController::class, 'bulkDelete'])->name('orders.bulk-delete');
@@ -139,6 +140,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/orders/{order}/mark-ready', [AdminOrderController::class, 'markReady'])->name('orders.mark-ready');
             Route::post('/orders/{order}/release-to-couriers', [AdminOrderController::class, 'releaseToCouriers'])->name('orders.release-to-couriers');
             Route::post('/orders/{order}/recall-from-couriers', [AdminOrderController::class, 'recallFromCouriers'])->name('orders.recall-from-couriers');
+            Route::post('/orders/{order}/mark-completed', [AdminOrderController::class, 'markCompleted'])->name('orders.mark-completed');
             Route::post('/orders/{order}/refund', [AdminOrderController::class, 'refund'])->name('orders.refund');
             Route::delete('/orders/{order}', [AdminOrderController::class, 'bulkDelete'])->name('orders.destroy');
         });

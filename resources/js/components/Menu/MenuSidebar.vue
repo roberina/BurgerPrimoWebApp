@@ -150,19 +150,8 @@ const ln = (et: string, en: string | null | undefined) => (locale.value === 'en'
 
 <style scoped>
 .sidebar-blend {
-  background: linear-gradient(to right, #0f0f0f 85%, rgba(10,10,10,0.95) 100%);
+  background: #0B0B0B;
   border-right: 1px solid rgba(255,255,255,0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 2px 0 24px rgba(0,0,0,0.5), inset -1px 0 0 rgba(210,105,30,0.04);
-}
-
-.sidebar-fade-top {
-  background: linear-gradient(to bottom, #0f0f0f 30%, transparent 100%);
-}
-
-.sidebar-fade-bottom {
-  background: linear-gradient(to top, #0f0f0f 30%, transparent 100%);
 }
 
 .sidebar-scroll::-webkit-scrollbar {

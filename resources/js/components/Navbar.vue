@@ -182,61 +182,14 @@ const vClickOutside = {
               </svg>
               <span class="absolute inset-0 rounded-xl transition-all duration-200" :class="isHomePage ? 'bg-[#D2691E]/12' : 'bg-transparent group-hover:bg-white/5'" />
             </Link>
-            <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 scale-[0.97] translate-y-2" enter-to-class="opacity-100 scale-100 translate-y-0" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 scale-100 translate-y-0" leave-to-class="opacity-0 scale-[0.97] translate-y-1">
-              <div v-if="homeDropOpen" class="absolute left-0 top-full mt-2.5 w-64 bg-[#0c0c0c]/98 backdrop-blur-2xl border border-white/6 rounded-2xl shadow-2xl shadow-black/90 overflow-hidden z-50" style="box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04)">
-                <!-- Accent line -->
-                <div class="h-px bg-gradient-to-r from-transparent via-[#D2691E]/40 to-transparent" />
-                <!-- Header -->
-                <div class="px-4 pt-3.5 pb-2.5 border-b border-white/4">
-                  <p class="text-[10px] font-bold text-[#D2691E] uppercase tracking-[0.18em]">Avaleht</p>
-                  <p class="text-xs text-gray-700 mt-0.5">Liigu sektsiooni</p>
-                </div>
-                <!-- Items -->
-                <div class="p-2">
-                  <!-- Popular -->
-                  <a :href="'/'" @click="handleDropClick(homeDropdownItems[0], $event)" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 cursor-pointer"
-                    :class="isDropActive(homeDropdownItems[0]) ? 'bg-[#D2691E]/12 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'">
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
-                      :class="isDropActive(homeDropdownItems[0]) ? 'bg-[#D2691E]/20' : 'bg-white/5 group-hover:bg-white/8'">
-                      <svg class="w-4 h-4" :class="isDropActive(homeDropdownItems[0]) ? 'text-[#D2691E]' : 'text-gray-500 group-hover:text-gray-300'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                      </svg>
-                    </div>
-                    <div class="min-w-0">
-                      <p class="text-sm font-medium leading-none mb-0.5">{{ homeDropdownItems[0].label }}</p>
-                      <p class="text-[11px] text-gray-500">Meie menüü lemmikud</p>
-                    </div>
-                    <svg v-if="isDropActive(homeDropdownItems[0])" class="ml-auto w-3.5 h-3.5 text-[#D2691E] flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
-                  </a>
-                  <!-- Entertainment -->
-                  <a :href="'/'" @click="handleDropClick(homeDropdownItems[1], $event)" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 cursor-pointer"
-                    :class="isDropActive(homeDropdownItems[1]) ? 'bg-[#D2691E]/12 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'">
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
-                      :class="isDropActive(homeDropdownItems[1]) ? 'bg-[#D2691E]/20' : 'bg-white/5 group-hover:bg-white/8'">
-                      <svg class="w-4 h-4" :class="isDropActive(homeDropdownItems[1]) ? 'text-[#D2691E]' : 'text-gray-500 group-hover:text-gray-300'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m9 9 10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.66A2.25 2.25 0 0 0 9 15.553Z" />
-                      </svg>
-                    </div>
-                    <div class="min-w-0">
-                      <p class="text-sm font-medium leading-none mb-0.5">{{ homeDropdownItems[1].label }}</p>
-                      <p class="text-[11px] text-gray-500">Muusika ja meeleolu</p>
-                    </div>
-                    <svg v-if="isDropActive(homeDropdownItems[1])" class="ml-auto w-3.5 h-3.5 text-[#D2691E] flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
-                  </a>
-                  <!-- Contact -->
-                  <a :href="'/'" @click="handleDropClick(homeDropdownItems[2], $event)" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 cursor-pointer"
-                    :class="isDropActive(homeDropdownItems[2]) ? 'bg-[#D2691E]/12 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'">
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
-                      :class="isDropActive(homeDropdownItems[2]) ? 'bg-[#D2691E]/20' : 'bg-white/5 group-hover:bg-white/8'">
-                      <svg class="w-4 h-4" :class="isDropActive(homeDropdownItems[2]) ? 'text-[#D2691E]' : 'text-gray-500 group-hover:text-gray-300'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                      </svg>
-                    </div>
-                    <div class="min-w-0">
-                      <p class="text-sm font-medium leading-none mb-0.5">{{ homeDropdownItems[2].label }}</p>
-                      <p class="text-[11px] text-gray-500">Asukoht ja kontakt</p>
-                    </div>
-                    <svg v-if="isDropActive(homeDropdownItems[2])" class="ml-auto w-3.5 h-3.5 text-[#D2691E] flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
+            <Transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 translate-y-1" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+              <div v-if="homeDropOpen" class="absolute left-0 top-full z-50 pt-1.5">
+                <div class="w-44 bg-[#0d0d0d]/98 backdrop-blur-xl border border-white/6 rounded-xl shadow-xl shadow-black/80 py-1 overflow-hidden">
+                  <a v-for="item in homeDropdownItems" :key="item.anchor" href="/" @click="handleDropClick(item, $event)"
+                    class="flex items-center justify-between px-3.5 py-2 text-sm transition-all duration-150 cursor-pointer"
+                    :class="isDropActive(item) ? 'text-white bg-white/6' : 'text-gray-400 hover:text-white hover:bg-white/4'">
+                    {{ item.label }}
+                    <span v-if="isDropActive(item)" class="w-1.5 h-1.5 rounded-full bg-[#D2691E] shrink-0" />
                   </a>
                 </div>
               </div>
@@ -328,10 +281,14 @@ const vClickOutside = {
     <Transition enter-active-class="transition ease-out duration-250" enter-from-class="opacity-0 -translate-y-3" enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-3">
       <div v-if="mobileMenuOpen" class="lg:hidden border-t border-white/6 bg-[#080808]/98 backdrop-blur-xl w-full">
         <div class="px-4 py-5 space-y-1">
-          <button @click="mobileHomeOpen = !mobileHomeOpen" class="flex items-center justify-between w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer" :class="isHomePage ? 'text-white bg-[#D2691E]/10 border-l-2 border-[#D2691E]' : 'text-gray-500 hover:text-white hover:bg-white/5'">
-            {{ t('nav.home') }}
-            <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': mobileHomeOpen }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
-          </button>
+          <div class="flex items-center rounded-xl overflow-hidden" :class="isHomePage ? 'bg-[#D2691E]/10 border-l-2 border-[#D2691E]' : ''">
+            <Link href="/" @click="mobileMenuOpen = false" class="flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 cursor-pointer" :class="isHomePage ? 'text-white' : 'text-gray-500 hover:text-white'">
+              {{ t('nav.home') }}
+            </Link>
+            <button @click="mobileHomeOpen = !mobileHomeOpen" class="px-3 py-3 transition-all duration-200 cursor-pointer" :class="isHomePage ? 'text-white' : 'text-gray-500 hover:text-white hover:bg-white/5'">
+              <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="{ 'rotate-180': mobileHomeOpen }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>
+            </button>
+          </div>
           <div v-if="mobileHomeOpen" class="pl-4 space-y-0.5">
             <a v-for="sub in homeDropdownItems" :key="sub.anchor" href="/" @click="handleDropClick(sub, $event)"
               class="flex items-center px-4 py-2.5 rounded-xl text-sm transition-all cursor-pointer"

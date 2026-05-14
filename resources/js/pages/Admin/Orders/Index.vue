@@ -252,6 +252,7 @@ const startPreparing = (orderId: number) => router.post(`/admin/orders/${orderId
 const markReady = (orderId: number) => router.post(`/admin/orders/${orderId}/mark-ready`, {}, { preserveScroll: true });
 const releaseToCouriers = (orderId: number) => router.post(`/admin/orders/${orderId}/release-to-couriers`, {}, { preserveScroll: true });
 const recallFromCouriers = (orderId: number) => router.post(`/admin/orders/${orderId}/recall-from-couriers`, {}, { preserveScroll: true });
+const markCompleted = (orderId: number) => router.post(`/admin/orders/${orderId}/mark-completed`, {}, { preserveScroll: true });
 
 const getTimeSince = (date: string): string => {
   const diffMins = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
@@ -713,6 +714,13 @@ const deliveryIcon = (method?: string) =>
                   <Bike :size="13" /> Saada kullerile
                 </button>
                 <button
+                  v-if="order.delivery_method !== 'delivery'"
+                  @click="openConfirmModal({ title: 'Märgi lõpetatuks', message: `Tellimus #${order.order_number} märgitakse lõpetatuks.`, confirmLabel: 'Lõpeta', onConfirm: () => markCompleted(order.id) })"
+                  class="flex-1 bg-green-600/20 hover:bg-green-600 border border-green-600/40 hover:border-green-600 text-green-400 hover:text-white px-3 py-2 rounded-md font-medium transition text-xs flex items-center justify-center gap-1"
+                >
+                  <Check :size="13" /> Märgi lõpetatuks
+                </button>
+                <button
                   @click="openRejectModal(order.id)"
                   class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-2 rounded-md text-xs font-medium transition flex items-center justify-center gap-1"
                   title="Tühista tellimus"
@@ -836,12 +844,12 @@ const deliveryIcon = (method?: string) =>
                 </div>
               </div>
 
-              <div class="flex items-center justify-center gap-2 py-2 px-3 rounded-md bg-[#09090b] border border-[#27272a]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <p class="text-xs text-zinc-600">Kuller on teel — haldamine lukus</p>
-              </div>
+              <button
+                @click="openConfirmModal({ title: 'Märgi kättetoimetatud', message: `Tellimus #${order.order_number} märgitakse kättetoimetatuks. Kuller teavitatakse.`, confirmLabel: 'Kinnita', onConfirm: () => markCompleted(order.id) })"
+                class="w-full bg-green-600/20 hover:bg-green-600 border border-green-600/40 hover:border-green-600 text-green-400 hover:text-white px-4 py-2 rounded-md font-medium transition text-sm flex items-center justify-center gap-1.5"
+              >
+                <Check :size="14" /> Märgi kättetoimetatud
+              </button>
             </div>
           </div>
         </div>

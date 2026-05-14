@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Announcement extends Model
 {
     protected $fillable = [
-        'title', 'message', 'type',
+        'title', 'title_en', 'message', 'message_en', 'type',
         'bg_color', 'text_color',
         'is_active', 'starts_at', 'ends_at', 'sort_order',
     ];

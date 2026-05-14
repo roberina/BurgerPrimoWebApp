@@ -57,15 +57,9 @@
         </div>
         <div class="h-1 w-full bg-linear-to-r from-cyan-600 to-cyan-400"></div>
       </Link>
-      <div class="mb-12 flex items-center justify-between">
-        <div>
-          <h1 class="text-4xl font-bold mb-2">{{ t('orders.heading') }}</h1>
-          <p class="text-gray-400">{{ t('orders.sub') }}</p>
-        </div>
-        <button v-if="selectedOrders.length > 0" @click="confirmDeleteSelected" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-          {{ t('orders.delete.selected') }} ({{ selectedOrders.length }})
-        </button>
+      <div class="mb-12">
+        <h1 class="text-4xl font-bold mb-2">{{ t('orders.heading') }}</h1>
+        <p class="text-gray-400">{{ t('orders.sub') }}</p>
       </div>
 
       <div v-if="orders.length === 0" class="text-center py-24">
@@ -79,9 +73,10 @@
         <div v-for="order in orders" :key="order.id" class="bg-[#121212] rounded-2xl overflow-hidden border border-[#1a1a1a] transition-all duration-200" :class="{ 'ring-2 ring-[#D2691E]': selectedOrders.includes(order.id) }">
           <div class="bg-[#0d0d0d] px-6 py-4 flex items-center justify-between border-b border-[#1a1a1a]">
             <div class="flex items-center gap-4">
-              <label v-if="order.status === 'delivered'" class="flex items-center cursor-pointer">
+              <label v-if="['delivered','cancelled','refunded'].includes(order.status)" class="flex items-center cursor-pointer">
                 <input type="checkbox" :checked="selectedOrders.includes(order.id)" @change="toggleOrderSelection(order.id)" class="w-5 h-5 rounded border-gray-600 bg-[#121212] text-[#D2691E] focus:ring-[#D2691E] cursor-pointer" />
               </label>
+              <div v-else class="w-5 h-5" />
               <div>
                 <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">{{ t('orders.col.number') }}</p>
                 <p class="font-mono text-lg font-bold text-[#D2691E]">{{ order.order_number }}</p>
@@ -109,7 +104,7 @@
                 <div class="space-y-2">
                   <div v-for="item in order.items" :key="item.id" class="flex items-center justify-between bg-[#0d0d0d] rounded-xl px-4 py-3">
                     <div>
-                      <p class="font-semibold text-sm">{{ item.burger_name }}</p>
+                      <p class="font-semibold text-sm">{{ ln(item.burger_name, item.cart_data?.burger_name_en) }}</p>
                       <p class="text-xs text-gray-500 mt-0.5">{{ item.quantity }}x {{ t('orders.col.qty') }}</p>
                     </div>
                     <p class="font-bold text-[#D2691E] text-sm">{{ Number(item.price * item.quantity).toFixed(2) }}€</p>
@@ -132,7 +127,7 @@
             <div class="flex gap-3 mt-5">
               <Link :href="`/orders/${order.id}`" class="flex-1 bg-[#1a1a1a] hover:bg-[#222] text-white px-4 py-2.5 rounded-xl font-semibold transition text-center text-sm border border-[#2a2a2a] hover:border-[#D2691E]/30">{{ t('orders.btn.details') }}</Link>
               <button v-if="order.status === 'pending_confirmation' || order.status === 'confirmed'" @click="confirmCancel(order.id)" class="flex-1 bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white px-4 py-2.5 rounded-xl font-semibold transition text-sm border border-red-800/50 hover:border-red-600 cursor-pointer">{{ t('orders.btn.cancel') }}</button>
-              <Link v-if="order.status === 'delivered'" href="/menu" class="flex-1 text-white px-4 py-2.5 rounded-xl font-semibold transition text-center text-sm hover:opacity-90" style="background-color: #D2691E">{{ t('orders.btn.reorder') }}</Link>
+              <button v-if="order.status === 'delivered'" @click="reorder(order.id)" class="flex-1 text-white px-4 py-2.5 rounded-xl font-semibold transition text-center text-sm hover:opacity-90 cursor-pointer" style="background-color: #D2691E">{{ t('orders.btn.reorder') }}</button>
             </div>
           </div>
         </div>
@@ -144,6 +139,38 @@
     </main>
   </div>
   <Footer />
+
+  <!-- Floating selection bar -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="opacity-0 translate-y-4"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 translate-y-4"
+    >
+      <div v-if="selectedOrders.length > 0" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-5 py-3.5 rounded-2xl shadow-2xl border border-white/10 bg-[#1a1a1a] backdrop-blur-sm">
+        <span class="text-sm font-medium text-gray-300">
+          {{ t('orders.selected.count').replace('{count}', String(selectedOrders.length)) }}
+        </span>
+        <div class="w-px h-5 bg-white/10" />
+        <button
+          @click="selectedOrders.length = 0"
+          class="text-xs text-gray-500 hover:text-gray-300 transition cursor-pointer"
+        >
+          {{ t('orders.modal.cancel') }}
+        </button>
+        <button
+          @click="confirmDeleteSelected"
+          class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-semibold rounded-xl transition cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+          {{ t('orders.delete.selected') }}
+        </button>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -156,7 +183,7 @@ import { useToast } from '@/composables/useToast';
 
 const { success, error } = useToast();
 
-interface OrderItem { id: number; burger_name: string; price: number; quantity: number; }
+interface OrderItem { id: number; burger_name: string; price: number; quantity: number; cart_data?: { burger_name_en?: string } | null; }
 interface Order { id: number; order_number: string; total_amount: number; status: string; created_at: string; customer_notes: string | null; admin_notes: string | null; items: OrderItem[]; courier_lat?: number | null; courier_lng?: number | null; }
 interface Props { orders: Order[]; }
 
@@ -203,6 +230,13 @@ const confirmCancel = (orderId: number) => {
   });
 };
 
+const reorder = (orderId: number) => {
+  router.post(`/orders/${orderId}/reorder` as any, {}, {
+    onSuccess: () => success(t('orders.btn.reorder')),
+    onError: () => error(t('orders.btn.reorder')),
+  });
+};
+
 const confirmDismiss = (orderId: number) => {
   openModal({ type: 'warning', title: t('orders.modal.dismiss.title'), message: t('orders.modal.dismiss.msg'), confirmLabel: t('orders.modal.dismiss.confirm'),
     onConfirm: () => {
@@ -239,6 +273,7 @@ const getStatusLabel = (s: string) => ({
   refunded:             t('order.status.rejected'),
 }[s] || s);
 const { locale } = useI18n();
+const ln = (et: string, en: string | null | undefined) => (locale.value === 'en' && en) ? en : et;
 const formatDate = (d: string) => new Date(d).toLocaleString(locale.value === 'en' ? 'en-GB' : 'et-EE', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
 </script>
 

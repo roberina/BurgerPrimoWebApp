@@ -16,12 +16,29 @@ class OrderController extends Controller
 
     public function __construct(private OrderStateService $state) {}
 
+    const ORDER_HISTORY_LIMIT = 10;
+
     public function index(): Response
     {
-        $orders = auth()->user()
-            ->orders()
+        $user = auth()->user();
+
+        // Delete oldest terminal orders that exceed the history limit
+        $terminalStatuses = [Order::DELIVERED, Order::CANCELLED, Order::REFUNDED];
+        $oldIds = $user->orders()
+            ->latest()
+            ->pluck('id')
+            ->slice(self::ORDER_HISTORY_LIMIT);
+
+        if ($oldIds->isNotEmpty()) {
+            Order::whereIn('id', $oldIds)
+                ->whereIn('status', $terminalStatuses)
+                ->delete();
+        }
+
+        $orders = $user->orders()
             ->with('items')
             ->latest()
+            ->limit(self::ORDER_HISTORY_LIMIT)
             ->get()
             ->makeHidden(['courier_token']);
 
@@ -76,10 +93,11 @@ class OrderController extends Controller
     public function bulkDelete(Request $request)
     {
         $orderIds = $request->input('order_ids', []);
+        $terminalStatuses = [Order::DELIVERED, Order::CANCELLED, Order::REFUNDED];
 
         Order::where('user_id', auth()->id())
             ->whereIn('id', $orderIds)
-            ->where('status', Order::DELIVERED)
+            ->whereIn('status', $terminalStatuses)
             ->delete();
 
         return redirect()->back();
@@ -112,6 +130,87 @@ class OrderController extends Controller
         $order->update($validated);
 
         return redirect()->back();
+    }
+
+    public function reorder(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $order->load('items');
+        $cart = session()->get('cart', []);
+        $added = 0;
+
+        foreach ($order->items as $item) {
+            if ($item->cart_data) {
+                // Modern orders: full cart snapshot stored
+                $data = $item->cart_data;
+                if (isset($data['burger_id'])) {
+                    $cartId = 'burger_' . $data['burger_id'] . '_' . time() . rand(100, 999);
+                    $cart[$cartId] = [
+                        'type'      => 'custom_burger',
+                        'burger_id' => $data['burger_id'],
+                        'quantity'  => $data['quantity'] ?? 1,
+                        'subtotal'  => ((float) $item->price * ($data['quantity'] ?? 1)),
+                    ];
+                    $added++;
+                } elseif (isset($data['menu_item_id'])) {
+                    $cartId = uniqid('menu_', true);
+                    $entry = $data;
+                    $entry['id'] = $cartId;
+                    $cart[] = $entry;
+                    $added++;
+                }
+            } elseif ($item->custom_burger_id) {
+                // Legacy custom burger (cart_data not yet stored)
+                $cartId = 'burger_' . $item->custom_burger_id . '_' . time() . rand(100, 999);
+                $cart[$cartId] = [
+                    'type'      => 'custom_burger',
+                    'burger_id' => $item->custom_burger_id,
+                    'quantity'  => $item->quantity,
+                    'subtotal'  => ((float) $item->price * $item->quantity),
+                ];
+                $added++;
+            } elseif ($item->menu_item_id) {
+                // Legacy menu item with ID stored but no cart snapshot
+                $cart[] = $this->basicMenuCartEntry($item->menu_item_id, $item->burger_name, (float) $item->price, $item->quantity);
+                $added++;
+            } else {
+                // Truly legacy: find menu item by name
+                $menuItem = \App\Models\MenuItem::where('name', $item->burger_name)->where('is_active', true)->first();
+                if ($menuItem) {
+                    $cart[] = $this->basicMenuCartEntry($menuItem->id, $menuItem->name, (float) $menuItem->price, $item->quantity);
+                    $added++;
+                }
+            }
+        }
+
+        if ($added === 0) {
+            return redirect()->back()->with('error', 'Ühtegi toodet ei leitud – need võivad olla eemaldatud.');
+        }
+
+        session()->put('cart', $cart);
+
+        return redirect()->route('cart.index')->with('success', 'Tooted lisatud korvi!');
+    }
+
+    private function basicMenuCartEntry(int $menuItemId, string $name, float $price, int $quantity): array
+    {
+        return [
+            'id'                   => uniqid('menu_', true),
+            'menu_item_id'         => $menuItemId,
+            'name'                 => $name,
+            'base_price'           => $price,
+            'size'                 => 'medium',
+            'drinks'               => [],
+            'sauces'               => [],
+            'fries'                => null,
+            'needs_utensils'       => false,
+            'special_instructions' => '',
+            'total_price'          => $price,
+            'quantity'             => $quantity,
+        ];
     }
 
     public function store(Request $request)

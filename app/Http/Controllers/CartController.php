@@ -316,6 +316,11 @@ class CartController extends Controller
                     'custom_burger_id' => $burger->id,
                     'burger_name' => $burger->name,
                     'ingredients' => $ingredientsData,
+                    'cart_data' => [
+                        'type' => 'custom_burger',
+                        'burger_id' => $burger->id,
+                        'quantity' => $quantity,
+                    ],
                     'price' => $price,
                     'quantity' => $quantity,
                 ]);
@@ -331,17 +336,15 @@ class CartController extends Controller
                 
                 // Add size
                 if (!empty($cartItem['size'])) {
-                    $sizeNames = [
-                        'small' => 'Väike',
-                        'medium' => 'Keskmine',
-                        'large' => 'Suur',
-                    ];
-                    $sizeName = $sizeNames[$cartItem['size']] ?? $cartItem['size'];
+                    $sizeNamesEt = ['small' => 'Väike', 'medium' => 'Keskmine', 'large' => 'Suur'];
+                    $sizeNamesEn = ['small' => 'Small', 'medium' => 'Medium', 'large' => 'Large'];
+                    $sizeKey = $cartItem['size'];
                     $ingredientsData[] = [
-                        'name' => 'Suurus: ' . $sizeName,
+                        'name'     => 'Suurus: ' . ($sizeNamesEt[$sizeKey] ?? $sizeKey),
+                        'name_en'  => 'Size: '   . ($sizeNamesEn[$sizeKey] ?? $sizeKey),
                         'category' => 'size',
                         'quantity' => 1,
-                        'price' => 0,
+                        'price'    => 0,
                     ];
                 }
 
@@ -349,10 +352,11 @@ class CartController extends Controller
                 if (!empty($cartItem['drinks'])) {
                     foreach ($cartItem['drinks'] as $drink) {
                         $ingredientsData[] = [
-                            'name' => $drink['name'] ?? 'Jook',
+                            'name'     => $drink['name']    ?? 'Jook',
+                            'name_en'  => $drink['name_en'] ?? ($drink['name'] ?? 'Drink'),
                             'category' => 'drink',
                             'quantity' => 1,
-                            'price' => isset($drink['price']) ? (float) $drink['price'] : 0,
+                            'price'    => isset($drink['price']) ? (float) $drink['price'] : 0,
                         ];
                     }
                 }
@@ -361,10 +365,11 @@ class CartController extends Controller
                 if (!empty($cartItem['sauces'])) {
                     foreach ($cartItem['sauces'] as $sauce) {
                         $ingredientsData[] = [
-                            'name' => $sauce['name'] ?? 'Kaste',
+                            'name'     => $sauce['name']    ?? 'Kaste',
+                            'name_en'  => $sauce['name_en'] ?? ($sauce['name'] ?? 'Sauce'),
                             'category' => 'sauce',
                             'quantity' => 1,
-                            'price' => isset($sauce['price']) ? (float) $sauce['price'] : 0,
+                            'price'    => isset($sauce['price']) ? (float) $sauce['price'] : 0,
                         ];
                     }
                 }
@@ -372,30 +377,33 @@ class CartController extends Controller
                 // Add fries
                 if (!empty($cartItem['fries'])) {
                     $ingredientsData[] = [
-                        'name' => $cartItem['fries']['name'] ?? 'Friikartul',
+                        'name'     => $cartItem['fries']['name']    ?? 'Friikartul',
+                        'name_en'  => $cartItem['fries']['name_en'] ?? ($cartItem['fries']['name'] ?? 'Fries'),
                         'category' => 'fries',
                         'quantity' => 1,
-                        'price' => isset($cartItem['fries']['price']) ? (float) $cartItem['fries']['price'] : 0,
+                        'price'    => isset($cartItem['fries']['price']) ? (float) $cartItem['fries']['price'] : 0,
                     ];
                 }
 
                 // Add utensils note
                 if (!empty($cartItem['needs_utensils'])) {
                     $ingredientsData[] = [
-                        'name' => 'Söögiriistad: Jah',
+                        'name'     => 'Söögiriistad: Jah',
+                        'name_en'  => 'Utensils: Yes',
                         'category' => 'utensils',
                         'quantity' => 1,
-                        'price' => 0,
+                        'price'    => 0,
                     ];
                 }
 
                 // Add special instructions if any
                 if (!empty($cartItem['special_instructions'])) {
                     $ingredientsData[] = [
-                        'name' => 'Märkused: ' . $cartItem['special_instructions'],
+                        'name'     => 'Märkused: '  . $cartItem['special_instructions'],
+                        'name_en'  => 'Notes: '     . $cartItem['special_instructions'],
                         'category' => 'notes',
                         'quantity' => 1,
-                        'price' => 0,
+                        'price'    => 0,
                     ];
                 }
 
@@ -403,6 +411,7 @@ class CartController extends Controller
                     'menu_item_id' => $cartItem['menu_item_id'],
                     'burger_name' => $cartItem['name'],
                     'ingredients' => $ingredientsData,
+                    'cart_data' => $cartItem,
                     'price' => $price,
                     'quantity' => $quantity,
                 ]);

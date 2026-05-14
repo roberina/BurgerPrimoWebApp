@@ -135,6 +135,17 @@ class OrderStateService
         ]);
     }
 
+    public function markDeliveredByAdmin(Order $order, int $adminId): void
+    {
+        if (!in_array($order->status, [self::READY, self::PICKED_UP])) {
+            throw new \RuntimeException("Cannot mark completed order in status: {$order->status}");
+        }
+
+        $this->transition($order, self::DELIVERED, $adminId, 'admin', [
+            'courier_updated_at' => now(),
+        ]);
+    }
+
     public function unclaimOrder(Order $order, int $courierId): void
     {
         if ($order->status !== self::PICKED_UP || $order->courier_user_id !== $courierId) {

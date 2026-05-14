@@ -3,12 +3,15 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { Megaphone, X, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { useI18n } from '@/composables/useI18n'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const ln = (et: string, en: string | null | undefined) => (locale.value === 'en' && en) ? en : et
 
 interface Announcement {
   id: number
   title: string
+  title_en?: string | null
   message: string
+  message_en?: string | null
   type: string
   bg_color: string
   text_color: string
@@ -91,9 +94,9 @@ onUnmounted(() => {
             class="flex-1 flex items-center gap-2 min-w-0 justify-center text-center transition-opacity duration-180"
             :class="transitioning ? 'opacity-0' : 'opacity-100'"
           >
-            <p class="text-sm font-semibold truncate">{{ active().title }}</p>
+            <p class="text-sm font-semibold truncate">{{ ln(active().title, active().title_en) }}</p>
             <span class="hidden sm:inline opacity-60 text-xs">·</span>
-            <p class="hidden sm:block text-xs opacity-80 truncate">{{ active().message }}</p>
+            <p class="hidden sm:block text-xs opacity-80 truncate">{{ ln(active().message, active().message_en) }}</p>
           </div>
 
           <button
@@ -136,7 +139,7 @@ onUnmounted(() => {
           class="sm:hidden px-4 pb-2 text-xs opacity-80 text-center transition-opacity duration-180"
           :class="transitioning ? 'opacity-0' : 'opacity-80'"
         >
-          {{ active().message }}
+          {{ ln(active().message, active().message_en) }}
         </div>
       </div>
     </Transition>

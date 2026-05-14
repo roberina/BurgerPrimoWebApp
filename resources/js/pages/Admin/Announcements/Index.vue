@@ -11,7 +11,9 @@ const { success, error } = useToast()
 interface Announcement {
   id: number
   title: string
+  title_en: string | null
   message: string
+  message_en: string | null
   type: 'info' | 'warning' | 'success' | 'promo'
   bg_color: string
   text_color: string
@@ -48,7 +50,9 @@ function handleTouchMove(e: TouchEvent) {
 
 const emptyForm = () => ({
   title: '',
+  title_en: '',
   message: '',
+  message_en: '',
   type: 'info' as const,
   bg_color: '#ea580c',
   text_color: '#FFFFFF',
@@ -252,14 +256,26 @@ const formatDate = (d: string|null) => d ? new Date(d).toLocaleDateString('et-EE
           </div>
 
           <div class="px-5 py-4 space-y-4">
-            <div>
-              <label class="block text-xs font-medium text-zinc-400 mb-1.5">Pealkiri *</label>
-              <input v-model="form.title" type="text" placeholder="nt. Suvine promo aktiivne!" maxlength="255" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors" />
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1.5">Pealkiri * <span class="text-zinc-600">(ET)</span></label>
+                <input v-model="form.title" type="text" placeholder="nt. Suvine promo aktiivne!" maxlength="255" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1.5">Title <span class="text-zinc-600">(EN)</span></label>
+                <input v-model="form.title_en" type="text" placeholder="e.g. Summer promo active!" maxlength="255" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors" />
+              </div>
             </div>
 
-            <div>
-              <label class="block text-xs font-medium text-zinc-400 mb-1.5">Sõnum *</label>
-              <textarea v-model="form.message" rows="3" placeholder="nt. Kasuta koodi BURGER20 ja saa 20% soodustust!" maxlength="1000" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors resize-none" />
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1.5">Sõnum * <span class="text-zinc-600">(ET)</span></label>
+                <textarea v-model="form.message" rows="3" placeholder="nt. Kasuta koodi BURGER20 ja saa 20% soodustust!" maxlength="1000" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors resize-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-zinc-400 mb-1.5">Message <span class="text-zinc-600">(EN)</span></label>
+                <textarea v-model="form.message_en" rows="3" placeholder="e.g. Use code BURGER20 for 20% off!" maxlength="1000" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors resize-none" />
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">

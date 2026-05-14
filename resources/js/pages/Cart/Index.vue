@@ -35,7 +35,7 @@
       </Transition>
     </Teleport>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-10 pb-24">
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-10 pb-24">
       <div class="mb-8">
         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-gray-400 text-xs font-semibold uppercase tracking-widest mb-4">{{ t('cart.badge') }}</div>
         <h1 class="text-4xl font-bold mb-2">{{ t('cart.title') }}</h1>
@@ -314,7 +314,7 @@ const checkout = () => {
 .page-bg { position: fixed; inset: 0; z-index: 0; }
 .page-bg-img { width: 100%; height: 100%; background-image: url('/img/main25.jpg'); background-size: cover; background-position: center; filter: brightness(0.28) saturate(0.65); }
 .page-bg-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.50) 100%); }
-.page-root { position: relative; z-index: 1; min-height: 100vh; }
+.page-root { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
 
 .modal-enter-active, .modal-leave-active { transition: opacity 0.2s ease; }
 .modal-enter-from, .modal-leave-to { opacity: 0; }

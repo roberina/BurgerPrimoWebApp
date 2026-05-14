@@ -55,7 +55,9 @@ class AnnouncementController extends Controller
     {
         return $request->validate([
             'title'      => 'required|string|max:255',
+            'title_en'   => 'nullable|string|max:255',
             'message'    => 'required|string|max:1000',
+            'message_en' => 'nullable|string|max:1000',
             'type'       => 'required|in:info,warning,success,promo',
             'bg_color'   => 'required|string|max:20',
             'text_color' => 'required|string|max:20',

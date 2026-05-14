@@ -68,7 +68,7 @@ const addToCart = () => {
       leave-to-class="opacity-0"
     >
       <div
-        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 cursor-default"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 cursor-default"
         style="background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);"
         @click.self="emit('close')"
       >
@@ -78,7 +78,7 @@ const addToCart = () => {
           enter-to-class="opacity-100 translate-y-0 scale-100"
         >
           <div
-            class="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col cursor-default"
+            class="relative w-full max-w-md rounded-3xl overflow-hidden flex flex-col cursor-default"
             style="background: #111; border: 1px solid #1e1e1e; box-shadow: 0 32px 80px rgba(0,0,0,0.9);"
           >
             <!-- Close button -->

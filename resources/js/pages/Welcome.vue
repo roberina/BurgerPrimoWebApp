@@ -12,14 +12,16 @@ import Footer from '@/components/Footer.vue'
 interface MenuItem {
   id: number
   name: string
+  name_en?: string | null
   description: string
+  description_en?: string | null
   price: number
   original_price: number | null
   image: string | null
   image_url: string | null
   is_featured: boolean
   discount_percentage: number | null
-  category: { id: number; name: string }
+  category: { id: number; name: string; name_en?: string | null }
 }
 
 interface Review {

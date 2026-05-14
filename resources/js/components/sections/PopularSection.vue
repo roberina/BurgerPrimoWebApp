@@ -4,19 +4,22 @@ import { Link } from '@inertiajs/vue3'
 import { useScrollAnimation, useStaggerAnimation } from '@/composables/useScrollAnimation'
 import { useI18n } from '@/composables/useI18n'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const ln = (et: string | undefined, en: string | null | undefined) => (locale.value === 'en' && en) ? en : (et ?? '')
 
 interface MenuItem {
   id: number
   name: string
+  name_en?: string | null
   description: string
+  description_en?: string | null
   price: number
   original_price: number | null
   image: string | null
   image_url: string | null
   is_featured: boolean
   discount_percentage: number | null
-  category: { id: number; name: string }
+  category: { id: number; name: string; name_en?: string | null }
 }
 
 const props = defineProps<{ featuredItems?: MenuItem[] }>()
@@ -109,11 +112,11 @@ const onTouchEnd   = (e: TouchEvent) => {
                 <span class="relative z-10">-{{ item.discount_percentage }}%</span>
                 <div class="absolute inset-0 shimmer" />
               </div>
-              <div class="absolute bottom-3 left-3 px-2 py-0.5 bg-black/60 backdrop-blur-sm text-gray-300 text-[10px] font-medium rounded-md uppercase tracking-wider">{{ item.category?.name }}</div>
+              <div class="absolute bottom-3 left-3 px-2 py-0.5 bg-black/60 backdrop-blur-sm text-gray-300 text-[10px] font-medium rounded-md uppercase tracking-wider">{{ ln(item.category?.name, item.category?.name_en) }}</div>
             </div>
             <div class="p-5">
-              <h3 class="text-base font-bold text-white mb-1.5 group-hover:text-[#F5DEB3] transition-colors duration-300">{{ item.name }}</h3>
-              <p class="text-gray-400 text-xs line-clamp-2 mb-4 leading-relaxed">{{ item.description }}</p>
+              <h3 class="text-base font-bold text-white mb-1.5 group-hover:text-[#F5DEB3] transition-colors duration-300">{{ ln(item.name, item.name_en) }}</h3>
+              <p class="text-gray-400 text-xs line-clamp-2 mb-4 leading-relaxed">{{ ln(item.description, item.description_en) }}</p>
               <div class="flex items-center justify-between">
                 <div class="flex items-baseline gap-2">
                   <span class="text-xl font-black text-[#D2691E]">{{ Number(item.price).toFixed(2) }}€</span>
@@ -151,8 +154,8 @@ const onTouchEnd   = (e: TouchEvent) => {
                     <div v-if="item.discount_percentage" class="absolute top-3 right-3 px-2.5 py-1 bg-[#A8450E] text-white text-xs font-black rounded-xl">-{{ item.discount_percentage }}%</div>
                   </div>
                   <div class="p-5">
-                    <h3 class="text-base font-bold text-white mb-1.5">{{ item.name }}</h3>
-                    <p class="text-gray-400 text-xs line-clamp-2 mb-4">{{ item.description }}</p>
+                    <h3 class="text-base font-bold text-white mb-1.5">{{ ln(item.name, item.name_en) }}</h3>
+                    <p class="text-gray-400 text-xs line-clamp-2 mb-4">{{ ln(item.description, item.description_en) }}</p>
                     <span class="text-xl font-black text-[#D2691E]">{{ Number(item.price).toFixed(2) }}€</span>
                   </div>
                 </div>

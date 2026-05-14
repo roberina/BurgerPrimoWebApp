@@ -17,16 +17,17 @@
             <h1 class="text-4xl font-black text-white">{{ t('order.show.enjoy') }}</h1>
             <p class="text-green-400 font-bold text-xl">{{ t('order.show.delivered') }}</p>
             <p class="text-gray-500 text-sm max-w-xs mx-auto">
-              Tellimus <span class="font-mono text-[#D2691E] font-bold">{{ order.order_number }}</span>
+              {{ t('order.show.order.prefix') }} <span class="font-mono text-[#D2691E] font-bold">{{ order.order_number }}</span>
               {{ t('order.show.delivered.sub') }}
             </p>
           </div>
           <div class="flex gap-3 mt-4 flex-wrap justify-center">
-            <a href="/menu"
-               class="px-6 py-3 rounded-2xl font-bold text-sm transition"
+            <button
+               @click="reorder"
+               class="px-6 py-3 rounded-2xl font-bold text-sm transition cursor-pointer"
                style="background: linear-gradient(135deg, #D2691E, #B8571A); color: white;">
               {{ t('order.show.reorder') }}
-            </a>
+            </button>
             <a href="/orders"
                class="px-6 py-3 rounded-2xl font-bold text-sm bg-white/8 hover:bg-white/12 border border-white/10 text-gray-300 transition">
               {{ t('order.show.my_orders') }}
@@ -57,7 +58,7 @@
             <div class="w-12 h-12 rounded-full bg-cyan-500/15 flex items-center justify-center text-2xl shrink-0">🛵</div>
             <div class="flex-1">
               <p class="font-bold text-lg text-white">{{ t('order.show.courier.title') }}</p>
-              <p class="text-sm text-cyan-400">Tellimus nr
+              <p class="text-sm text-cyan-400">{{ t('order.show.order.nr') }}
                 <span class="font-mono font-bold">{{ order.order_number }}</span>
                 {{ t('order.show.courier.sub') }}
               </p>
@@ -86,7 +87,7 @@
             <div v-for="item in order.items" :key="item.id"
                  class="flex items-center justify-between bg-[#0d0d0d] rounded-xl px-4 py-3">
               <div>
-                <p class="font-semibold text-sm">{{ item.burger_name }}</p>
+                <p class="font-semibold text-sm">{{ ln(item.burger_name, item.cart_data?.burger_name_en) }}</p>
                 <p class="text-xs text-gray-500">{{ item.quantity }}} {{ t('order.show.qty') }}</p>
               </div>
               <p class="font-bold text-[#D2691E] text-sm">{{ Number(item.price * item.quantity).toFixed(2) }}€</p>
@@ -171,11 +172,11 @@
               >
                 <div class="flex justify-between items-start">
                   <div>
-                    <p class="font-semibold">{{ item.burger_name }}</p>
+                    <p class="font-semibold">{{ ln(item.burger_name, item.cart_data?.burger_name_en) }}</p>
                     <p class="text-xs text-gray-500 mt-0.5">{{ item.quantity }}} {{ t('order.show.qty') }}</p>
                     <div v-if="item.ingredients?.length" class="mt-2 space-y-0.5">
                       <p v-for="(ingredient, index) in item.ingredients" :key="index" class="text-xs text-gray-500">
-                        {{ ingredient.quantity }}x {{ ingredient.name }}
+                        {{ ingredient.quantity }}x {{ ln(ingredient.name, ingredient.name_en) }}
                       </p>
                     </div>
                   </div>
@@ -206,13 +207,13 @@
 
       <!-- Actions -->
       <div class="mt-6 flex gap-4">
-        <Link
-          href="/menu"
-          class="flex-1 text-white px-6 py-3.5 rounded-xl font-semibold transition hover:opacity-90 text-center"
+        <button
+          @click="reorder"
+          class="flex-1 text-white px-6 py-3.5 rounded-xl font-semibold transition hover:opacity-90 text-center cursor-pointer"
           style="background-color: #D2691E"
         >
           {{ t('order.show.order_more') }}
-        </Link>
+        </button>
         <Link
           href="/orders"
           class="flex-1 bg-[#121212] hover:bg-[#1a1a1a] text-white px-6 py-3.5 rounded-xl font-semibold transition text-center border border-[#1a1a1a]"
@@ -239,7 +240,7 @@
           <h2 class="text-3xl font-black text-white mb-2">{{ t('order.show.arrived.title') }}</h2>
           <p class="text-green-400 font-semibold text-lg mb-1">{{ t('order.show.arrived.sub') }}</p>
           <p class="text-gray-500 text-sm mb-8">
-            Tellimus <span class="font-mono text-[#D2691E] font-bold cursor-pointer">{{ order.order_number }}</span>
+            {{ t('order.show.order.prefix') }} <span class="font-mono text-[#D2691E] font-bold cursor-pointer">{{ order.order_number }}</span>
           </p>
           <button
             @click="dismissArrivedBanner"
@@ -261,6 +262,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from '@/composables/useI18n';
 
 const { t, locale } = useI18n();
+const ln = (et: string | undefined, en: string | null | undefined) => (locale.value === 'en' && en) ? en : (et ?? '');
 
 const haversineKm = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
   const R = 6371;
@@ -274,6 +276,7 @@ import Navbar from '@/components/Navbar.vue';
 
 interface Ingredient {
   name: string;
+  name_en?: string | null;
   quantity: number;
 }
 
@@ -283,6 +286,7 @@ interface OrderItem {
   price: number;
   quantity: number;
   ingredients: Ingredient[];
+  cart_data?: { burger_name_en?: string } | null;
 }
 
 interface Order {
@@ -419,6 +423,10 @@ const getStatusLabel = (status: string): string => {
     refunded:             t('order.status.rejected'),
   };
   return labels[status] || status;
+};
+
+const reorder = () => {
+  router.post(`/orders/${props.order.id}/reorder` as any, {});
 };
 
 const formatDate = (date: string): string => {
