@@ -11,17 +11,29 @@
 
     <div class="max-w-4xl">
       <form @submit.prevent="submit" class="bg-[#121212] rounded-lg border border-[#1e1e1e] p-8">
-        <!-- Name -->
-        <div class="mb-6">
-          <label class="block text-sm font-semibold mb-2">Nimi *</label>
-          <input
-            v-model="form.name"
-            type="text"
-            required
-            class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
-            placeholder="nt. BURGERID"
-          />
-          <p v-if="errors.name" class="text-red-400 text-sm mt-1">{{ errors.name }}</p>
+        <!-- Name ET / EN -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+          <div>
+            <label class="block text-sm font-semibold mb-2">Nimi (ET) *</label>
+            <input
+              v-model="form.name"
+              type="text"
+              required
+              class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
+              placeholder="nt. BURGERID"
+            />
+            <p v-if="errors.name" class="text-red-400 text-sm mt-1">{{ errors.name }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Name (EN)</label>
+            <input
+              v-model="form.name_en"
+              type="text"
+              class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
+              placeholder="e.g. BURGERS"
+            />
+            <p v-if="errors.name_en" class="text-red-400 text-sm mt-1">{{ errors.name_en }}</p>
+          </div>
         </div>
 
         <!-- Slug -->
@@ -39,16 +51,28 @@
           <p v-if="errors.slug" class="text-red-400 text-sm mt-1">{{ errors.slug }}</p>
         </div>
 
-        <!-- Description -->
-        <div class="mb-6">
-          <label class="block text-sm font-semibold mb-2">Kirjeldus</label>
-          <textarea
-            v-model="form.description"
-            rows="3"
-            class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
-            placeholder="Kategooria lühikirjeldus..."
-          ></textarea>
-          <p v-if="errors.description" class="text-red-400 text-sm mt-1">{{ errors.description }}</p>
+        <!-- Description ET / EN -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+          <div>
+            <label class="block text-sm font-semibold mb-2">Kirjeldus (ET)</label>
+            <textarea
+              v-model="form.description"
+              rows="3"
+              class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
+              placeholder="Kategooria lühikirjeldus..."
+            ></textarea>
+            <p v-if="errors.description" class="text-red-400 text-sm mt-1">{{ errors.description }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Description (EN)</label>
+            <textarea
+              v-model="form.description_en"
+              rows="3"
+              class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
+              placeholder="Short category description..."
+            ></textarea>
+            <p v-if="errors.description_en" class="text-red-400 text-sm mt-1">{{ errors.description_en }}</p>
+          </div>
         </div>
 
         <!-- Sort Order -->
@@ -107,8 +131,10 @@ import { computed } from 'vue';
 interface Category {
   id: number;
   name: string;
+  name_en: string | null;
   slug: string;
   description: string | null;
+  description_en: string | null;
   sort_order: number;
   is_active: boolean;
 }
@@ -125,8 +151,10 @@ const isEdit = computed(() => !!props.category);
 
 const form = useForm({
   name: props.category?.name || '',
+  name_en: props.category?.name_en || '',
   slug: props.category?.slug || '',
   description: props.category?.description || '',
+  description_en: props.category?.description_en || '',
   sort_order: props.category?.sort_order || 0,
   is_active: props.category?.is_active ?? true,
 });

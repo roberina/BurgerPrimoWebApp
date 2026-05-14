@@ -84,7 +84,7 @@
               ? 'bg-[#D2691E] border-[#D2691E] text-white'
               : 'bg-transparent border-gray-700 text-gray-400 hover:border-gray-500 hover:text-white'
           ]"
-        >{{ category.name }}</button>
+        >{{ ln(category.name, category.name_en) }}</button>
         <button
           v-if="selectedCategories.length > 0"
           @click="selectedCategories = []"
@@ -126,9 +126,9 @@
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-xl font-bold flex items-center gap-2 text-white">
                 <span class="text-[#D2691E]">★</span> {{ t('menu.favorites') }}
-                <span class="text-xs font-normal ml-1 text-gray-600">{{ favorites!.length }} {{ t('menu.products') }}</span>
+                <span class="text-xs font-normal ml-1 text-gray-400">{{ favorites!.length }} {{ t('menu.products') }}</span>
               </h2>
-              <button @click="favoritesCollapsed = !favoritesCollapsed" class="flex items-center gap-1.5 text-xs transition-colors cursor-pointer text-gray-500 hover:text-white">
+              <button @click="favoritesCollapsed = !favoritesCollapsed" class="flex items-center gap-1.5 text-xs transition-colors cursor-pointer text-gray-400 hover:text-white">
                 {{ favoritesCollapsed ? t('menu.show') : t('menu.hide') }}
                 <component :is="favoritesCollapsed ? ChevronDown : ChevronUp" :size="14" />
               </button>
@@ -148,10 +148,10 @@
           >
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-xl font-bold uppercase tracking-wide flex items-center gap-3 text-white">
-                {{ category.name }}
-                <span class="text-xs font-normal normal-case tracking-normal text-gray-600">{{ category.active_items?.length || 0 }} {{ t('menu.products') }}</span>
+                {{ ln(category.name, category.name_en) }}
+                <span class="text-xs font-normal normal-case tracking-normal text-gray-400">{{ category.active_items?.length || 0 }} {{ t('menu.products') }}</span>
               </h2>
-              <button @click="toggleCategoryCollapse(category.id)" class="flex items-center gap-1.5 text-xs transition-colors cursor-pointer text-gray-500 hover:text-white">
+              <button @click="toggleCategoryCollapse(category.id)" class="flex items-center gap-1.5 text-xs transition-colors cursor-pointer text-gray-400 hover:text-white">
                 {{ collapsedCategories.includes(category.id) ? t('menu.show') : t('menu.hide') }}
                 <component :is="collapsedCategories.includes(category.id) ? ChevronDown : ChevronUp" :size="14" />
               </button>
@@ -210,6 +210,7 @@ interface MenuItemData {
 interface Category {
   id: number;
   name: string;
+  name_en: string | null;
   slug: string;
   description: string | null;
   active_items: MenuItemData[];
@@ -221,7 +222,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const ln = (et: string, en: string | null | undefined) => (locale.value === 'en' && en) ? en : et;
 
 const navbarHeight = ref(64);
 let navRO: ResizeObserver | null = null;

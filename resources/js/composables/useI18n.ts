@@ -475,6 +475,14 @@ const translations: Record<Locale, Record<string, string>> = {
         'courier.close':               'Sulge ✕',
         'courier.taken':               'Tellimus on teise kulleri poolt võetud.',
         'courier.dist.to':             'Sihtkohani',
+
+        'aria.prev':                   'Eelmine',
+        'aria.next':                   'Järgmine',
+        'aria.slide':                  'Slaid',
+        'aria.announcement':           'Teade',
+
+        'menu.item.fav.add':           'Lisa lemmikutesse',
+        'menu.item.fav.remove':        'Eemalda lemmikutest',
     },
 
     en: {
@@ -930,5 +938,13 @@ const translations: Record<Locale, Record<string, string>> = {
         'courier.close':               'Close ✕',
         'courier.taken':               'Order has been taken by another courier.',
         'courier.dist.to':             'To destination',
+
+        'aria.prev':                   'Previous',
+        'aria.next':                   'Next',
+        'aria.slide':                  'Slide',
+        'aria.announcement':           'Announcement',
+
+        'menu.item.fav.add':           'Add to favourites',
+        'menu.item.fav.remove':        'Remove from favourites',
     },
 }

@@ -11,23 +11,23 @@
       <div>
         <div class="flex items-center gap-2 mb-1.5">
           <span v-if="item.is_featured" class="text-xs bg-yellow-500/15 text-yellow-400 px-2 py-0.5 rounded-full font-semibold">{{ t('menu.item.popular') }}</span>
-          <span v-if="item.discount_percentage" class="text-xs bg-[#D2691E]/15 text-[#D2691E] px-2 py-0.5 rounded-full font-semibold">-{{ item.discount_percentage }}%</span>
+          <span v-if="item.discount_percentage" class="text-xs bg-[#D2691E]/15 text-orange-400 px-2 py-0.5 rounded-full font-semibold">-{{ item.discount_percentage }}%</span>
         </div>
-        <h3 class="font-bold text-sm leading-snug text-white">{{ item.name }}</h3>
-        <p class="text-xs mt-1 line-clamp-2 leading-relaxed text-gray-500">{{ item.description }}</p>
+        <h3 class="font-bold text-sm leading-snug text-white">{{ ln(item.name, item.name_en) }}</h3>
+        <p class="text-xs mt-1 line-clamp-2 leading-relaxed text-gray-400">{{ ln(item.description, item.description_en) }}</p>
       </div>
       <div class="flex items-center gap-2 mt-3">
         <span class="font-bold text-sm text-white">{{ Number(item.price).toFixed(2) }}€</span>
-        <span v-if="item.original_price && Number(item.original_price) > Number(item.price)" class="text-xs line-through text-gray-600">{{ Number(item.original_price).toFixed(2) }}€</span>
+        <span v-if="item.original_price && Number(item.original_price) > Number(item.price)" class="text-xs line-through text-gray-400">{{ Number(item.original_price).toFixed(2) }}€</span>
       </div>
     </div>
     <div class="relative flex-shrink-0 w-28">
       <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover" />
       <div v-else class="w-full h-full flex items-center justify-center text-3xl bg-[#0d0d0d]">🍔</div>
-      <button @click.stop="toggleFavorite" class="absolute top-2 left-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all z-10 cursor-pointer bg-black/50 hover:bg-black/70">
+      <button @click.stop="toggleFavorite" :aria-label="item.is_favorited ? t('menu.item.fav.remove') : t('menu.item.fav.add')" class="absolute top-2 left-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all z-10 cursor-pointer bg-black/50 hover:bg-black/70">
         <svg xmlns="http://www.w3.org/2000/svg" :class="['h-4 w-4', item.is_favorited ? 'fill-red-500 text-red-500' : 'fill-none text-white']" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
       </button>
-      <button @click.stop="openAddonModal" class="absolute bottom-2 right-2 w-8 h-8 bg-[#D2691E] hover:bg-[#E07A2E] text-white rounded-lg flex items-center justify-center shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 cursor-pointer">
+      <button @click.stop="openAddonModal" :aria-label="t('addon.add')" class="absolute bottom-2 right-2 w-8 h-8 bg-[#D2691E] hover:bg-[#E07A2E] text-white rounded-lg flex items-center justify-center shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
       </button>
     </div>
@@ -44,16 +44,16 @@
         <span v-if="item.is_featured" class="bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold">{{ t('menu.item.popular') }}</span>
         <span v-if="item.discount_percentage" class="bg-[#D2691E] text-white px-3 py-1 rounded-full text-xs font-bold">-{{ item.discount_percentage }}%</span>
       </div>
-      <button @click.stop="toggleFavorite" class="absolute top-3 right-3 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-lg flex items-center justify-center transition-all duration-200 z-10 cursor-pointer">
+      <button @click.stop="toggleFavorite" :aria-label="item.is_favorited ? t('menu.item.fav.remove') : t('menu.item.fav.add')" class="absolute top-3 right-3 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-lg flex items-center justify-center transition-all duration-200 z-10 cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" :class="['h-6 w-6 transition-all', item.is_favorited ? 'fill-red-500 text-red-500' : 'fill-none text-white']" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
       </button>
-      <button @click.stop="openAddonModal" class="absolute bottom-3 right-3 w-12 h-12 bg-[#D2691E] hover:bg-[#E07A2E] text-white rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-[#D2691E]/50 hover:scale-110 cursor-pointer">
+      <button @click.stop="openAddonModal" :aria-label="t('addon.add')" class="absolute bottom-3 right-3 w-12 h-12 bg-[#D2691E] hover:bg-[#E07A2E] text-white rounded-xl flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-[#D2691E]/50 hover:scale-110 cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" /></svg>
       </button>
     </div>
     <div class="p-4">
-      <h3 class="text-lg font-bold mb-2 text-white">{{ item.name }}</h3>
-      <p class="text-sm mb-4 line-clamp-2 min-h-[40px] text-gray-400">{{ item.description }}</p>
+      <h3 class="text-lg font-bold mb-2 text-white">{{ ln(item.name, item.name_en) }}</h3>
+      <p class="text-sm mb-4 line-clamp-2 min-h-[40px] text-gray-400">{{ ln(item.description, item.description_en) }}</p>
       <div class="flex items-center gap-2">
         <span class="text-2xl font-bold text-[#D2691E]">{{ Number(item.price).toFixed(2) }}€</span>
         <span v-if="item.original_price && Number(item.original_price) > Number(item.price)" class="text-sm line-through text-gray-500">{{ Number(item.original_price).toFixed(2) }}€</span>
@@ -72,10 +72,11 @@ import AddonModal from '@/components/Menu/AddonModal.vue';
 import ItemDetailModal from '@/components/Menu/ItemDetailModal.vue';
 import { useI18n } from '@/composables/useI18n';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const ln = (et: string, en: string | null | undefined) => (locale.value === 'en' && en) ? en : et;
 
 interface MenuItemData {
-  id: number; name: string; description: string; price: number;
+  id: number; name: string; name_en?: string | null; description: string; description_en?: string | null; price: number;
   original_price: number | null; image_url: string | null;
   is_featured: boolean; discount_percentage: number | null;
   size: string | null; has_discount: boolean; is_favorited?: boolean;

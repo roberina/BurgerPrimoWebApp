@@ -143,7 +143,7 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
 
     <div v-else class="max-w-6xl mx-auto px-4 mb-8 text-center py-10">
       <p class="text-4xl mb-3 animate-bob inline-block">⭐</p>
-      <p class="text-gray-500 mt-2">{{ t('reviews.empty') }}</p>
+      <p class="text-gray-400 mt-2">{{ t('reviews.empty') }}</p>
     </div>
 
     <div :ref="(el) => ctaRef = el as any" class="flex justify-center">
@@ -173,7 +173,7 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
                   <div v-if="submitSuccess" class="text-center py-8">
                     <p class="text-5xl mb-4 animate-bob inline-block">🎉</p>
                     <p class="text-green-400 font-bold text-lg">{{ t('reviews.modal.thanks') }}</p>
-                    <p class="text-gray-500 text-sm mt-2">{{ t('reviews.modal.thanks.sub') }}</p>
+                    <p class="text-gray-400 text-sm mt-2">{{ t('reviews.modal.thanks.sub') }}</p>
                   </div>
                 </Transition>
                 <template v-if="!alreadySubmitted && !submitSuccess">
@@ -210,7 +210,7 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
                   <div class="text-center py-6">
                     <p class="text-4xl mb-4">✅</p>
                     <p class="text-white font-bold">{{ t('reviews.modal.already') }}</p>
-                    <p class="text-gray-500 text-sm mt-2">{{ t('reviews.modal.already.sub') }}</p>
+                    <p class="text-gray-400 text-sm mt-2">{{ t('reviews.modal.already.sub') }}</p>
                     <button @click="closeModal" class="mt-5 w-full py-3 text-sm bg-white/6 text-gray-400 font-semibold rounded-xl hover:bg-white/10 transition-all">{{ t('reviews.modal.close') }}</button>
                   </div>
                 </template>

@@ -3,6 +3,7 @@
 export interface Ingredient {
   id: number;
   name: string;
+  name_en?: string | null;
   category: string;
   price: number;
   image?: string | null;

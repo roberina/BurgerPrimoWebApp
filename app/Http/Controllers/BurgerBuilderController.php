@@ -34,7 +34,7 @@ class BurgerBuilderController extends Controller
         $customBurgers = auth()->user()
             ->customBurgers()
             ->with(['ingredients' => function($query) {
-                $query->select('ingredients.id', 'ingredients.name', 'ingredients.category', 'ingredients.price', 'ingredients.is_available');
+                $query->select('ingredients.id', 'ingredients.name', 'ingredients.name_en', 'ingredients.category', 'ingredients.price', 'ingredients.is_available');
             }])
             ->orderByDesc('is_favorite')
             ->orderByDesc('created_at')

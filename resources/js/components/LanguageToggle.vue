@@ -10,8 +10,8 @@ const { locale, setLocale } = useI18n()
        @click="setLocale('et')"
       class="cursor-pointer px-2.5 py-1 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer"
       :class="locale === 'et'
-        ? 'bg-[#D2691E] text-white shadow-sm'
-        : 'text-gray-500 hover:text-gray-300'"
+        ? 'bg-[#A8450E] text-white shadow-sm'
+        : 'text-gray-400 hover:text-gray-300'"
     >
       EST
     </button>
@@ -19,8 +19,8 @@ const { locale, setLocale } = useI18n()
        @click="setLocale('en')"
       class="cursor-pointer px-2.5 py-1 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer"
       :class="locale === 'en'
-        ? 'bg-[#D2691E] text-white shadow-sm'
-        : 'text-gray-500 hover:text-gray-300'"
+        ? 'bg-[#A8450E] text-white shadow-sm'
+        : 'text-gray-400 hover:text-gray-300'"
     >
       ENG
     </button>

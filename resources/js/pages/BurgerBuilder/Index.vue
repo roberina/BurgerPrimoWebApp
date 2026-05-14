@@ -400,7 +400,8 @@ import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import type { Ingredient, SelectedIngredient, CustomBurger } from '@/types/burger-types';
 import { useI18n } from '@/composables/useI18n';
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const ln = (et: string, en: string | null | undefined) => (locale.value === 'en' && en) ? en : et;
 
 interface Props {
   ingredients: Record<string, Ingredient[]> | any;
@@ -456,11 +457,11 @@ const toggleMulti = (cat: string, id: number) => {
 };
 
 const allSelectedFlat = computed(() => {
-  const result: { id: number; name: string; price: number; quantity: number; category: string }[] = [];
+  const result: { id: number; name: string; name_en?: string | null; price: number; quantity: number; category: string }[] = [];
   Object.entries(selectedIngredients.value).forEach(([cat, items]) => {
     items.forEach(item => {
       const ing = getAllIngredients().find(i => i.id === item.id);
-      if (ing) result.push({ id: item.id, name: ing.name, price: Number(ing.price), quantity: item.quantity, category: cat });
+      if (ing) result.push({ id: item.id, name: ing.name, name_en: ing.name_en, price: Number(ing.price), quantity: item.quantity, category: cat });
     });
   });
   return result;

@@ -152,7 +152,7 @@ const vClickOutside = {
         <!-- Left: Logo + delivery (desktop) / Logo + hamburger (mobile) -->
         <div class="flex items-center justify-between w-full lg:w-auto lg:justify-start lg:gap-2.5">
           <Link href="/" class="group flex items-center gap-2.5 shrink-0">
-            <img src="/img/Logo45.png" alt="Burger Primo" class="w-9 h-9 object-contain transition-all duration-400 group-hover:scale-110 group-hover:rotate-3" />
+            <img src="/img/Logo45.png" alt="" class="w-9 h-9 object-contain transition-all duration-400 group-hover:scale-110 group-hover:rotate-3" />
             <span class="text-base font-bold tracking-tight text-white hidden sm:block">
               Burger <span class="text-[#D2691E] transition-all duration-300 group-hover:text-[#E87E32]">Primo</span>
             </span>
@@ -175,7 +175,7 @@ const vClickOutside = {
           <!-- Avaleht dropdown -->
           <div class="relative" @mouseenter="homeDropOpen = true" @mouseleave="homeDropOpen = false">
             <Link href="/" class="relative px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group flex items-center gap-1"
-              :class="isHomePage ? 'text-white' : 'text-gray-500 hover:text-white'">
+              :class="isHomePage ? 'text-white' : 'text-gray-400 hover:text-white'">
               <span class="relative z-10">{{ t('nav.home') }}<span v-if="isHomePage && !activeAnchor" class="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#D2691E]" /></span>
               <svg class="w-3 h-3 transition-transform duration-200 relative z-10" :class="{ 'rotate-180': homeDropOpen }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
@@ -245,7 +245,7 @@ const vClickOutside = {
 
           <Link v-for="item in navItems" :key="item.href" :href="item.href"
             class="relative px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group"
-            :class="isActive(item) ? 'text-white' : 'text-gray-500 hover:text-white'">
+            :class="isActive(item) ? 'text-white' : 'text-gray-400 hover:text-white'">
             <span class="relative z-10">{{ item.label }}</span>
             <span class="absolute inset-0 rounded-xl transition-all duration-200" :class="isActive(item) ? 'bg-[#D2691E]/12' : 'bg-transparent group-hover:bg-white/5'" />
             <span v-if="isActive(item)" class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#D2691E]" />

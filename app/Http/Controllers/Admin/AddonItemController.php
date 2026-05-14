@@ -28,6 +28,7 @@ class AddonItemController extends Controller
         $data = $request->validate([
             'type'         => 'required|in:' . implode(',', AddonItem::TYPES),
             'name'         => 'required|string|max:120',
+            'name_en'      => 'nullable|string|max:120',
             'price'        => 'required|numeric|min:0|max:999',
             'slug'         => 'nullable|string|max:60',
             'is_available' => 'boolean',
@@ -44,6 +45,7 @@ class AddonItemController extends Controller
         $data = $request->validate([
             'type'         => 'required|in:' . implode(',', AddonItem::TYPES),
             'name'         => 'required|string|max:120',
+            'name_en'      => 'nullable|string|max:120',
             'price'        => 'required|numeric|min:0|max:999',
             'slug'         => 'nullable|string|max:60',
             'is_available' => 'boolean',
@@ -79,7 +81,7 @@ class AddonItemController extends Controller
     {
         $grouped = collect(AddonItem::TYPES)->mapWithKeys(function ($type) {
             return [
-                $type => AddonItem::ofType($type)->available()->ordered()->get(['id','name','price','slug']),
+                $type => AddonItem::ofType($type)->available()->ordered()->get(['id','name','name_en','price','slug']),
             ];
         });
 

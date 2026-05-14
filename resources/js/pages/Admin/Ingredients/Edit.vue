@@ -14,10 +14,17 @@
 
     <div class="max-w-2xl">
       <form @submit.prevent="submit" class="bg-[#111111] border border-gray-800 rounded-xl p-6 space-y-6">
-        <div>
-          <label for="name" class="block text-sm font-semibold text-white mb-2">Nimi</label>
-          <input id="name" v-model="form.name" type="text" required class="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-600 transition" />
-          <p v-if="form.errors.name" class="text-red-500 text-sm mt-1">{{ form.errors.name }}</p>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="name" class="block text-sm font-semibold text-white mb-2">Nimi (ET)</label>
+            <input id="name" v-model="form.name" type="text" required class="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-600 transition" />
+            <p v-if="form.errors.name" class="text-red-500 text-sm mt-1">{{ form.errors.name }}</p>
+          </div>
+          <div>
+            <label for="name_en" class="block text-sm font-semibold text-white mb-2">Name (EN)</label>
+            <input id="name_en" v-model="form.name_en" type="text" class="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-600 transition" />
+            <p v-if="form.errors.name_en" class="text-red-500 text-sm mt-1">{{ form.errors.name_en }}</p>
+          </div>
         </div>
 
         <div>
@@ -58,6 +65,7 @@ import { ArrowLeft } from 'lucide-vue-next';
 interface Ingredient {
   id: number;
   name: string;
+  name_en: string | null;
   category: string;
   price: number;
   is_available: boolean;
@@ -71,6 +79,7 @@ const props = defineProps<Props>();
 
 const form = useForm({
   name: props.ingredient.name,
+  name_en: props.ingredient.name_en || '',
   category: props.ingredient.category,
   price: props.ingredient.price,
   is_available: props.ingredient.is_available,

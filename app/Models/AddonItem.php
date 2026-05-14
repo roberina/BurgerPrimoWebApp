@@ -9,6 +9,7 @@ class AddonItem extends Model
     protected $fillable = [
         'type',
         'name',
+        'name_en',
         'price',
         'slug',
         'is_available',

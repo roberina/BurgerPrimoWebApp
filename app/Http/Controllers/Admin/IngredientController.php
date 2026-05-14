@@ -49,9 +49,10 @@ class IngredientController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'required|in:buns,patties,vegetables,sauces,extras',
-            'price' => 'required|numeric|min:0|max:99.99',
+            'name'         => 'required|string|max:255',
+            'name_en'      => 'nullable|string|max:255',
+            'category'     => 'required|in:buns,patties,vegetables,sauces,extras',
+            'price'        => 'required|numeric|min:0|max:99.99',
             'is_available' => 'boolean',
         ]);
 
@@ -77,9 +78,10 @@ class IngredientController extends Controller
     public function update(Request $request, Ingredient $ingredient)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'required|in:buns,patties,vegetables,sauces,extras',
-            'price' => 'required|numeric|min:0|max:99.99',
+            'name'         => 'required|string|max:255',
+            'name_en'      => 'nullable|string|max:255',
+            'category'     => 'required|in:buns,patties,vegetables,sauces,extras',
+            'price'        => 'required|numeric|min:0|max:99.99',
             'is_available' => 'boolean',
         ]);
 
