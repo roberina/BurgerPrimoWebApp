@@ -115,7 +115,7 @@ function submitContact() {
                   <div v-if="submitState === 'success'" class="text-center py-10">
                     <p class="text-5xl mb-5 animate-bob inline-block">🎉</p>
                     <p class="text-green-400 font-bold text-xl">{{ t('contact.form.sent') }}</p>
-                    <p class="text-gray-500 text-sm mt-2">{{ t('contact.form.sent.sub') }}</p>
+                    <p class="text-gray-400 text-sm mt-2">{{ t('contact.form.sent.sub') }}</p>
                     <button @click="submitState = 'idle'" class="mt-6 px-6 py-2.5 text-sm bg-white/6 text-gray-400 rounded-xl hover:bg-white/10 transition-all font-semibold">{{ t('contact.form.new') }}</button>
                   </div>
                 </Transition>

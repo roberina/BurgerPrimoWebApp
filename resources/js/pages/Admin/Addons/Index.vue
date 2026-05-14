@@ -12,6 +12,7 @@ interface AddonItem {
   id: number
   type: 'size' | 'drink' | 'sauce' | 'fries'
   name: string
+  name_en: string | null
   price: number
   slug: string | null
   is_available: boolean
@@ -38,6 +39,7 @@ const editingId = ref<number | null>(null)
 const emptyForm = () => ({
   type: activeType.value as AddonItem['type'],
   name: '',
+  name_en: '',
   price: 0,
   slug: '',
   is_available: true,
@@ -147,9 +149,15 @@ const formatPrice = (price: number) => price === 0 ? 'Tasuta' : `+€${Number(pr
                 </div>
               </div>
 
-              <div>
-                <label class="block text-xs font-medium text-zinc-400 mb-1.5">Nimi *</label>
-                <input v-model="form.name" type="text" placeholder="nt. Coca-Cola 0.5L" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors" />
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-zinc-400 mb-1.5">Nimi (ET) *</label>
+                  <input v-model="form.name" type="text" placeholder="nt. Coca-Cola 0.5L" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors" />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-zinc-400 mb-1.5">Name (EN)</label>
+                  <input v-model="form.name_en" type="text" placeholder="e.g. Coca-Cola 0.5L" class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors" />
+                </div>
               </div>
 
               <div>

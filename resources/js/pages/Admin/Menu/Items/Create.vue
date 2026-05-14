@@ -30,29 +30,51 @@
               <p v-if="errors.category_id" class="text-red-400 text-sm mt-1">{{ errors.category_id }}</p>
             </div>
 
-            <!-- Name -->
-            <div>
-              <label class="block text-sm font-semibold mb-2">Toote nimi *</label>
-              <input
-                v-model="form.name"
-                type="text"
-                required
-                class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
-                placeholder="nt. Kebabipraad"
-              />
-              <p v-if="errors.name" class="text-red-400 text-sm mt-1">{{ errors.name }}</p>
+            <!-- Name ET / EN -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-semibold mb-2">Toote nimi (ET) *</label>
+                <input
+                  v-model="form.name"
+                  type="text"
+                  required
+                  class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
+                  placeholder="nt. Kebabipraad"
+                />
+                <p v-if="errors.name" class="text-red-400 text-sm mt-1">{{ errors.name }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-2">Product name (EN)</label>
+                <input
+                  v-model="form.name_en"
+                  type="text"
+                  class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
+                  placeholder="e.g. Kebab burger"
+                />
+                <p v-if="errors.name_en" class="text-red-400 text-sm mt-1">{{ errors.name_en }}</p>
+              </div>
             </div>
 
-            <!-- Description -->
+            <!-- Description ET / EN -->
             <div>
-              <label class="block text-sm font-semibold mb-2">Kirjeldus</label>
+              <label class="block text-sm font-semibold mb-2">Kirjeldus (ET)</label>
               <textarea
                 v-model="form.description"
-                rows="4"
+                rows="3"
                 class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
                 placeholder="Koostisosad ja kirjeldus..."
               ></textarea>
               <p v-if="errors.description" class="text-red-400 text-sm mt-1">{{ errors.description }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold mb-2">Description (EN)</label>
+              <textarea
+                v-model="form.description_en"
+                rows="3"
+                class="w-full bg-[#0B0B0B] border border-[#2a2a2a] rounded-lg px-4 py-3 text-white focus:border-[#D2691E] focus:ring-2 focus:ring-[#D2691E]/20 transition"
+                placeholder="Ingredients and description..."
+              ></textarea>
+              <p v-if="errors.description_en" class="text-red-400 text-sm mt-1">{{ errors.description_en }}</p>
             </div>
 
             <!-- Size -->
@@ -214,7 +236,9 @@ interface MenuItem {
   id: number;
   category_id: number;
   name: string;
+  name_en: string | null;
   description: string | null;
+  description_en: string | null;
   price: number;
   original_price: number | null;
   image: string | null;
@@ -241,7 +265,9 @@ const isEdit = computed(() => !!props.item);
 const form = useForm({
   category_id: props.item?.category_id || props.default_category_id || '',
   name: props.item?.name || '',
+  name_en: props.item?.name_en || '',
   description: props.item?.description || '',
+  description_en: props.item?.description_en || '',
   price: props.item?.price || 0,
   original_price: props.item?.original_price || props.item?.price || 0,
   image: null as File | null,

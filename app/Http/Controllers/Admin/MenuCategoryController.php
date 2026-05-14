@@ -31,11 +31,13 @@ class MenuCategoryController extends Controller
     {
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:menu_categories,slug',
-            'description' => 'nullable|string',
-            'sort_order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
+            'name'           => 'required|string|max:255',
+            'name_en'        => 'nullable|string|max:255',
+            'slug'           => 'nullable|string|max:255|unique:menu_categories,slug',
+            'description'    => 'nullable|string',
+            'description_en' => 'nullable|string',
+            'sort_order'     => 'nullable|integer|min:0',
+            'is_active'      => 'boolean',
         ]);
 
         MenuCategory::create($validated);
@@ -56,11 +58,13 @@ class MenuCategoryController extends Controller
     {
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:menu_categories,slug,' . $category->id,
-            'description' => 'nullable|string',
-            'sort_order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
+            'name'           => 'required|string|max:255',
+            'name_en'        => 'nullable|string|max:255',
+            'slug'           => 'nullable|string|max:255|unique:menu_categories,slug,' . $category->id,
+            'description'    => 'nullable|string',
+            'description_en' => 'nullable|string',
+            'sort_order'     => 'nullable|integer|min:0',
+            'is_active'      => 'boolean',
         ]);
 
         $category->update($validated);

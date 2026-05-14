@@ -3,7 +3,7 @@ import { ref, computed, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { useI18n } from '@/composables/useI18n';
 
-interface AddonOption { id: number; name: string; price: number; slug: string | null }
+interface AddonOption { id: number; name: string; name_en?: string | null; price: number; slug: string | null }
 interface Addons {
   size:  AddonOption[];
   drink: AddonOption[];
@@ -25,7 +25,8 @@ const emit = defineEmits<{
   added: [];
 }>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const ln = (et: string, en: string | null | undefined) => (locale.value === 'en' && en) ? en : et;
 
 const scrollRef = ref<HTMLElement | null>(null);
 
@@ -184,7 +185,7 @@ const addToCart = () => {
                         : 'border-[#1a1a1a] bg-[#0B0B0B] text-gray-400 hover:border-[#D2691E]/40 hover:text-white'
                     ]"
                   >
-                    <div class="font-bold text-sm">{{ size.name }}</div>
+                    <div class="font-bold text-sm">{{ ln(size.name, size.name_en) }}</div>
                     <div class="text-xs mt-0.5" :class="size.price > 0 ? 'text-[#D2691E]' : 'text-gray-600'">
                       {{ size.price > 0 ? `+${size.price.toFixed(2)}€` : 'Standard' }}
                     </div>
@@ -211,7 +212,7 @@ const addToCart = () => {
                         v-model="selectedDrinks"
                         class="w-4 h-4 rounded border-gray-600 bg-[#121212] text-[#D2691E] focus:ring-[#D2691E] focus:ring-offset-[#0B0B0B]"
                       />
-                      <span class="text-white text-sm font-medium">{{ drink.name }}</span>
+                      <span class="text-white text-sm font-medium">{{ ln(drink.name, drink.name_en) }}</span>
                     </div>
                     <span class="text-[#D2691E] font-bold text-sm">+{{ drink.price.toFixed(2) }}€</span>
                   </label>
@@ -237,7 +238,7 @@ const addToCart = () => {
                       class="w-4 h-4 rounded border-gray-600 bg-[#121212] text-[#D2691E] focus:ring-[#D2691E] focus:ring-offset-[#0B0B0B]"
                     />
                     <div class="flex-1 min-w-0">
-                      <div class="text-white text-sm font-medium truncate">{{ sauce.name }}</div>
+                      <div class="text-white text-sm font-medium truncate">{{ ln(sauce.name, sauce.name_en) }}</div>
                       <div :class="sauce.price > 0 ? 'text-[#D2691E]' : 'text-gray-600'" class="text-xs font-semibold">
                         {{ sauce.price > 0 ? `+${sauce.price.toFixed(2)}€` : t('addon.free') }}
                       </div>
@@ -265,7 +266,7 @@ const addToCart = () => {
                         v-model="selectedFriesId"
                         class="w-4 h-4 border-gray-600 bg-[#121212] text-[#D2691E] focus:ring-[#D2691E] focus:ring-offset-[#0B0B0B]"
                       />
-                      <span class="text-white text-sm font-medium">{{ fry.name }}</span>
+                      <span class="text-white text-sm font-medium">{{ ln(fry.name, fry.name_en) }}</span>
                     </div>
                     <span :class="fry.price > 0 ? 'text-[#D2691E] font-bold' : 'text-gray-600'" class="text-sm">
                       {{ fry.price > 0 ? `+${fry.price.toFixed(2)}€` : t('addon.no.extra') }}

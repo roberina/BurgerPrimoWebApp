@@ -85,7 +85,9 @@ class MenuItemController extends Controller
         $validated = $request->validate([
             'category_id'         => 'required|exists:menu_categories,id',
             'name'                => 'required|string|max:255',
+            'name_en'             => 'nullable|string|max:255',
             'description'         => 'required|string',
+            'description_en'      => 'nullable|string',
             'price'               => 'required|numeric|min:0',
             'original_price'      => 'nullable|numeric|min:0',
             'image'               => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
@@ -121,7 +123,9 @@ class MenuItemController extends Controller
         $validated = $request->validate([
             'category_id'         => 'required|exists:menu_categories,id',
             'name'                => 'required|string|max:255',
+            'name_en'             => 'nullable|string|max:255',
             'description'         => 'required|string',
+            'description_en'      => 'nullable|string',
             'price'               => 'required|numeric|min:0',
             'original_price'      => 'nullable|numeric|min:0',
             'image'               => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',

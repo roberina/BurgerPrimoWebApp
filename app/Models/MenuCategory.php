@@ -13,8 +13,10 @@ class MenuCategory extends Model
 
     protected $fillable = [
         'name',
+        'name_en',
         'slug',
         'description',
+        'description_en',
         'sort_order',
         'is_active',
     ];

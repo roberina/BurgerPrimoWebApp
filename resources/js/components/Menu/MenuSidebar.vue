@@ -38,7 +38,7 @@
       <div class="p-4">
         <!-- Header row -->
         <div class="flex items-center justify-between mb-3">
-          <span class="text-xs font-bold uppercase tracking-widest text-gray-500">{{ t('menu.filter') }}</span>
+          <span class="text-xs font-bold uppercase tracking-widest text-gray-400">{{ t('menu.filter') }}</span>
           <button
             v-if="selectedCategories.length > 0"
             @click="$emit('clearCategories')"
@@ -81,7 +81,7 @@
                 : 'text-gray-400 hover:bg-gray-800 hover:text-white'
             ]"
           >
-            <span class="flex-1 text-left uppercase tracking-wide">{{ category.name }}</span>
+            <span class="flex-1 text-left uppercase tracking-wide">{{ ln(category.name, category.name_en) }}</span>
             <svg v-if="selectedCategories.includes(String(category.id))" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
             </svg>
@@ -125,6 +125,7 @@ onUnmounted(() => {
 interface Category {
   id: number;
   name: string;
+  name_en: string | null;
 }
 
 defineProps<{
@@ -141,7 +142,8 @@ defineEmits<{
   'clearCategories': [];
 }>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const ln = (et: string, en: string | null | undefined) => (locale.value === 'en' && en) ? en : et;
 </script>
 
 <style scoped>

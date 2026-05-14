@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Megaphone, X, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 interface Announcement {
   id: number
@@ -61,6 +64,7 @@ const dismiss = () => {
           <button
             v-if="announcements.length > 1"
             @click="prev"
+            :aria-label="t('aria.prev')"
             class="flex-shrink-0 hover:opacity-70 transition p-0.5 rounded"
           >
             <ChevronLeft :size="18" />
@@ -75,20 +79,27 @@ const dismiss = () => {
           <button
             v-if="announcements.length > 1"
             @click="next"
+            :aria-label="t('aria.next')"
             class="flex-shrink-0 hover:opacity-70 transition p-0.5 rounded"
           >
             <ChevronRight :size="18" />
           </button>
 
-          <div v-if="announcements.length > 1" class="flex items-center gap-1 flex-shrink-0 cursor-pointer">
-            <span
+          <div v-if="announcements.length > 1" class="flex items-center gap-0 flex-shrink-0">
+            <button
               v-for="(_, i) in announcements"
               :key="i"
               @click="current = i"
-              class="cursor-pointer w-1.5 h-1.5 rounded-full cursor-pointer transition-all"
-              :class="i === current ? 'opacity-100 scale-125' : 'opacity-40'"
-              :style="{ backgroundColor: active().text_color }"
-            />
+              :aria-label="`${t('aria.announcement')} ${i + 1}`"
+              :aria-current="i === current ? 'true' : undefined"
+              class="h-6 w-6 flex items-center justify-center cursor-pointer"
+            >
+              <span
+                class="block w-1.5 h-1.5 rounded-full transition-all"
+                :class="i === current ? 'opacity-100 scale-125' : 'opacity-40'"
+                :style="{ backgroundColor: active().text_color }"
+              />
+            </button>
           </div>
 
           <button

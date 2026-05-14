@@ -224,7 +224,7 @@
             <div class="bb-ingredient-list" v-if="totalLayers > 0">
               <div v-for="item in allSelectedFlat" :key="item.id" class="bb-ing-row">
                 <div class="bb-ing-dot" :style="{ background: categoryColor(item.category) }"></div>
-                <span class="bb-ing-name">{{ item.name }}</span>
+                <span class="bb-ing-name">{{ ln(item.name, item.name_en) }}</span>
                 <span class="bb-ing-qty" v-if="item.quantity > 1">×{{ item.quantity }}</span>
                 <span class="bb-ing-price">{{ (item.price * item.quantity).toFixed(2) }}€</span>
               </div>
@@ -273,7 +273,7 @@
             <div class="bb-section-header"><span class="bb-section-num">01</span><h2 class="bb-section-title">{{ t('bb.sec.patties') }}</h2><span class="bb-section-hint">{{ t('bb.sec.patties.hint') }}</span></div>
             <div class="bb-grid">
               <div v-for="ing in normalizedIngredients['pitav']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('pitav', ing.id) }" @click="togglePatty(ing.id)">
-                <div class="bb-card-icon">🥩</div><div class="bb-card-name">{{ ing.name }}</div>
+                <div class="bb-card-icon">🥩</div><div class="bb-card-name">{{ ln(ing.name, ing.name_en) }}</div>
                 <div class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</div>
                 <div class="bb-card-check" v-if="isSelected('pitav', ing.id)">✓</div>
               </div>
@@ -283,7 +283,7 @@
             <div class="bb-section-header"><span class="bb-section-num">02</span><h2 class="bb-section-title">{{ t('bb.sec.veg') }}</h2><span class="bb-section-hint">{{ t('bb.sec.veg.hint') }}</span></div>
             <div class="bb-grid">
               <div v-for="ing in normalizedIngredients['salat']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('salat', ing.id) }" @click="toggleMulti('salat', ing.id)">
-                <div class="bb-card-icon">🥬</div><div class="bb-card-name">{{ ing.name }}</div>
+                <div class="bb-card-icon">🥬</div><div class="bb-card-name">{{ ln(ing.name, ing.name_en) }}</div>
                 <div class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</div>
                 <div class="bb-card-check" v-if="isSelected('salat', ing.id)">✓</div>
               </div>
@@ -293,7 +293,7 @@
             <div class="bb-section-header"><span class="bb-section-num">03</span><h2 class="bb-section-title">{{ t('bb.sec.sauces') }}</h2><span class="bb-section-hint">{{ t('bb.sec.sauces.hint') }}</span></div>
             <div class="bb-grid">
               <div v-for="ing in normalizedIngredients['lisand']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('lisand', ing.id) }" @click="toggleMulti('lisand', ing.id)">
-                <div class="bb-card-icon">🫙</div><div class="bb-card-name">{{ ing.name }}</div>
+                <div class="bb-card-icon">🫙</div><div class="bb-card-name">{{ ln(ing.name, ing.name_en) }}</div>
                 <div class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</div>
                 <div class="bb-card-check" v-if="isSelected('lisand', ing.id)">✓</div>
               </div>
@@ -303,7 +303,7 @@
             <div class="bb-section-header"><span class="bb-section-num">04</span><h2 class="bb-section-title">{{ t('bb.sec.cheese') }}</h2><span class="bb-section-hint">{{ t('bb.sec.cheese.hint') }}</span></div>
             <div class="bb-grid">
               <div v-for="ing in normalizedIngredients['juust']" :key="ing.id" class="bb-card" :class="{ 'bb-card--active': isSelected('juust', ing.id) }" @click="toggleMulti('juust', ing.id)">
-                <div class="bb-card-icon">🧀</div><div class="bb-card-name">{{ ing.name }}</div>
+                <div class="bb-card-icon">🧀</div><div class="bb-card-name">{{ ln(ing.name, ing.name_en) }}</div>
                 <div class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</div>
                 <div class="bb-card-check" v-if="isSelected('juust', ing.id)">✓</div>
               </div>
@@ -330,7 +330,7 @@
               <div class="bb-save-summary-left">
                 <span class="bb-save-summary-layers">{{ totalLayers }} {{ t('bb.ingredient') }}</span>
                 <div class="bb-save-summary-tags">
-                  <span v-for="item in allSelectedFlat.slice(0,4)" :key="item.id" class="bb-save-tag">{{ item.name }}</span>
+                  <span v-for="item in allSelectedFlat.slice(0,4)" :key="item.id" class="bb-save-tag">{{ ln(item.name, item.name_en) }}</span>
                   <span v-if="allSelectedFlat.length > 4" class="bb-save-tag bb-save-tag--more">+{{ allSelectedFlat.length - 4 }}</span>
                 </div>
               </div>
@@ -368,7 +368,8 @@ import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import type { Ingredient, SelectedIngredient, CustomBurger } from '@/types/burger-types';
 import { useI18n } from '@/composables/useI18n';
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const ln = (et: string, en: string | null | undefined) => (locale.value === 'en' && en) ? en : et;
 
 interface Props {
   ingredients: Record<string, Ingredient[]> | any;
@@ -424,11 +425,11 @@ const toggleMulti = (cat: string, id: number) => {
 };
 
 const allSelectedFlat = computed(() => {
-  const result: { id: number; name: string; price: number; quantity: number; category: string }[] = [];
+  const result: { id: number; name: string; name_en?: string | null; price: number; quantity: number; category: string }[] = [];
   Object.entries(selectedIngredients.value).forEach(([cat, items]) => {
     items.forEach(item => {
       const ing = getAllIngredients().find(i => i.id === item.id);
-      if (ing) result.push({ id: item.id, name: ing.name, price: Number(ing.price), quantity: item.quantity, category: cat });
+      if (ing) result.push({ id: item.id, name: ing.name, name_en: ing.name_en, price: Number(ing.price), quantity: item.quantity, category: cat });
     });
   });
   return result;
