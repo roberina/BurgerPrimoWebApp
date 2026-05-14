@@ -45,9 +45,18 @@ class AnnouncementController extends Controller
         return back()->with('success', 'Teadaanne kustutatud!');
     }
 
-    public function toggle(Announcement $announcement)
+    public function toggle(Announcement $announcement, PushNotificationService $push)
     {
-        $announcement->update(['is_active' => !$announcement->is_active]);
+        $wasActive = $announcement->is_active;
+        $announcement->update(['is_active' => !$wasActive]);
+
+        if (!$wasActive && $announcement->is_active) {
+            rescue(fn () => $push->sendToAll(
+                $announcement->title,
+                $announcement->message,
+            ));
+        }
+
         return back()->with('success', 'Olek uuendatud!');
     }
 

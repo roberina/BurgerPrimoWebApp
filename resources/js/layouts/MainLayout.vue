@@ -6,6 +6,7 @@
     </main>
     <Footer />
     <NotificationPrompt />
+    <InstallPrompt />
   </div>
 </template>
 
@@ -15,6 +16,7 @@ import { usePage } from '@inertiajs/vue3';
 import Navbar from '@/components/Navbar.vue';
 import Footer from '@/components/Footer.vue';
 import NotificationPrompt from '@/components/NotificationPrompt.vue';
+import InstallPrompt from '@/components/InstallPrompt.vue';
 import { useToast } from '@/composables/useToast';
 
 const page = usePage();

@@ -8,7 +8,10 @@
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="Burger Primo" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#cb8732" />
         <link rel="manifest" href="/build/manifest.webmanifest" />
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
