@@ -39,7 +39,7 @@ const openRejectModal = (id: number) => {
 
 const submitRejectModal = () => {
   if (!rejectModal.orderId) return;
-  router.post(`/admin/orders/${rejectModal.orderId}/reject` as any, {
+  router.post(`/admin/orders/${rejectModal.orderId}/refund` as any, {
     admin_notes: rejectModal.reason || 'Tellimus lükati tagasi',
   }, { preserveScroll: true });
   rejectModal.show = false;
@@ -116,7 +116,7 @@ const props = defineProps<Props>();
 const orderStatuses = reactive<Record<number, string>>({});
 const activeFilter = ref<string>('all');
 const audioContext = ref<AudioContext | null>(null);
-const previousOrderCount = ref<number>(props.orders.data.filter(o => o.status === 'pending').length);
+const previousOrderCount = ref<number>(props.orders.data.filter(o => o.status === 'pending_confirmation').length);
 const refreshInterval = ref<number | null>(null);
 const isRefreshing = ref<boolean>(false);
 
@@ -126,18 +126,18 @@ const filteredOrders = computed(() => {
   if (activeFilter.value === 'all') return props.orders.data;
   if (activeFilter.value === 'active') {
     return props.orders.data.filter(o =>
-      ['pending', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'delivering'].includes(o.status),
+      ['pending_confirmation', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'picked_up'].includes(o.status),
     );
   }
   return props.orders.data.filter(o => o.status === activeFilter.value);
 });
 
-const pendingOrders = computed(() => props.orders.data.filter(o => o.status === 'pending'));
+const pendingOrders = computed(() => props.orders.data.filter(o => o.status === 'pending_confirmation'));
 const confirmedOrders = computed(() => props.orders.data.filter(o => o.status === 'confirmed'));
 const preparingOrders = computed(() => props.orders.data.filter(o => o.status === 'preparing'));
 const readyOrders = computed(() => props.orders.data.filter(o => o.status === 'ready'));
 const awaitingCourierOrders = computed(() => props.orders.data.filter(o => o.status === 'awaiting_courier'));
-const deliveringOrders = computed(() => props.orders.data.filter(o => o.status === 'delivering'));
+const pickedUpOrders = computed(() => props.orders.data.filter(o => o.status === 'picked_up'));
 
 const playNotificationSound = () => {
   try {
@@ -177,7 +177,7 @@ const refreshOrders = () => {
   router.reload({
     only: ['orders'],
     onSuccess: (p: any) => {
-      const newPendingCount = p.props.orders.data.filter((o: Order) => o.status === 'pending').length;
+      const newPendingCount = p.props.orders.data.filter((o: Order) => o.status === 'pending_confirmation').length;
       if (newPendingCount > previousOrderCount.value) {
         playNotificationSound();
         if ('Notification' in window && Notification.permission === 'granted') {
@@ -223,12 +223,10 @@ onUnmounted(() => {
 });
 
 const confirmOrder = (orderId: number) => router.post(`/admin/orders/${orderId}/confirm`, {}, { preserveScroll: true });
-const startDelivery = (orderId: number) => router.post(`/admin/orders/${orderId}/start-delivery`, {}, { preserveScroll: true });
-
-const updateOrderStatus = (orderId: number, newStatus: string) => {
-  orderStatuses[orderId] = newStatus;
-  router.post(`/admin/orders/${orderId}/status`, { status: newStatus } as any, { preserveScroll: true });
-};
+const startPreparing = (orderId: number) => router.post(`/admin/orders/${orderId}/start-preparing`, {}, { preserveScroll: true });
+const markReady = (orderId: number) => router.post(`/admin/orders/${orderId}/mark-ready`, {}, { preserveScroll: true });
+const releaseToCouriers = (orderId: number) => router.post(`/admin/orders/${orderId}/release-to-couriers`, {}, { preserveScroll: true });
+const recallFromCouriers = (orderId: number) => router.post(`/admin/orders/${orderId}/recall-from-couriers`, {}, { preserveScroll: true });
 
 const getTimeSince = (date: string): string => {
   const diffMins = Math.floor((Date.now() - new Date(date).getTime()) / 60000);
@@ -303,37 +301,6 @@ const deliveryIcon = (method?: string) =>
       </Transition>
     </Teleport>
 
-    <!-- Courier link modal -->
-    <Teleport to="body">
-      <Transition enter-active-class="transition-opacity duration-150" enter-from-class="opacity-0" enter-to-class="opacity-100">
-        <div v-if="courierLinkModal.show" class="fixed inset-0 z-[100] flex items-center justify-center p-4" @click.self="courierLinkModal.show = false">
-          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div class="relative bg-[#18181b] border border-[#27272a] rounded-xl shadow-2xl w-full max-w-md">
-            <div class="p-5">
-              <div class="flex items-center gap-3 mb-4">
-                <div class="w-9 h-9 rounded-lg bg-cyan-500/10 flex items-center justify-center flex-shrink-0">
-                  <Bike :size="18" class="text-cyan-400" />
-                </div>
-                <div>
-                  <h3 class="text-sm font-semibold text-zinc-100">Kulleri jälgimislink</h3>
-                  <p class="text-xs text-zinc-500">Saada see link kullerile</p>
-                </div>
-              </div>
-              <div class="bg-[#09090b] border border-[#27272a] rounded-md px-3 py-2.5 mb-4 flex items-center gap-2">
-                <p class="text-xs font-mono text-zinc-400 flex-1 break-all">{{ courierLinkModal.link }}</p>
-                <button @click="copyLink" class="flex-shrink-0 p-1.5 rounded-md hover:bg-[#27272a] transition" :title="copiedLink ? 'Kopeeritud!' : 'Kopeeri'">
-                  <Check v-if="copiedLink" :size="15" class="text-green-400" />
-                  <Copy v-else :size="15" class="text-zinc-400" />
-                </button>
-              </div>
-              <p class="text-xs text-zinc-600 mb-4">Kuller avab selle lingi oma telefonis. GPS käivitub automaatselt ja asukoht uueneb reaalajas.</p>
-              <button @click="courierLinkModal.show = false" class="w-full py-2 rounded-md bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-medium transition-colors">Sulge</button>
-            </div>
-          </div>
-        </div>
-      </Transition>
-    </Teleport>
-
     <!-- Auto-refresh bar -->
     <div class="mb-4 flex items-center justify-between bg-[#18181b] border border-[#27272a] rounded-lg px-4 py-2.5">
       <div class="flex items-center gap-2">
@@ -381,14 +348,14 @@ const deliveryIcon = (method?: string) =>
 
         <!-- Pending -->
         <button
-          @click="setFilter('pending')"
-          :class="['p-3 rounded-lg border-2 transition-all text-left', activeFilter === 'pending' ? 'border-orange-500/50 bg-orange-500/10' : 'border-[#27272a] bg-[#09090b] hover:border-[#3f3f46]']"
+          @click="setFilter('pending_confirmation')"
+          :class="['p-3 rounded-lg border-2 transition-all text-left', activeFilter === 'pending_confirmation' ? 'border-orange-500/50 bg-orange-500/10' : 'border-[#27272a] bg-[#09090b] hover:border-[#3f3f46]']"
         >
           <div class="flex items-center justify-between mb-1.5">
-            <Bell :size="15" :class="activeFilter === 'pending' ? 'text-orange-400' : 'text-zinc-500'" />
-            <span :class="['text-lg font-bold', activeFilter === 'pending' ? 'text-orange-400' : 'text-zinc-100']">{{ pendingOrders.length }}</span>
+            <Bell :size="15" :class="activeFilter === 'pending_confirmation' ? 'text-orange-400' : 'text-zinc-500'" />
+            <span :class="['text-lg font-bold', activeFilter === 'pending_confirmation' ? 'text-orange-400' : 'text-zinc-100']">{{ pendingOrders.length }}</span>
           </div>
-          <p :class="['text-xs font-medium', activeFilter === 'pending' ? 'text-orange-400' : 'text-zinc-500']">Uued</p>
+          <p :class="['text-xs font-medium', activeFilter === 'pending_confirmation' ? 'text-orange-400' : 'text-zinc-500']">Uued</p>
         </button>
 
         <!-- Confirmed -->
@@ -427,16 +394,16 @@ const deliveryIcon = (method?: string) =>
           <p :class="['text-xs font-medium', activeFilter === 'ready' ? 'text-green-400' : 'text-zinc-500']">Valmis</p>
         </button>
 
-        <!-- Delivering -->
+        <!-- Picked up -->
         <button
-          @click="setFilter('delivering')"
-          :class="['p-3 rounded-lg border-2 transition-all text-left', activeFilter === 'delivering' ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-[#27272a] bg-[#09090b] hover:border-[#3f3f46]']"
+          @click="setFilter('picked_up')"
+          :class="['p-3 rounded-lg border-2 transition-all text-left', activeFilter === 'picked_up' ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-[#27272a] bg-[#09090b] hover:border-[#3f3f46]']"
         >
           <div class="flex items-center justify-between mb-1.5">
-            <Bike :size="15" :class="activeFilter === 'delivering' ? 'text-cyan-400' : 'text-zinc-500'" />
-            <span :class="['text-lg font-bold', activeFilter === 'delivering' ? 'text-cyan-400' : 'text-zinc-100']">{{ deliveringOrders.length }}</span>
+            <Bike :size="15" :class="activeFilter === 'picked_up' ? 'text-cyan-400' : 'text-zinc-500'" />
+            <span :class="['text-lg font-bold', activeFilter === 'picked_up' ? 'text-cyan-400' : 'text-zinc-100']">{{ pickedUpOrders.length }}</span>
           </div>
-          <p :class="['text-xs font-medium', activeFilter === 'delivering' ? 'text-cyan-400' : 'text-zinc-500']">Teel</p>
+          <p :class="['text-xs font-medium', activeFilter === 'picked_up' ? 'text-cyan-400' : 'text-zinc-500']">Teel</p>
         </button>
       </div>
     </div>
@@ -447,12 +414,12 @@ const deliveryIcon = (method?: string) =>
         <span class="text-xs text-zinc-500">Näitan:</span>
         <span class="text-xs font-medium text-orange-400">
           {{ activeFilter === 'active' ? 'Aktiivsed' :
-             activeFilter === 'pending' ? 'Uued' :
+             activeFilter === 'pending_confirmation' ? 'Uued' :
              activeFilter === 'confirmed' ? 'Kinnitatud' :
              activeFilter === 'preparing' ? 'Valmistamisel' :
              activeFilter === 'ready' ? 'Valmis' :
              activeFilter === 'awaiting_courier' ? 'Ootab kullerit' :
-             activeFilter === 'delivering' ? 'Teel' : '' }}
+             activeFilter === 'picked_up' ? 'Teel' : '' }}
         </span>
         <span class="text-xs text-zinc-600">({{ filteredOrders.length }})</span>
       </div>
@@ -463,19 +430,19 @@ const deliveryIcon = (method?: string) =>
     <div v-if="filteredOrders.length > 0" class="space-y-6">
 
       <!-- UUED -->
-      <div v-if="filteredOrders.some(o => o.status === 'pending')">
+      <div v-if="filteredOrders.some(o => o.status === 'pending_confirmation')">
         <div class="flex items-center gap-3 mb-3">
           <div class="h-px flex-1 bg-orange-500/20"></div>
           <span class="text-xs font-semibold text-orange-400 flex items-center gap-1.5">
             <Bell :size="13" />
-            UUED ({{ filteredOrders.filter(o => o.status === 'pending').length }})
+            UUED ({{ filteredOrders.filter(o => o.status === 'pending_confirmation').length }})
           </span>
           <div class="h-px flex-1 bg-orange-500/20"></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div
-            v-for="order in filteredOrders.filter(o => o.status === 'pending')"
+            v-for="order in filteredOrders.filter(o => o.status === 'pending_confirmation')"
             :key="order.id"
             class="bg-[#18181b] rounded-lg border-2 border-orange-500/30 overflow-hidden hover:border-orange-500/50 transition-colors"
           >
@@ -556,6 +523,7 @@ const deliveryIcon = (method?: string) =>
                 <button
                   @click="openRejectModal(order.id)"
                   class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2.5 rounded-md text-sm font-semibold transition flex items-center justify-center"
+                  title="Tagasilükka ja tagasta"
                 >
                   <X :size="16" />
                 </button>
@@ -613,16 +581,29 @@ const deliveryIcon = (method?: string) =>
                 </div>
               </div>
 
-              <select
-                v-model="orderStatuses[order.id]"
-                @change="updateOrderStatus(order.id, orderStatuses[order.id])"
-                class="w-full bg-[#09090b] border border-[#3f3f46] rounded-md px-3 py-2 text-sm text-zinc-100 font-medium focus:outline-none focus:ring-1 focus:ring-orange-500/50 focus:border-orange-500/50 transition-colors"
-              >
-                <option value="confirmed">Kinnitatud</option>
-                <option value="preparing">Valmistamisel</option>
-                <option value="ready">Valmis</option>
-                <option value="completed">Täidetud</option>
-              </select>
+              <div class="flex gap-2">
+                <button
+                  v-if="order.status === 'confirmed'"
+                  @click="startPreparing(order.id)"
+                  class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-md font-medium transition text-xs flex items-center justify-center gap-1"
+                >
+                  <ChefHat :size="13" /> Alusta valmistamist
+                </button>
+                <button
+                  v-if="order.status === 'preparing'"
+                  @click="markReady(order.id)"
+                  class="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md font-medium transition text-xs flex items-center justify-center gap-1"
+                >
+                  <Check :size="13" /> Märgi valmis
+                </button>
+                <button
+                  @click="openRejectModal(order.id)"
+                  class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-2 rounded-md text-xs font-medium transition flex items-center justify-center"
+                  title="Tagasilükka ja tagasta"
+                >
+                  <X :size="13" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -657,18 +638,19 @@ const deliveryIcon = (method?: string) =>
               <p class="text-xl font-bold text-green-400 mb-3">€{{ Number(order.total_amount).toFixed(2) }}</p>
               <div class="flex gap-2">
                 <button
-                  @click="updateOrderStatus(order.id, 'completed')"
-                  class="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md font-medium transition text-xs"
-                >
-                  Märgi täidetuks
-                </button>
-                <button
                   v-if="order.delivery_method === 'delivery'"
-                  @click="startDelivery(order.id)"
+                  @click="releaseToCouriers(order.id)"
                   class="flex-1 bg-cyan-500/10 hover:bg-cyan-600 border border-cyan-500/30 hover:border-cyan-600 text-cyan-400 hover:text-white px-3 py-2 rounded-md font-medium transition text-xs flex items-center justify-center gap-1"
                 >
-                  <Bike :size="13" />
-                  Kuller
+                  <Bike :size="13" /> Saada kullerile
+                </button>
+                <button
+                  v-else
+                  @click="openRejectModal(order.id)"
+                  class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-2 rounded-md text-xs font-medium transition flex items-center justify-center"
+                  title="Tagasilükka ja tagasta"
+                >
+                  <X :size="13" />
                 </button>
               </div>
             </div>
@@ -713,10 +695,10 @@ const deliveryIcon = (method?: string) =>
                 </div>
               </div>
               <button
-                @click="updateOrderStatus(order.id, 'completed')"
-                class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition text-sm"
+                @click="recallFromCouriers(order.id)"
+                class="w-full bg-orange-600/20 hover:bg-orange-600 border border-orange-600/40 hover:border-orange-600 text-orange-400 hover:text-white px-4 py-2 rounded-md font-medium transition text-sm flex items-center justify-center gap-1.5"
               >
-                Märgi täidetuks
+                <X :size="14" /> Tühista kulleri ootamine
               </button>
             </div>
           </div>
@@ -724,19 +706,19 @@ const deliveryIcon = (method?: string) =>
       </div>
 
       <!-- TEEL -->
-      <div v-if="filteredOrders.some(o => o.status === 'delivering')">
+      <div v-if="filteredOrders.some(o => o.status === 'picked_up')">
         <div class="flex items-center gap-3 mb-3">
           <div class="h-px flex-1 bg-cyan-500/20"></div>
           <span class="text-xs font-semibold text-cyan-400 flex items-center gap-1.5">
             <Bike :size="13" />
-            TEEL ({{ filteredOrders.filter(o => o.status === 'delivering').length }})
+            TEEL ({{ filteredOrders.filter(o => o.status === 'picked_up').length }})
           </span>
           <div class="h-px flex-1 bg-cyan-500/20"></div>
         </div>
 
         <div class="space-y-4">
           <div
-            v-for="order in filteredOrders.filter(o => o.status === 'delivering')"
+            v-for="order in filteredOrders.filter(o => o.status === 'picked_up')"
             :key="order.id"
             class="bg-[#18181b] rounded-lg border-2 border-cyan-500/30 overflow-hidden"
           >
@@ -762,23 +744,7 @@ const deliveryIcon = (method?: string) =>
                 </div>
               </div>
 
-              <div v-if="order.courier_token" class="bg-[#09090b] rounded-md p-3 border border-[#27272a]">
-                <p class="text-[10px] text-zinc-600 uppercase tracking-wider mb-1.5">Kulleri jälgimislink</p>
-                <div class="flex items-center gap-2">
-                  <p class="text-xs font-mono text-zinc-400 flex-1 truncate">
-                    /courier/track/{{ order.courier_token.substring(0, 12) }}...
-                  </p>
-                  <button
-                    @click="() => { courierLinkModal.link = `${origin}/courier/track/${order.courier_token}`; courierLinkModal.show = true; }"
-                    class="text-xs text-cyan-400 hover:text-cyan-300 font-medium transition flex items-center gap-1"
-                  >
-                    <Copy :size="12" />
-                    Kopeeri
-                  </button>
-                </div>
-              </div>
-
-              <div class="bg-[#09090b] rounded-md p-3 border border-[#27272a]">
+<div class="bg-[#09090b] rounded-md p-3 border border-[#27272a]">
                 <p class="text-[10px] text-zinc-600 uppercase tracking-wider mb-1.5">Kuller</p>
                 <div v-if="order.courier_user" class="flex items-center gap-2">
                   <div class="w-6 h-6 bg-cyan-500/10 rounded-full flex items-center justify-center">
@@ -803,19 +769,14 @@ const deliveryIcon = (method?: string) =>
                 </div>
               </div>
 
-              <button
-                @click="updateOrderStatus(order.id, 'completed')"
-                class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-md font-semibold transition text-sm"
-              >
-                Märgi täidetuks
-              </button>
+              <p class="text-xs text-zinc-500 text-center">Kuller on teel — toimetamine kliendi kinnitab</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- MUUD -->
-      <div v-if="filteredOrders.some(o => !['pending', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'delivering'].includes(o.status))">
+      <div v-if="filteredOrders.some(o => !['pending_confirmation', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'picked_up'].includes(o.status))">
         <div class="flex items-center gap-3 mb-3">
           <div class="h-px flex-1 bg-[#27272a]"></div>
           <span class="text-xs font-semibold text-zinc-500">MUUD</span>
@@ -824,7 +785,7 @@ const deliveryIcon = (method?: string) =>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div
-            v-for="order in filteredOrders.filter(o => !['pending', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'delivering'].includes(o.status))"
+            v-for="order in filteredOrders.filter(o => !['pending_confirmation', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'picked_up'].includes(o.status))"
             :key="order.id"
             class="bg-[#18181b] rounded-lg border border-[#27272a] p-4 opacity-50"
           >

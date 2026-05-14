@@ -85,6 +85,8 @@ defineProps<{
   position: fixed;
   inset: 0;
   z-index: 0;
+  will-change: transform;
+  transform: translateZ(0);
 }
 .page-bg-img {
   width: 100%;
@@ -94,6 +96,9 @@ defineProps<{
   background-position: center;
   background-repeat: no-repeat;
   filter: brightness(0.28) saturate(0.65);
+  will-change: transform;
+  transform: translateZ(0);
+  contain: paint;
 }
 .page-bg-overlay {
   position: absolute;
@@ -104,6 +109,7 @@ defineProps<{
     rgba(0, 0, 0, 0.35) 40%,
     rgba(0, 0, 0, 0.50) 100%
   );
+  transform: translateZ(0);
 }
 
 /* Content wrapper — sits above the fixed background */

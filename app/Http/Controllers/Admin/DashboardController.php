@@ -13,20 +13,20 @@ class DashboardController extends Controller
 {
     public function index(): Response
     {
-        // Total revenue for CURRENT month only (completed orders)
-        $totalRevenue = Order::where('status', 'completed')
+        // Total revenue for CURRENT month only (delivered orders)
+        $totalRevenue = Order::where('status', Order::DELIVERED)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->sum('total_amount');
 
-        // Total completed orders for CURRENT month only
-        $totalOrders = Order::where('status', 'completed')
+        // Total delivered orders for CURRENT month only
+        $totalOrders = Order::where('status', Order::DELIVERED)
             ->whereMonth('created_at', now()->month)
             ->whereYear('created_at', now()->year)
             ->count();
 
-        // Growth percentage (compare CURRENT month to LAST month completed orders)
-        $lastMonthOrders = Order::where('status', 'completed')
+        // Growth percentage (compare CURRENT month to LAST month delivered orders)
+        $lastMonthOrders = Order::where('status', Order::DELIVERED)
             ->whereMonth('created_at', now()->subMonth()->month)
             ->whereYear('created_at', now()->subMonth()->year)
             ->count();
@@ -39,7 +39,7 @@ class DashboardController extends Controller
         $dailySales = collect();
         for ($i = 6; $i >= 0; $i--) {
             $date = now()->subDays($i);
-            $total = Order::where('status', 'completed')
+            $total = Order::where('status', Order::DELIVERED)
                 ->whereDate('created_at', $date->toDateString())
                 ->sum('total_amount');
             
@@ -69,8 +69,8 @@ class DashboardController extends Controller
         $popularProducts = DB::table('order_items')
             ->select('burger_name', DB::raw('COUNT(*) as order_count'), DB::raw('SUM(quantity) as total_sold'))
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->where('orders.status', '!=', 'cancelled')
-            ->where('orders.status', '!=', 'rejected')
+            ->where('orders.status', '!=', Order::CANCELLED)
+            ->where('orders.status', '!=', Order::REFUNDED)
             ->groupBy('burger_name')
             ->orderBy('total_sold', 'desc')
             ->limit(12)

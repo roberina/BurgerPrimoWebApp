@@ -55,7 +55,7 @@
               <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#D2691E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
-              <span class="font-semibold">{{ deliveryMethod === 'dine_in' ? t('checkout.dine_in') : t('checkout.takeaway') }}</span>
+              <span class="font-semibold">{{ deliveryMethod === 'dine_in' ? t('checkout.dine_in') : deliveryMethod === 'delivery' ? t('checkout.delivery') : t('checkout.takeaway') }}</span>
             </div>
           </div>
         </div>
@@ -64,8 +64,8 @@
         <div class="bg-[#121212] rounded-2xl p-6">
           <h2 class="text-2xl font-bold mb-6">{{ t('checkout.payment') }}</h2>
 
-          <!-- Delivery Address Picker (takeaway / home delivery) — KOHUSTUSLIK -->
-          <div v-if="deliveryMethod !== 'dine_in'" class="mb-6" ref="addressSection">
+          <!-- Delivery Address Picker — only for home delivery -->
+          <div v-if="deliveryMethod === 'delivery'" class="mb-6" ref="addressSection">
             <label class="text-sm mb-3 flex items-center gap-2"
                    :class="addressError ? 'text-red-400' : 'text-gray-400'">
               🏠 <span>{{ t('checkout.address') }}</span>
@@ -152,13 +152,13 @@ interface Props {
   subtotal: number;
   packagingFee: number;
   total: number;
-  deliveryMethod: 'dine_in' | 'takeaway';
+  deliveryMethod: 'dine_in' | 'takeaway' | 'delivery';
   stripePublicKey: string;
 }
 
 const props = defineProps<Props>();
 
-const deliveryMethod = ref<'dine_in' | 'takeaway'>(props.deliveryMethod);
+const deliveryMethod = ref<'dine_in' | 'takeaway' | 'delivery'>(props.deliveryMethod);
 const customerNotes = ref('');
 const processing = ref(false);
 const cardError = ref('');
@@ -220,8 +220,8 @@ watch(locale, () => {
 });
 
 const handleSubmit = async () => {
-  // Valideeri tarneaadress
-  if (deliveryMethod.value !== 'dine_in' && !deliveryAddress.value) {
+  // Valideeri tarneaadress — ainult kohaletoimetus vajab aadressi
+  if (deliveryMethod.value === 'delivery' && !deliveryAddress.value) {
     addressError.value = true;
     await nextTick();
     addressSection.value?.scrollIntoView({ behavior: 'smooth', block: 'center' });

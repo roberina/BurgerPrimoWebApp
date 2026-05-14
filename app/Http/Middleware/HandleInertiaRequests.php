@@ -64,7 +64,7 @@ class HandleInertiaRequests extends Middleware
             return ['available' => false, 'couriers' => 0, 'eta' => null];
         }
 
-        $activeDeliveries = Order::where('status', 'delivering')->count();
+        $activeDeliveries = Order::where('status', Order::PICKED_UP)->count();
         $freeCouriers = max(0, $onlineCouriers - $activeDeliveries);
 
         $baseEta = 20;
