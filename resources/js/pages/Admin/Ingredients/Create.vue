@@ -75,10 +75,9 @@ const submit = () => {
 };
 
 const categories = [
-  { value: 'buns', label: '🍞 Saiakesed' },
-  { value: 'patties', label: '🍖 Lihakotletid' },
-  { value: 'vegetables', label: '🥬 Köögiviljad' },
-  { value: 'sauces', label: '🧴 Kastmed' },
-  { value: 'extras', label: '🧀 Lisandid' },
+  { value: 'patties',    label: 'Pihvid' },
+  { value: 'vegetables', label: 'Köögiviljad' },
+  { value: 'sauces',     label: 'Kastmed ja lisandid' },
+  { value: 'extras',     label: 'Juust' },
 ];
 </script>

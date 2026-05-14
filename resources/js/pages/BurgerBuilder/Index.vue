@@ -178,7 +178,7 @@
             <div v-if="totalLayers > 0" class="bb-ing-list">
               <div v-for="item in allSelectedFlat" :key="item.id" class="bb-ing-row">
                 <span class="bb-ing-dot" :style="{ background: categoryColor(item.category) }"></span>
-                <span class="bb-ing-name">{{ item.name }}</span>
+                <span class="bb-ing-name">{{ ln(item.name, item.name_en) }}</span>
                 <span v-if="item.quantity > 1" class="bb-ing-qty">×{{ item.quantity }}</span>
                 <span class="bb-ing-price">{{ (item.price * item.quantity).toFixed(2) }}€</span>
               </div>
@@ -244,7 +244,7 @@
                 @click="togglePatty(ing.id)">
                 <span class="bb-card-ico">🥩</span>
                 <span class="bb-card-body">
-                  <span class="bb-card-name">{{ ing.name }}</span>
+                  <span class="bb-card-name">{{ ln(ing.name, ing.name_en) }}</span>
                   <span class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</span>
                 </span>
                 <span v-if="isSelected('patties', ing.id)" class="bb-card-check">
@@ -269,7 +269,7 @@
                 @click="toggleMulti('vegetables', ing.id)">
                 <span class="bb-card-ico">🥬</span>
                 <span class="bb-card-body">
-                  <span class="bb-card-name">{{ ing.name }}</span>
+                  <span class="bb-card-name">{{ ln(ing.name, ing.name_en) }}</span>
                   <span class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</span>
                 </span>
                 <span v-if="isSelected('vegetables', ing.id)" class="bb-card-check">
@@ -294,7 +294,7 @@
                 @click="toggleMulti('sauces', ing.id)">
                 <span class="bb-card-ico">🫙</span>
                 <span class="bb-card-body">
-                  <span class="bb-card-name">{{ ing.name }}</span>
+                  <span class="bb-card-name">{{ ln(ing.name, ing.name_en) }}</span>
                   <span class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</span>
                 </span>
                 <span v-if="isSelected('sauces', ing.id)" class="bb-card-check">
@@ -319,7 +319,7 @@
                 @click="toggleMulti('extras', ing.id)">
                 <span class="bb-card-ico">🧀</span>
                 <span class="bb-card-body">
-                  <span class="bb-card-name">{{ ing.name }}</span>
+                  <span class="bb-card-name">{{ ln(ing.name, ing.name_en) }}</span>
                   <span class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</span>
                 </span>
                 <span v-if="isSelected('extras', ing.id)" class="bb-card-check">
@@ -354,7 +354,7 @@
               <div class="bb-summary-left">
                 <span class="bb-summary-count">{{ totalLayers }} {{ t('bb.ingredient') }}</span>
                 <div class="bb-tag-list">
-                  <span v-for="item in allSelectedFlat.slice(0,4)" :key="item.id" class="bb-tag">{{ item.name }}</span>
+                  <span v-for="item in allSelectedFlat.slice(0,4)" :key="item.id" class="bb-tag">{{ ln(item.name, item.name_en) }}</span>
                   <span v-if="allSelectedFlat.length > 4" class="bb-tag bb-tag--more">+{{ allSelectedFlat.length - 4 }}</span>
                 </div>
               </div>
