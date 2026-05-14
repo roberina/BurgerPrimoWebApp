@@ -27,14 +27,15 @@ class OrderController extends Controller
 
         $orders = $query->latest()->paginate(20);
 
+        $counts = Order::selectRaw('status, count(*) as count')->groupBy('status')->pluck('count', 'status');
         $stats = [
-            'pending_confirmation' => Order::where('status', Order::PENDING_CONFIRMATION)->count(),
-            'confirmed'            => Order::where('status', Order::CONFIRMED)->count(),
-            'preparing'            => Order::where('status', Order::PREPARING)->count(),
-            'ready'                => Order::where('status', Order::READY)->count(),
-            'awaiting_courier'     => Order::where('status', Order::AWAITING_COURIER)->count(),
-            'picked_up'            => Order::where('status', Order::PICKED_UP)->count(),
-            'delivered'            => Order::where('status', Order::DELIVERED)->count(),
+            'pending_confirmation' => $counts->get(Order::PENDING_CONFIRMATION, 0),
+            'confirmed'            => $counts->get(Order::CONFIRMED, 0),
+            'preparing'            => $counts->get(Order::PREPARING, 0),
+            'ready'                => $counts->get(Order::READY, 0),
+            'awaiting_courier'     => $counts->get(Order::AWAITING_COURIER, 0),
+            'picked_up'            => $counts->get(Order::PICKED_UP, 0),
+            'delivered'            => $counts->get(Order::DELIVERED, 0),
         ];
 
         return Inertia::render('Admin/Orders/Index', [

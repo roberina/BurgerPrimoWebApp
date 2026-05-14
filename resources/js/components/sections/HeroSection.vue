@@ -40,12 +40,19 @@ function scrollTo(id: string) {
           class="mb-5 transition-transform duration-75 ease-linear"
           :style="{ transform: `translate(${logoX}px, ${logoY}px)` }"
         >
-          <img
-            src="/img/Logo45.png"
-            alt="Burger Primo"
-            class="w-24 h-24 md:w-36 md:h-36 object-contain"
-            style="filter: drop-shadow(0 16px 40px rgba(0,0,0,0.8));"
-          />
+          <picture>
+            <source srcset="/img/Logo45-small.webp" type="image/webp" media="(max-width: 767px)" />
+            <source srcset="/img/Logo45.webp" type="image/webp" />
+            <img
+              src="/img/Logo45.png"
+              alt="Burger Primo"
+              class="w-24 h-24 md:w-36 md:h-36 object-contain"
+              style="filter: drop-shadow(0 16px 40px rgba(0,0,0,0.8));"
+              fetchpriority="high"
+              width="144"
+              height="144"
+            />
+          </picture>
         </div>
 
         <div class="hero-eyebrow inline-flex items-center gap-3 mb-4">

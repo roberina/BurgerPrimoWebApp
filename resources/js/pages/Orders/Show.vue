@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-[#0B0B0B] text-white pt-16 lg:pt-20">
     <Navbar />
 
-    <main class="max-w-3xl mx-auto px-6 py-12">
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
 
       <!-- ───── KOHALE TOIMETATUD ───── -->
       <template v-if="order.status === 'delivered'">
@@ -48,17 +48,17 @@
             :delivery-lat="order.delivery_lat ?? null"
             :delivery-lng="order.delivery_lng ?? null"
             :delivery-address="order.delivery_address ?? null"
-            height="420px"
+            :height="typeof window !== 'undefined' && window.innerWidth < 640 ? '240px' : '420px'"
           />
         </div>
 
         <!-- Kuller on teel info -->
         <div class="mb-6 bg-[#121212] border border-cyan-900/40 rounded-2xl overflow-hidden">
-          <div class="bg-cyan-950/40 px-6 py-4 flex items-center gap-4 border-b border-cyan-900/30">
-            <div class="w-12 h-12 rounded-full bg-cyan-500/15 flex items-center justify-center text-2xl shrink-0">🛵</div>
-            <div class="flex-1">
-              <p class="font-bold text-lg text-white">{{ t('order.show.courier.title') }}</p>
-              <p class="text-sm text-cyan-400">{{ t('order.show.order.nr') }}
+          <div class="bg-cyan-950/40 px-4 sm:px-6 py-4 flex items-center gap-3 sm:gap-4 border-b border-cyan-900/30">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-cyan-500/15 flex items-center justify-center text-xl sm:text-2xl shrink-0">🛵</div>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-base sm:text-lg text-white">{{ t('order.show.courier.title') }}</p>
+              <p class="text-xs sm:text-sm text-cyan-400 truncate">{{ t('order.show.order.nr') }}
                 <span class="font-mono font-bold">{{ order.order_number }}</span>
                 {{ t('order.show.courier.sub') }}
               </p>
@@ -71,7 +71,7 @@
               </div>
             </div>
           </div>
-          <div class="px-6 py-4 flex items-center gap-3">
+          <div class="px-4 sm:px-6 py-4 flex items-center gap-3">
             <span class="text-xl">🏠</span>
             <div>
               <p class="text-xs text-gray-500 mb-0.5">{{ t('order.show.dest') }}</p>
@@ -110,12 +110,12 @@
       <template v-else-if="order.status !== 'delivered'">
 
       <!-- Success / Status Banner -->
-      <div class="mb-8 rounded-2xl p-8 text-center"
+      <div class="mb-8 rounded-2xl p-5 sm:p-8 text-center"
            :class="order.status === 'completed'
              ? 'bg-green-900/20 border border-green-800/50'
              : 'bg-green-900/20 border border-green-800/50'">
         <div class="text-6xl mb-4">✅</div>
-        <h1 class="text-3xl font-bold mb-2">{{ t('order.show.submitted') }}</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold mb-2">{{ t('order.show.submitted') }}</h1>
         <p class="text-gray-400">{{ t('order.show.number') }}
           <span class="font-mono font-bold text-[#D2691E]">{{ order.order_number }}</span>
         </p>
@@ -125,41 +125,45 @@
       <div class="bg-[#121212] rounded-2xl overflow-hidden border border-[#1a1a1a]">
 
         <!-- Status Bar -->
-        <div class="bg-[#0d0d0d] px-6 py-4 flex items-center justify-between border-b border-[#1a1a1a]">
+        <div class="bg-[#0d0d0d] px-4 sm:px-6 py-4 flex items-center justify-between border-b border-[#1a1a1a]">
           <div>
             <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">{{ t('order.show.submitted.label') }}</p>
             <p class="text-sm text-gray-300 font-medium">{{ formatDate(order.created_at) }}</p>
           </div>
         </div>
 
-        <div class="p-6 space-y-6">
+        <div class="p-4 sm:p-6 space-y-6">
 
           <!-- Status progress indicator -->
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1">
             <div
               v-for="(step, i) in statusSteps"
               :key="step.key"
-              class="flex items-center gap-2 flex-1"
+              class="flex items-center gap-1 flex-1"
             >
               <div class="flex flex-col items-center flex-1">
                 <div
-                  class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                  class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all"
                   :class="getStepClass(step.key)"
                 >
-                  <svg v-if="isStepDone(step.key)" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg v-if="isStepDone(step.key)" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                   </svg>
                   <span v-else>{{ i + 1 }}</span>
                 </div>
-                <p class="text-xs text-gray-500 mt-1 text-center">{{ step.label }}</p>
+                <p class="hidden sm:block text-xs text-gray-500 mt-1 text-center leading-tight">{{ step.label }}</p>
               </div>
               <div
                 v-if="i < statusSteps.length - 1"
-                class="h-0.5 flex-1 mb-4 transition-all"
+                class="h-0.5 flex-1 sm:mb-4 transition-all"
                 :class="isStepDone(step.key) ? 'bg-[#D2691E]' : 'bg-[#1a1a1a]'"
               ></div>
             </div>
           </div>
+          <!-- Mobile step label -->
+          <p class="sm:hidden text-xs text-center text-[#D2691E] font-semibold mt-1">
+            {{ statusSteps.find(s => s.key === order.status)?.label ?? statusSteps[statusSteps.length - 1]?.label }}
+          </p>
 
           <!-- Items -->
           <div>

@@ -776,9 +776,11 @@ onMounted(async () => {});
 /* ── Ingredient cards ── */
 .bb-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
   gap: 8px;
 }
+@media (max-width: 430px) { .bb-cards { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 320px) { .bb-cards { grid-template-columns: 1fr; } }
 .bb-card {
   display: flex; align-items: center; gap: 12px;
   background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06); border-radius: 12px;
@@ -896,6 +898,7 @@ onMounted(async () => {});
 
 /* ── Toast notifications ── */
 .bb-toasts { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: .4rem; pointer-events: none; }
+@media (max-width: 640px) { .bb-toasts { right: 1rem; left: 1rem; align-items: center; } }
 .bb-toast {
   display: flex; align-items: center; gap: .6rem;
   background: #111; border: 1px solid rgba(255,255,255,.08); border-radius: 12px;

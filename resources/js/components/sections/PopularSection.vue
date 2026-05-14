@@ -103,7 +103,7 @@ const onTouchEnd   = (e: TouchEvent) => {
             @mouseleave="onCardMouseLeave"
           >
             <div class="relative aspect-[4/3] overflow-hidden bg-black/30">
-              <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
               <div v-else class="w-full h-full flex items-center justify-center">
                 <span class="text-6xl font-black text-white/20">{{ item.name.charAt(0) }}</span>
               </div>
@@ -150,7 +150,7 @@ const onTouchEnd   = (e: TouchEvent) => {
               <Link v-for="item in displayedItems" :key="item.id" :href="`/menu?highlight=${item.id}`" class="w-full flex-shrink-0">
                 <div class="glass-card overflow-hidden">
                   <div class="aspect-[4/3] overflow-hidden relative bg-black/30">
-                    <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover" />
+                    <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover" loading="lazy" />
                     <div v-if="item.discount_percentage" class="absolute top-3 right-3 px-2.5 py-1 bg-[#A8450E] text-white text-xs font-black rounded-xl">-{{ item.discount_percentage }}%</div>
                   </div>
                   <div class="p-5">
@@ -162,10 +162,10 @@ const onTouchEnd   = (e: TouchEvent) => {
               </Link>
             </div>
           </div>
-          <button v-if="total > 1" @click="prev" :aria-label="t('aria.prev')" class="absolute -left-2 top-1/3 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all cursor-pointer">
+          <button v-if="total > 1" @click="prev" :aria-label="t('aria.prev')" class="absolute -left-3 top-1/3 -translate-y-1/2 bg-black/80 text-white w-11 h-11 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <button v-if="total > 1" @click="next" :aria-label="t('aria.next')" class="absolute -right-2 top-1/3 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all cursor-pointer">
+          <button v-if="total > 1" @click="next" :aria-label="t('aria.next')" class="absolute -right-3 top-1/3 -translate-y-1/2 bg-black/80 text-white w-11 h-11 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
           </button>
           <div class="flex justify-center gap-0 mt-4">

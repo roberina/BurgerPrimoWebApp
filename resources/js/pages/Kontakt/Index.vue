@@ -44,17 +44,17 @@ defineProps<{ announcements?: Announcement[] }>()
     <div class="relative overflow-hidden pt-20">
       <div
         class="absolute inset-0 bg-cover bg-center"
-        style="background-image: url('/img/main25.jpg'); filter: blur(3px) brightness(0.3);"
+        style="background-image: image-set(url('/img/main25.webp') type('image/webp'), url('/img/main25.jpg') type('image/jpeg')); filter: blur(3px) brightness(0.3);"
       />
       <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[#0B0B0B]" />
-      <div class="relative z-10 py-20 text-center px-6">
+      <div class="relative z-10 py-16 sm:py-20 text-center px-4 sm:px-6">
         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-gray-400 text-xs font-semibold uppercase tracking-widest mb-5">
           📍 Kontakt
         </div>
-        <h1 class="text-5xl md:text-6xl font-bold text-white mb-3">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-3">
           Võta <span class="text-[#D2691E]">ühendust</span>
         </h1>
-        <p class="text-gray-400 text-lg">Oleme alati teie jaoks olemas</p>
+        <p class="text-gray-400 text-base sm:text-lg">Oleme alati teie jaoks olemas</p>
       </div>
     </div>
 

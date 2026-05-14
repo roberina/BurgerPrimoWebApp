@@ -152,7 +152,10 @@ const vClickOutside = {
         <!-- Left: Logo + delivery (desktop) / Logo + hamburger (mobile) -->
         <div class="flex items-center justify-between w-full lg:w-auto lg:justify-start lg:gap-2.5">
           <Link href="/" class="group flex items-center gap-2.5 shrink-0">
-            <img src="/img/Logo45.png" alt="" class="w-9 h-9 object-contain transition-all duration-400 group-hover:scale-110 group-hover:rotate-3" />
+            <picture>
+              <source srcset="/img/Logo45-small.webp" type="image/webp" />
+              <img src="/img/Logo45.png" alt="" class="w-9 h-9 object-contain transition-all duration-400 group-hover:scale-110 group-hover:rotate-3" width="36" height="36" />
+            </picture>
             <span class="text-base font-bold tracking-tight text-white hidden sm:block">
               Burger <span class="text-[#D2691E] transition-all duration-300 group-hover:text-[#E87E32]">Primo</span>
             </span>
@@ -316,10 +319,10 @@ const vClickOutside = {
             </div>
             <template v-if="user">
               <p class="px-4 py-1 text-[10px] text-gray-700 uppercase tracking-wider font-bold">Konto</p>
-              <Link v-if="user.is_courier" href="/courier/dashboard" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm font-medium text-cyan-400 bg-cyan-500/6 hover:bg-cyan-500/12 transition-all cursor-pointer">🛵 Kulleri töölaud</Link>
-              <Link v-if="user.is_admin" href="/admin/dashboard" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm font-medium text-yellow-400 bg-yellow-500/6 hover:bg-yellow-500/12 transition-all cursor-pointer">⚙️ Admin Dashboard</Link>
-              <Link href="/settings/profile" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-all cursor-pointer">👤 {{ t('nav.profile') }}</Link>
-              <Link href="/logout" method="post" as="button" @click="mobileMenuOpen = false" class="block w-full text-left px-4 py-3 rounded-xl text-sm text-red-500 hover:bg-red-500/8 transition-all cursor-pointer">🚪 {{ t('nav.logout') }}</Link>
+              <Link v-if="user.is_courier" href="/courier/dashboard" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm font-medium text-cyan-400 bg-cyan-500/6 hover:bg-cyan-500/12 transition-all cursor-pointer">Kulleri töölaud</Link>
+              <Link v-if="user.is_admin" href="/admin/dashboard" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm font-medium text-yellow-400 bg-yellow-500/6 hover:bg-yellow-500/12 transition-all cursor-pointer">Admin Dashboard</Link>
+              <Link href="/settings/profile" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-all cursor-pointer">{{ t('nav.profile') }}</Link>
+              <Link href="/logout" method="post" as="button" @click="mobileMenuOpen = false" class="block w-full text-left px-4 py-3 rounded-xl text-sm text-red-500 hover:bg-red-500/8 transition-all cursor-pointer">{{ t('nav.logout') }}</Link>
             </template>
             <template v-else>
               <Link href="/login" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-all cursor-pointer">{{ t('nav.login') }}</Link>

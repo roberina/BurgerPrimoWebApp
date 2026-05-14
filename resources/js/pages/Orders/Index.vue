@@ -38,27 +38,27 @@
       </Transition>
     </Teleport>
 
-    <main class="max-w-7xl mx-auto px-6 py-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
 
       <!-- Kohaletoimetamise bänner — nähtav kui kuller on teel -->
       <Link v-if="deliveringOrder" :href="`/orders/${deliveringOrder.id}`"
         class="block mb-8 rounded-2xl overflow-hidden border border-cyan-700/50 hover:border-cyan-500 transition-all group">
-        <div class="bg-linear-to-r from-cyan-950/80 to-[#0d1f2d] px-6 py-5 flex items-center gap-5">
-          <div class="text-4xl animate-bounce">🛵</div>
-          <div class="flex-1">
-            <p class="font-bold text-lg text-white">{{ t('orders.courier.heading') }}</p>
-            <p class="text-sm text-cyan-400">
+        <div class="bg-linear-to-r from-cyan-950/80 to-[#0d1f2d] px-4 sm:px-6 py-4 sm:py-5 flex items-center gap-4">
+          <div class="text-3xl sm:text-4xl animate-bounce shrink-0">🛵</div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-base sm:text-lg text-white">{{ t('orders.courier.heading') }}</p>
+            <p class="text-xs sm:text-sm text-cyan-400 truncate">
               {{ t('orders.courier.order') }} <span class="font-mono font-bold">{{ deliveringOrder.order_number }}</span> {{ t('orders.courier.sub') }}
             </p>
           </div>
-          <div class="bg-cyan-500 group-hover:bg-cyan-400 text-black font-bold px-5 py-2.5 rounded-xl text-sm transition shrink-0">
+          <div class="bg-cyan-500 group-hover:bg-cyan-400 text-black font-bold px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm transition shrink-0">
             {{ t('orders.courier.track') }}
           </div>
         </div>
         <div class="h-1 w-full bg-linear-to-r from-cyan-600 to-cyan-400"></div>
       </Link>
-      <div class="mb-12">
-        <h1 class="text-4xl font-bold mb-2">{{ t('orders.heading') }}</h1>
+      <div class="mb-8 sm:mb-12">
+        <h1 class="text-3xl sm:text-4xl font-bold mb-2">{{ t('orders.heading') }}</h1>
         <p class="text-gray-400">{{ t('orders.sub') }}</p>
       </div>
 
@@ -71,49 +71,47 @@
 
       <div v-else class="space-y-4">
         <div v-for="order in orders" :key="order.id" class="bg-[#121212] rounded-2xl overflow-hidden border border-[#1a1a1a] transition-all duration-200" :class="{ 'ring-2 ring-[#D2691E]': selectedOrders.includes(order.id) }">
-          <div class="bg-[#0d0d0d] px-6 py-4 flex items-center justify-between border-b border-[#1a1a1a]">
-            <div class="flex items-center gap-4">
+          <div class="bg-[#0d0d0d] px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3 border-b border-[#1a1a1a] flex-wrap">
+            <div class="flex items-center gap-3">
               <label v-if="['delivered','cancelled','refunded'].includes(order.status)" class="flex items-center cursor-pointer">
                 <input type="checkbox" :checked="selectedOrders.includes(order.id)" @change="toggleOrderSelection(order.id)" class="w-5 h-5 rounded border-gray-600 bg-[#121212] text-[#D2691E] focus:ring-[#D2691E] cursor-pointer" />
               </label>
               <div v-else class="w-5 h-5" />
               <div>
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">{{ t('orders.col.number') }}</p>
-                <p class="font-mono text-lg font-bold text-[#D2691E]">{{ order.order_number }}</p>
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-0.5">{{ t('orders.col.number') }}</p>
+                <p class="font-mono text-base sm:text-lg font-bold text-[#D2691E]">{{ order.order_number }}</p>
               </div>
             </div>
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3 sm:gap-6">
               <div class="text-right">
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">{{ t('orders.col.time') }}</p>
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-0.5">{{ t('orders.col.time') }}</p>
                 <p class="text-sm font-medium text-gray-300">{{ formatDate(order.created_at) }}</p>
               </div>
               <span :class="getStatusClass(order.status)">{{ getStatusLabel(order.status) }}</span>
             </div>
           </div>
 
-          <div class="p-6 relative">
+          <div class="p-4 sm:p-6 relative">
             <button v-if="order.status === 'refunded'" @click="confirmDismiss(order.id)" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white flex items-center justify-center transition cursor-pointer" :title="t('orders.dismiss')">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
             <div v-if="order.status === 'refunded'" class="mb-4 bg-red-900/20 border border-red-800 rounded-xl px-4 py-3">
               <p class="text-sm text-red-400 font-medium">{{ t('orders.rejected.notice') }}</p>
             </div>
-            <div class="flex items-start justify-between mb-5">
-              <div class="flex-1">
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-3">{{ t('orders.col.items') }}</p>
-                <div class="space-y-2">
-                  <div v-for="item in order.items" :key="item.id" class="flex items-center justify-between bg-[#0d0d0d] rounded-xl px-4 py-3">
-                    <div>
-                      <p class="font-semibold text-sm">{{ ln(item.burger_name, item.cart_data?.burger_name_en) }}</p>
-                      <p class="text-xs text-gray-500 mt-0.5">{{ item.quantity }}x {{ t('orders.col.qty') }}</p>
-                    </div>
-                    <p class="font-bold text-[#D2691E] text-sm">{{ Number(item.price * item.quantity).toFixed(2) }}€</p>
+            <div class="mb-5">
+              <p class="text-xs text-gray-500 uppercase tracking-widest mb-3">{{ t('orders.col.items') }}</p>
+              <div class="space-y-2 mb-4">
+                <div v-for="item in order.items" :key="item.id" class="flex items-center justify-between bg-[#0d0d0d] rounded-xl px-4 py-3">
+                  <div>
+                    <p class="font-semibold text-sm">{{ ln(item.burger_name, item.cart_data?.burger_name_en) }}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ item.quantity }}x {{ t('orders.col.qty') }}</p>
                   </div>
+                  <p class="font-bold text-[#D2691E] text-sm">{{ Number(item.price * item.quantity).toFixed(2) }}€</p>
                 </div>
               </div>
-              <div class="ml-8 text-right">
-                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">{{ t('orders.col.total') }}</p>
-                <p class="text-3xl font-bold text-[#D2691E]">{{ Number(order.total_amount).toFixed(2) }}€</p>
+              <div class="flex items-center justify-between pt-3 border-t border-[#1a1a1a]">
+                <p class="text-xs text-gray-500 uppercase tracking-widest">{{ t('orders.col.total') }}</p>
+                <p class="text-2xl sm:text-3xl font-bold text-[#D2691E]">{{ Number(order.total_amount).toFixed(2) }}€</p>
               </div>
             </div>
             <div v-if="order.customer_notes" class="mb-4 bg-[#0d0d0d] rounded-xl px-4 py-3">
@@ -165,7 +163,6 @@
           @click="confirmDeleteSelected"
           class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-semibold rounded-xl transition cursor-pointer"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
           {{ t('orders.delete.selected') }}
         </button>
       </div>

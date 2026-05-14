@@ -15,14 +15,20 @@ class CartController extends Controller
     {
         $cart = session()->get('cart', []);
         
+        // Pre-load all custom burgers in one query to avoid N+1
+        $burgerIds = collect($cart)->filter(fn($i) => isset($i['burger_id']))->pluck('burger_id')->unique()->values()->all();
+        $burgersMap = $burgerIds
+            ? CustomBurger::with('ingredients')->whereIn('id', $burgerIds)->get()->keyBy('id')
+            : collect();
+
         // Load full details for cart items (both burgers and menu items)
         $cartItems = [];
         $total = 0;
-        
+
         foreach ($cart as $item) {
             if (isset($item['burger_id'])) {
                 // Custom burger from builder
-                $burger = CustomBurger::with('ingredients')->find($item['burger_id']);
+                $burger = $burgersMap->get($item['burger_id']);
                 if ($burger) {
                     $cartItems[] = [
                         'type' => 'custom_burger',
@@ -288,11 +294,17 @@ class CartController extends Controller
 
         $totalAmount = 0;
 
+        // Pre-load all custom burgers in one query to avoid N+1
+        $checkoutBurgerIds = collect($cart)->filter(fn($i) => isset($i['burger_id']))->pluck('burger_id')->unique()->values()->all();
+        $checkoutBurgersMap = $checkoutBurgerIds
+            ? CustomBurger::with('ingredients')->whereIn('id', $checkoutBurgerIds)->get()->keyBy('id')
+            : collect();
+
         // Add items from cart
         foreach ($cart as $cartItem) {
             if (isset($cartItem['burger_id'])) {
                 // Custom burger
-                $burger = CustomBurger::with('ingredients')->find($cartItem['burger_id']);
+                $burger = $checkoutBurgersMap->get($cartItem['burger_id']);
                 
                 if (!$burger || $burger->user_id !== auth()->id()) {
                     continue;

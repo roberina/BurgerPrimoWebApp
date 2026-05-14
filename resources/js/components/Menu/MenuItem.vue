@@ -22,7 +22,7 @@
       </div>
     </div>
     <div class="relative flex-shrink-0 w-28">
-      <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover" />
+      <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover" loading="lazy" />
       <div v-else class="w-full h-full flex items-center justify-center text-3xl bg-[#0d0d0d]">🍔</div>
       <button @click.stop="toggleFavorite" :aria-label="item.is_favorited ? t('menu.item.fav.remove') : t('menu.item.fav.add')" class="absolute top-2 left-2 w-7 h-7 rounded-lg flex items-center justify-center transition-all z-10 cursor-pointer bg-black/50 hover:bg-black/70">
         <svg xmlns="http://www.w3.org/2000/svg" :class="['h-4 w-4', item.is_favorited ? 'fill-red-500 text-red-500' : 'fill-none text-white']" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
@@ -38,7 +38,7 @@
   <!-- ── Vertical card ── -->
   <div v-else class="rounded-2xl overflow-hidden hover:ring-2 hover:ring-[#D2691E] transition-all duration-300 group cursor-pointer bg-[#121212]" @click="openDetailModal">
     <div class="relative aspect-[4/3] overflow-hidden bg-[#0B0B0B]">
-      <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+      <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
       <div v-else class="w-full h-full flex items-center justify-center text-6xl">🍔</div>
       <div class="absolute top-3 left-3 flex gap-2">
         <span v-if="item.is_featured" class="bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold">{{ t('menu.item.popular') }}</span>

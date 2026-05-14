@@ -93,7 +93,7 @@ defineProps<{
 .page-bg-img {
   width: 100%;
   height: 100%;
-  background-image: url('/img/main25.jpg');
+  background-image: image-set(url('/img/main25.webp') type('image/webp'), url('/img/main25.jpg') type('image/jpeg'));
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

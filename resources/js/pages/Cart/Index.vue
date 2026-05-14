@@ -38,14 +38,14 @@
     <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-10 pb-24">
       <div class="mb-8">
         <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-gray-400 text-xs font-semibold uppercase tracking-widest mb-4">{{ t('cart.badge') }}</div>
-        <h1 class="text-4xl font-bold mb-2">{{ t('cart.title') }}</h1>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-2">{{ t('cart.title') }}</h1>
         <p class="text-gray-400">{{ t('cart.sub') }}</p>
       </div>
 
       <div v-if="cartItems.length > 0" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Items -->
         <div class="lg:col-span-2 space-y-4">
-          <div v-for="item in cartItems" :key="item.type === 'custom_burger' ? `burger-${item.id}` : `menu-${item.id}`" class="glass p-6 hover:border-[#D2691E]/25 transition-colors duration-200">
+          <div v-for="item in cartItems" :key="item.type === 'custom_burger' ? `burger-${item.id}` : `menu-${item.id}`" class="glass p-4 sm:p-6 hover:border-[#D2691E]/25 transition-colors duration-200">
 
             <!-- Custom Burger -->
             <template v-if="item.type === 'custom_burger'">
@@ -61,9 +61,9 @@
                     </div>
                   </div>
                   <div class="flex items-center gap-3 mt-4">
-                    <button @click="updateQuantity(item.id, item.quantity - 1)" :disabled="item.quantity <= 1" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center hover:bg-[#D2691E]/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg">−</button>
+                    <button @click="updateQuantity(item.id, item.quantity - 1)" :disabled="item.quantity <= 1" class="w-10 h-10 rounded-lg glass-card flex items-center justify-center hover:bg-[#D2691E]/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg">−</button>
                     <span class="text-base font-bold w-8 text-center">{{ item.quantity }}</span>
-                    <button @click="updateQuantity(item.id, item.quantity + 1)" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center hover:bg-[#D2691E]/20 transition-colors text-lg cursor-pointer">+</button>
+                    <button @click="updateQuantity(item.id, item.quantity + 1)" class="w-10 h-10 rounded-lg glass-card flex items-center justify-center hover:bg-[#D2691E]/20 transition-colors text-lg cursor-pointer">+</button>
                   </div>
                 </div>
                 <div class="flex flex-col items-end justify-between">
@@ -71,7 +71,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   </button>
                   <div class="text-right">
-                    <div class="text-2xl font-bold text-[#D2691E]">{{ Number(item.subtotal).toFixed(2) }}€</div>
+                    <div class="text-xl sm:text-2xl font-bold text-[#D2691E]">{{ Number(item.subtotal).toFixed(2) }}€</div>
                     <div class="text-xs text-gray-600 mt-0.5">{{ Number(item.burger.total_price).toFixed(2) }}€ × {{ item.quantity }}</div>
                   </div>
                 </div>
@@ -93,9 +93,9 @@
                     <div v-if="item.special_instructions" class="text-gray-400 italic mt-1">„{{ item.special_instructions }}"</div>
                   </div>
                   <div class="flex items-center gap-3 mt-4">
-                    <button @click="updateQuantity(item.id, item.quantity - 1)" :disabled="item.quantity <= 1" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center hover:bg-[#D2691E]/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg">−</button>
+                    <button @click="updateQuantity(item.id, item.quantity - 1)" :disabled="item.quantity <= 1" class="w-10 h-10 rounded-lg glass-card flex items-center justify-center hover:bg-[#D2691E]/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-lg">−</button>
                     <span class="text-base font-bold w-8 text-center">{{ item.quantity }}</span>
-                    <button @click="updateQuantity(item.id, item.quantity + 1)" class="w-8 h-8 rounded-lg glass-card flex items-center justify-center hover:bg-[#D2691E]/20 transition-colors text-lg cursor-pointer">+</button>
+                    <button @click="updateQuantity(item.id, item.quantity + 1)" class="w-10 h-10 rounded-lg glass-card flex items-center justify-center hover:bg-[#D2691E]/20 transition-colors text-lg cursor-pointer">+</button>
                   </div>
                 </div>
                 <div class="flex flex-col items-end justify-between">
@@ -103,7 +103,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                   </button>
                   <div class="text-right">
-                    <div class="text-2xl font-bold text-[#D2691E]">{{ Number(item.subtotal).toFixed(2) }}€</div>
+                    <div class="text-xl sm:text-2xl font-bold text-[#D2691E]">{{ Number(item.subtotal).toFixed(2) }}€</div>
                     <div class="text-xs text-gray-600 mt-0.5">{{ Number(item.total_price).toFixed(2) }}€ × {{ item.quantity }}</div>
                   </div>
                 </div>
@@ -312,7 +312,7 @@ const checkout = () => {
 
 <style scoped>
 .page-bg { position: fixed; inset: 0; z-index: 0; }
-.page-bg-img { width: 100%; height: 100%; background-image: url('/img/main25.jpg'); background-size: cover; background-position: center; filter: brightness(0.28) saturate(0.65); }
+.page-bg-img { width: 100%; height: 100%; background-image: image-set(url('/img/main25.webp') type('image/webp'), url('/img/main25.jpg') type('image/jpeg')); background-size: cover; background-position: center; filter: brightness(0.28) saturate(0.65); }
 .page-bg-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.50) 100%); }
 .page-root { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
 

@@ -73,12 +73,13 @@ onUnmounted(() => {
     >
       <div
         v-if="!dismissed && announcements.length > 0"
-        class="fixed top-16 lg:top-20 left-0 right-0 z-40 w-full"
+        class="fixed top-16 lg:top-20 left-0 right-0 z-30 w-full"
         :style="{ backgroundColor: active().bg_color, color: active().text_color }"
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false"
       >
-        <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center gap-3">
+        <!-- Desktop row layout -->
+        <div class="hidden sm:flex max-w-6xl mx-auto px-4 py-2.5 items-center gap-3">
           <Megaphone :size="18" class="flex-shrink-0 opacity-80" />
 
           <button
@@ -95,8 +96,8 @@ onUnmounted(() => {
             :class="transitioning ? 'opacity-0' : 'opacity-100'"
           >
             <p class="text-sm font-semibold truncate">{{ ln(active().title, active().title_en) }}</p>
-            <span class="hidden sm:inline opacity-60 text-xs">·</span>
-            <p class="hidden sm:block text-xs opacity-80 truncate">{{ ln(active().message, active().message_en) }}</p>
+            <span class="opacity-60 text-xs">·</span>
+            <p class="text-xs opacity-80 truncate">{{ ln(active().message, active().message_en) }}</p>
           </div>
 
           <button
@@ -108,7 +109,7 @@ onUnmounted(() => {
             <ChevronRight :size="18" />
           </button>
 
-          <div v-if="announcements.length > 1" class="flex items-center gap-0 flex-shrink-0">
+          <div v-if="announcements.length > 1" class="flex items-center gap-0 shrink-0">
             <button
               v-for="(_, i) in announcements"
               :key="i"
@@ -134,12 +135,57 @@ onUnmounted(() => {
           </button>
         </div>
 
-        <div
-          v-if="active().message"
-          class="sm:hidden px-4 pb-2 text-xs opacity-80 text-center transition-opacity duration-180"
-          :class="transitioning ? 'opacity-0' : 'opacity-80'"
-        >
-          {{ ln(active().message, active().message_en) }}
+        <!-- Mobile layout -->
+        <div class="sm:hidden px-4 pt-2.5 pb-2" :class="transitioning ? 'opacity-0' : 'opacity-100'" style="transition: opacity 0.18s;">
+          <!-- Row 1: title -->
+          <p class="text-base font-semibold text-center truncate mb-1">{{ ln(active().title, active().title_en) }}</p>
+
+          <!-- Row 2: 🔊 ← | message | → X -->
+          <div class="flex items-center gap-1.5">
+            <Megaphone :size="20" class="shrink-0 opacity-80" />
+            <button
+              v-if="announcements.length > 1"
+              @click="prev"
+              :aria-label="t('aria.prev')"
+              class="shrink-0 hover:opacity-70 transition p-0.5 rounded"
+            >
+              <ChevronLeft :size="22" />
+            </button>
+            <p class="flex-1 min-w-0 text-sm opacity-90 text-center truncate">{{ ln(active().message, active().message_en) }}</p>
+            <button
+              v-if="announcements.length > 1"
+              @click="next"
+              :aria-label="t('aria.next')"
+              class="shrink-0 hover:opacity-70 transition p-0.5 rounded"
+            >
+              <ChevronRight :size="22" />
+            </button>
+            <button
+              @click="dismiss"
+              class="shrink-0 hover:opacity-70 transition p-1 rounded hover:bg-black/10"
+              aria-label="Sulge"
+            >
+              <X :size="20" />
+            </button>
+          </div>
+
+          <!-- Row 3: dots -->
+          <div v-if="announcements.length > 1" class="flex justify-center items-center gap-0 mt-1.5">
+            <button
+              v-for="(_, i) in announcements"
+              :key="i"
+              @click="current = i"
+              :aria-label="`${t('aria.announcement')} ${i + 1}`"
+              :aria-current="i === current ? 'true' : undefined"
+              class="h-5 w-6 flex items-center justify-center cursor-pointer"
+            >
+              <span
+                class="block w-1.5 h-1.5 rounded-full transition-all"
+                :class="i === current ? 'opacity-100 scale-125' : 'opacity-40'"
+                :style="{ backgroundColor: active().text_color }"
+              />
+            </button>
+          </div>
         </div>
       </div>
     </Transition>

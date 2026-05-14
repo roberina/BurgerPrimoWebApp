@@ -226,7 +226,7 @@ const totalItems = () => props.categories.reduce((sum, c) => sum + c.items.lengt
               </div>
               <!-- Image -->
               <div class="relative flex-shrink-0 w-24">
-                <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover" />
+                <img v-if="item.image_url" :src="item.image_url" :alt="item.name" class="w-full h-full object-cover" loading="lazy" />
                 <div v-else class="w-full h-full bg-zinc-900 flex items-center justify-center text-2xl">🍔</div>
               </div>
             </div>
