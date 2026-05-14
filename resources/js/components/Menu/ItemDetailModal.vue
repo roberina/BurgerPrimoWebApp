@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { router } from '@inertiajs/vue3';
 import { useI18n } from '@/composables/useI18n';
-import { useToast } from '@/composables/useToast';
 
 interface MenuItemData {
   id: number;
@@ -28,33 +25,6 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const { success } = useToast();
-const submitting = ref(false);
-
-const addToCart = () => {
-  submitting.value = true;
-  router.post('/cart/add-menu-item', {
-    menu_item_id: props.item.id,
-    name: props.item.name,
-    base_price: Number(props.item.price) || 0,
-    size: 'standard',
-    drinks: [],
-    sauces: [],
-    fries: null,
-    needs_utensils: false,
-    special_instructions: '',
-    total_price: Number(props.item.price) || 0,
-    quantity: 1,
-  }, {
-    preserveScroll: true,
-    onSuccess: () => {
-      submitting.value = false;
-      success(`${props.item.name} ${t('toast.cart.added')}`);
-      emit('close');
-    },
-    onError: () => { submitting.value = false; },
-  });
-};
 </script>
 
 <template>
@@ -140,33 +110,16 @@ const addToCart = () => {
 
               <!-- Buttons -->
               <div class="flex gap-3">
-                <!-- Customize -->
-                <button
-                  @click="emit('customize')"
-                  class="flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  style="background: #1a1a1a; border: 1px solid #2a2a2a; color: #ccc;"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                  </svg>
-                  {{ t('addon.customize') }}
-                </button>
-
                 <!-- Add to cart -->
                 <button
-                  @click="addToCart"
-                  :disabled="submitting"
-                  class="flex-2 py-3.5 rounded-xl font-bold text-sm text-white transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  @click="emit('customize')"
+                  class="w-full py-3.5 rounded-xl font-bold text-sm text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
                   style="background: linear-gradient(135deg, #D2691E, #B8571A); box-shadow: 0 4px 20px rgba(210,105,30,0.35);"
                 >
-                  <svg v-if="submitting" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                  </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
-                  {{ submitting ? t('addon.adding') : t('addon.add') }}
+                  {{ t('addon.add') }}
                 </button>
               </div>
             </div>

@@ -171,7 +171,7 @@ const addToCart = () => {
               <!-- SIZE -->
               <section v-if="addons.size?.length">
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">📏</span> {{ t('addon.size') }}
+                  <span class="text-[#D2691E]"></span> {{ t('addon.size') }}
                 </h3>
                 <div class="grid grid-cols-3 gap-3">
                   <button
@@ -187,7 +187,7 @@ const addToCart = () => {
                   >
                     <div class="font-bold text-sm">{{ ln(size.name, size.name_en) }}</div>
                     <div class="text-xs mt-0.5" :class="size.price > 0 ? 'text-[#D2691E]' : 'text-gray-600'">
-                      {{ size.price > 0 ? `+${size.price.toFixed(2)}€` : 'Standard' }}
+                      {{ size.price > 0 ? `+${size.price.toFixed(2)}€` : t('addon.no.extra') }}
                     </div>
                   </button>
                 </div>
@@ -196,7 +196,7 @@ const addToCart = () => {
               <!-- DRINKS -->
               <section v-if="addons.drink?.length">
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">🥤</span> {{ t('addon.drinks') }}
+                  <span class="text-[#D2691E]"></span> {{ t('addon.drinks') }}
                 </h3>
                 <div class="space-y-2">
                   <label
@@ -222,7 +222,7 @@ const addToCart = () => {
               <!-- SAUCES -->
               <section v-if="addons.sauce?.length">
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">🧴</span> {{ t('addon.sauces') }}
+                  <span class="text-[#D2691E]"></span> {{ t('addon.sauces') }}
                 </h3>
                 <div class="grid grid-cols-2 gap-2">
                   <label
@@ -250,7 +250,7 @@ const addToCart = () => {
               <!-- FRIES -->
               <section v-if="addons.fries?.length">
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">🍟</span> {{ t('addon.fries') }}
+                  <span class="text-[#D2691E]"></span> {{ t('addon.fries') }}
                 </h3>
                 <div class="space-y-2">
                   <label
@@ -278,7 +278,7 @@ const addToCart = () => {
               <!-- UTENSILS -->
               <section>
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">🍴</span> {{ t('addon.utensils') }}
+                  <span class="text-[#D2691E]"></span> {{ t('addon.utensils') }}
                 </h3>
                 <label class="flex items-center gap-3 p-3.5 rounded-xl bg-[#0B0B0B] hover:bg-[#D2691E]/8 cursor-pointer transition-colors border-2 border-transparent hover:border-[#D2691E]/20"
                   :class="needsUtensils ? 'border-[#D2691E]/30 bg-[#D2691E]/8' : ''"
@@ -292,7 +292,7 @@ const addToCart = () => {
               <!-- SPECIAL INSTRUCTIONS -->
               <section>
                 <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <span class="text-[#D2691E]">📝</span> {{ t('addon.special') }}
+                  <span class="text-[#D2691E]"></span> {{ t('addon.special') }}
                 </h3>
                 <textarea
                   v-model="specialInstructions"
