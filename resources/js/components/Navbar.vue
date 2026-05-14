@@ -183,14 +183,16 @@ const vClickOutside = {
               <span class="absolute inset-0 rounded-xl transition-all duration-200" :class="isHomePage ? 'bg-[#D2691E]/12' : 'bg-transparent group-hover:bg-white/5'" />
             </Link>
             <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 scale-[0.97] translate-y-2" enter-to-class="opacity-100 scale-100 translate-y-0" leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 scale-100 translate-y-0" leave-to-class="opacity-0 scale-[0.97] translate-y-1">
-              <div v-if="homeDropOpen" class="absolute left-0 top-full mt-2 w-60 bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/8 rounded-2xl shadow-2xl shadow-black/80 overflow-hidden z-50">
+              <div v-if="homeDropOpen" class="absolute left-0 top-full mt-2.5 w-64 bg-[#0c0c0c]/98 backdrop-blur-2xl border border-white/6 rounded-2xl shadow-2xl shadow-black/90 overflow-hidden z-50" style="box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04)">
+                <!-- Accent line -->
+                <div class="h-px bg-gradient-to-r from-transparent via-[#D2691E]/40 to-transparent" />
                 <!-- Header -->
-                <div class="px-4 pt-3.5 pb-2.5 border-b border-white/5">
+                <div class="px-4 pt-3.5 pb-2.5 border-b border-white/4">
                   <p class="text-[10px] font-bold text-[#D2691E] uppercase tracking-[0.18em]">Avaleht</p>
-                  <p class="text-xs text-gray-600 mt-0.5">Liigu sektsiooni</p>
+                  <p class="text-xs text-gray-700 mt-0.5">Liigu sektsiooni</p>
                 </div>
                 <!-- Items -->
-                <div class="p-1.5">
+                <div class="p-2">
                   <!-- Popular -->
                   <a :href="'/'" @click="handleDropClick(homeDropdownItems[0], $event)" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 cursor-pointer"
                     :class="isDropActive(homeDropdownItems[0]) ? 'bg-[#D2691E]/12 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'">
@@ -202,7 +204,7 @@ const vClickOutside = {
                     </div>
                     <div class="min-w-0">
                       <p class="text-sm font-medium leading-none mb-0.5">{{ homeDropdownItems[0].label }}</p>
-                      <p class="text-[11px] text-gray-600">Meie menüü lemmikud</p>
+                      <p class="text-[11px] text-gray-500">Meie menüü lemmikud</p>
                     </div>
                     <svg v-if="isDropActive(homeDropdownItems[0])" class="ml-auto w-3.5 h-3.5 text-[#D2691E] flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
                   </a>
@@ -217,7 +219,7 @@ const vClickOutside = {
                     </div>
                     <div class="min-w-0">
                       <p class="text-sm font-medium leading-none mb-0.5">{{ homeDropdownItems[1].label }}</p>
-                      <p class="text-[11px] text-gray-600">Muusika ja meeleolu</p>
+                      <p class="text-[11px] text-gray-500">Muusika ja meeleolu</p>
                     </div>
                     <svg v-if="isDropActive(homeDropdownItems[1])" class="ml-auto w-3.5 h-3.5 text-[#D2691E] flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
                   </a>
@@ -232,7 +234,7 @@ const vClickOutside = {
                     </div>
                     <div class="min-w-0">
                       <p class="text-sm font-medium leading-none mb-0.5">{{ homeDropdownItems[2].label }}</p>
-                      <p class="text-[11px] text-gray-600">Asukoht ja kontakt</p>
+                      <p class="text-[11px] text-gray-500">Asukoht ja kontakt</p>
                     </div>
                     <svg v-if="isDropActive(homeDropdownItems[2])" class="ml-auto w-3.5 h-3.5 text-[#D2691E] flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" /></svg>
                   </a>
@@ -273,7 +275,7 @@ const vClickOutside = {
           <div class="w-px h-5 bg-white/8 mx-0.5" />
 
           <template v-if="user">
-            <Link v-if="user.is_courier && !user.is_admin" href="/courier/dashboard"
+            <Link v-if="user.is_courier" href="/courier/dashboard"
               class="btn-magnetic px-3 py-1.5 rounded-xl bg-cyan-500/8 border border-cyan-500/18 text-cyan-400 text-xs font-bold hover:bg-cyan-500/18 transition-all flex items-center gap-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -357,7 +359,7 @@ const vClickOutside = {
             </div>
             <template v-if="user">
               <p class="px-4 py-1 text-[10px] text-gray-700 uppercase tracking-wider font-bold">Konto</p>
-              <Link v-if="user.is_courier && !user.is_admin" href="/courier/dashboard" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm font-medium text-cyan-400 bg-cyan-500/6 hover:bg-cyan-500/12 transition-all cursor-pointer">🛵 Kulleri töölaud</Link>
+              <Link v-if="user.is_courier" href="/courier/dashboard" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm font-medium text-cyan-400 bg-cyan-500/6 hover:bg-cyan-500/12 transition-all cursor-pointer">🛵 Kulleri töölaud</Link>
               <Link v-if="user.is_admin" href="/admin/dashboard" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm font-medium text-yellow-400 bg-yellow-500/6 hover:bg-yellow-500/12 transition-all cursor-pointer">⚙️ Admin Dashboard</Link>
               <Link href="/settings/profile" @click="mobileMenuOpen = false" class="block px-4 py-3 rounded-xl text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-all cursor-pointer">👤 {{ t('nav.profile') }}</Link>
               <Link href="/logout" method="post" as="button" @click="mobileMenuOpen = false" class="block w-full text-left px-4 py-3 rounded-xl text-sm text-red-500 hover:bg-red-500/8 transition-all cursor-pointer">🚪 {{ t('nav.logout') }}</Link>

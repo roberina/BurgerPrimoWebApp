@@ -83,6 +83,7 @@ class OrderStateService
 
         $this->transition($order, self::AWAITING_COURIER, $adminId, 'admin', [
             'courier_user_id' => null,
+            'broadcasted_at'  => now(),
         ]);
     }
 

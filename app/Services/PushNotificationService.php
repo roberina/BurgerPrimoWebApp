@@ -32,6 +32,39 @@ class PushNotificationService
         return $this->webPush;
     }
 
+    public function sendToOnlineCouriers(string $title, string $body, string $url = '/'): void
+    {
+        $courierIds = \App\Models\User::where('is_courier', true)
+            ->where('courier_online', true)
+            ->pluck('id');
+
+        $subscriptions = PushSubscription::whereIn('user_id', $courierIds)->get();
+
+        if ($subscriptions->isEmpty()) {
+            return;
+        }
+
+        $webPush = $this->webPush();
+        $payload = json_encode(['title' => $title, 'body' => $body, 'url' => $url]);
+
+        foreach ($subscriptions as $sub) {
+            $webPush->queueNotification(
+                Subscription::create([
+                    'endpoint' => $sub->endpoint,
+                    'keys'     => ['p256dh' => $sub->public_key, 'auth' => $sub->auth_token],
+                ]),
+                $payload
+            );
+        }
+
+        /** @var MessageSentReport $report */
+        foreach ($webPush->flush() as $report) {
+            if (!$report->isSuccess()) {
+                PushSubscription::where('endpoint', $report->getEndpoint())->delete();
+            }
+        }
+    }
+
     public function sendToAll(string $title, string $body, string $url = '/'): void
     {
         $subscriptions = PushSubscription::all();

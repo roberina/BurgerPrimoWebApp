@@ -5,13 +5,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\OrderStateService;
+use App\Services\PushNotificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class OrderController extends Controller
 {
-    public function __construct(private OrderStateService $state) {}
+    public function __construct(
+        private OrderStateService $state,
+        private PushNotificationService $push,
+    ) {}
 
     public function index(Request $request): Response
     {
@@ -89,6 +93,14 @@ class OrderController extends Controller
         } catch (\RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
+
+        try {
+            $this->push->sendToOnlineCouriers(
+                'Uus tellimus saadaval',
+                "Tellimus {$order->order_number} ootab kullerit",
+                '/courier/dashboard'
+            );
+        } catch (\Throwable) {}
 
         return redirect()->back()->with('success', 'Tellimus saadetud kulleritele.');
     }

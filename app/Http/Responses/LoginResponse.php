@@ -8,22 +8,32 @@ use Illuminate\Http\RedirectResponse;
 
 class LoginResponse implements LoginResponseContract
 {
-    /**
-     * Create an HTTP response that represents the object.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
+    private const SUBADMIN_REDIRECT_MAP = [
+        'orders'        => '/admin/orders',
+        'menu'          => '/admin/menu/categories',
+        'burger'        => '/admin/ingredients',
+        'users'         => '/admin/users',
+        'announcements' => '/admin/announcements',
+    ];
+
     public function toResponse($request): JsonResponse|RedirectResponse
     {
         $user = auth()->user();
 
-        // Redirect admin users to admin dashboard
         if ($user && $user->is_admin) {
+            if ($user->admin_role === 'subadmin') {
+                foreach ($user->admin_permissions ?? [] as $perm) {
+                    if (isset(self::SUBADMIN_REDIRECT_MAP[$perm])) {
+                        return redirect(self::SUBADMIN_REDIRECT_MAP[$perm]);
+                    }
+                }
+                // No permissions configured — send to users page as fallback
+                return redirect('/admin/users');
+            }
+
             return redirect()->intended('/admin/dashboard');
         }
 
-        // Redirect regular users to home page
         return redirect()->intended('/');
     }
 }

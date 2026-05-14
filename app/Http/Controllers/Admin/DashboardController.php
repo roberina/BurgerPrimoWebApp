@@ -5,14 +5,34 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\CustomBurger;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function index(): Response
+    private const SUBADMIN_REDIRECT_MAP = [
+        'orders'        => '/admin/orders',
+        'menu'          => '/admin/menu/categories',
+        'burger'        => '/admin/ingredients',
+        'users'         => '/admin/users',
+        'announcements' => '/admin/announcements',
+    ];
+
+    public function index(): Response|RedirectResponse
     {
+        $user = auth()->user();
+
+        if ($user->admin_role === 'subadmin') {
+            foreach ($user->admin_permissions ?? [] as $perm) {
+                if (isset(self::SUBADMIN_REDIRECT_MAP[$perm])) {
+                    return redirect(self::SUBADMIN_REDIRECT_MAP[$perm]);
+                }
+            }
+            return redirect('/admin/users');
+        }
+
         // Total revenue for CURRENT month only (delivered orders)
         $totalRevenue = Order::where('status', Order::DELIVERED)
             ->whereMonth('created_at', now()->month)

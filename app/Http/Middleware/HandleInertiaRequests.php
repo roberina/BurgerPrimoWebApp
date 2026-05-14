@@ -49,8 +49,10 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->get('error'),
                 'courier_link' => fn () => $request->session()->get('courier_link'),
             ],
-            'cartCount' => $cartCount,
-            'deliveryStatus' => fn () => $this->getDeliveryStatus(),
+            'cartCount'        => $cartCount,
+            'deliveryStatus'   => fn () => $this->getDeliveryStatus(),
+            'adminRole'        => fn () => $request->user()?->admin_role,
+            'adminPermissions' => fn () => $request->user()?->admin_permissions ?? [],
         ]);
     }
 

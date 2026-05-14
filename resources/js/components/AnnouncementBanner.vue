@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Megaphone, X, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 
 interface Announcement {
@@ -18,13 +18,19 @@ const props = defineProps<{
 const STORAGE_KEY = 'announcements_dismissed'
 const dismissed = ref(sessionStorage.getItem(STORAGE_KEY) === '1')
 const current = ref(0)
+const isHovered = ref(false)
+const transitioning = ref(false)
 
 const prev = () => {
   current.value = (current.value - 1 + props.announcements.length) % props.announcements.length
 }
 
 const next = () => {
-  current.value = (current.value + 1) % props.announcements.length
+  transitioning.value = true
+  setTimeout(() => {
+    current.value = (current.value + 1) % props.announcements.length
+    transitioning.value = false
+  }, 180)
 }
 
 const active = () => props.announcements[current.value]
@@ -33,14 +39,23 @@ const dismiss = () => {
   dismissed.value = true
   sessionStorage.setItem(STORAGE_KEY, '1')
 }
+
+let rotateTimer: ReturnType<typeof setInterval> | null = null
+
+onMounted(() => {
+  if (props.announcements.length > 1) {
+    rotateTimer = setInterval(() => {
+      if (!isHovered.value) next()
+    }, 15000)
+  }
+})
+
+onUnmounted(() => {
+  if (rotateTimer) clearInterval(rotateTimer)
+})
 </script>
 
 <template>
-  <!--
-    Announcement banner sits just BELOW the fixed navbar.
-    Navbar height: h-16 (4rem) on mobile, h-20 (5rem) on lg.
-    We use top-16 lg:top-20 to position it correctly.
-  -->
   <Teleport to="body">
     <Transition
       enter-active-class="transition duration-300 ease-out"
@@ -54,9 +69,11 @@ const dismiss = () => {
         v-if="!dismissed && announcements.length > 0"
         class="fixed top-16 lg:top-20 left-0 right-0 z-40 w-full"
         :style="{ backgroundColor: active().bg_color, color: active().text_color }"
+        @mouseenter="isHovered = true"
+        @mouseleave="isHovered = false"
       >
         <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center gap-3">
-          <Megaphone :size="18" class="flex-shrink-0 opacity-80 cursor-pointer" />
+          <Megaphone :size="18" class="flex-shrink-0 opacity-80" />
 
           <button
             v-if="announcements.length > 1"
@@ -66,10 +83,13 @@ const dismiss = () => {
             <ChevronLeft :size="18" />
           </button>
 
-          <div class="flex-1 flex items-center gap-2 min-w-0 justify-center text-center">
+          <div
+            class="flex-1 flex items-center gap-2 min-w-0 justify-center text-center transition-opacity duration-180"
+            :class="transitioning ? 'opacity-0' : 'opacity-100'"
+          >
             <p class="text-sm font-semibold truncate">{{ active().title }}</p>
             <span class="hidden sm:inline opacity-60 text-xs">·</span>
-            <p class="hidden sm:block text-xs opacity-80 truncate cursor-pointer">{{ active().message }}</p>
+            <p class="hidden sm:block text-xs opacity-80 truncate">{{ active().message }}</p>
           </div>
 
           <button
@@ -80,13 +100,13 @@ const dismiss = () => {
             <ChevronRight :size="18" />
           </button>
 
-          <div v-if="announcements.length > 1" class="flex items-center gap-1 flex-shrink-0 cursor-pointer">
+          <div v-if="announcements.length > 1" class="flex items-center gap-1 flex-shrink-0">
             <span
               v-for="(_, i) in announcements"
               :key="i"
               @click="current = i"
-              class="cursor-pointer w-1.5 h-1.5 rounded-full cursor-pointer transition-all"
-              :class="i === current ? 'opacity-100 scale-125' : 'opacity-40'"
+              class="cursor-pointer rounded-full transition-all duration-300"
+              :class="i === current ? 'w-4 h-1.5 opacity-100' : 'w-1.5 h-1.5 opacity-35 hover:opacity-60'"
               :style="{ backgroundColor: active().text_color }"
             />
           </div>
@@ -102,7 +122,8 @@ const dismiss = () => {
 
         <div
           v-if="active().message"
-          class="sm:hidden px-4 pb-2 text-xs opacity-80 text-center"
+          class="sm:hidden px-4 pb-2 text-xs opacity-80 text-center transition-opacity duration-180"
+          :class="transitioning ? 'opacity-0' : 'opacity-80'"
         >
           {{ active().message }}
         </div>

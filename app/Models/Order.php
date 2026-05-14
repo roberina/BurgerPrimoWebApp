@@ -43,6 +43,7 @@ class Order extends Model
         'delivery_lng',
         'delivery_address',
         'courier_user_id',
+        'broadcasted_at',
     ];
 
     protected $casts = [
@@ -52,6 +53,7 @@ class Order extends Model
         'courier_lat' => 'float',
         'courier_lng' => 'float',
         'courier_updated_at' => 'datetime',
+        'broadcasted_at' => 'datetime',
         'delivery_lat' => 'float',
         'delivery_lng' => 'float',
     ];

@@ -8,19 +8,27 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserIsAdmin
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check()) {
             return redirect()->route('login');
         }
 
-        if (!auth()->user()->is_admin) {
+        $user = auth()->user();
+
+        if (!$user->is_admin) {
             abort(403, 'Unauthorized - Admin access required');
+        }
+
+        // Block inactive subadmins; log them out so the session is cleared
+        if ($user->admin_role === 'subadmin' && !$user->is_active) {
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->withErrors([
+                'email' => 'Your account has been deactivated.',
+            ]);
         }
 
         return $next($request);

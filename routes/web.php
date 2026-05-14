@@ -1,23 +1,25 @@
 <?php
 
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\BurgerBuilderController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\Admin\OrderController as AdminOrderController;
-use App\Http\Controllers\MenuController;
-use App\Http\Controllers\Admin\MenuCategoryController;
-use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\AddonItemController;
 use App\Http\Controllers\Admin\AnnouncementController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\MenuCategoryController;
+use App\Http\Controllers\Admin\MenuItemController;
+use App\Http\Controllers\Admin\SubadminController;
+use App\Http\Controllers\BurgerBuilderController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CourierController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\MenuFavoriteController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
-use App\Http\Controllers\ContactController;
-use App\Http\Controllers\CourierController;
-use App\Http\Controllers\PushSubscriptionController;
-use App\Http\Controllers\ReviewController;
 
 Route::get('/api/addons', [AddonItemController::class, 'publicIndex']);
 
@@ -64,7 +66,7 @@ Route::get('/meelelahutus', function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::post('/menu/{menuItem}/favorite', [App\Http\Controllers\MenuFavoriteController::class, 'toggle'])->name('menu.favorite.toggle');
+    Route::post('/menu/{menuItem}/favorite', [MenuFavoriteController::class, 'toggle'])->name('menu.favorite.toggle');
 
     // Burger Builder
     Route::get('/burger-builder', [BurgerBuilderController::class, 'index'])->name('burger-builder.index');
@@ -98,10 +100,12 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
     Route::post('/orders/bulk-delete', [OrderController::class, 'bulkDelete'])->name('orders.bulk-delete');
 
-    // Courier (account-based)
+    // Courier
     Route::middleware(['auth', 'courier'])->prefix('courier')->name('courier.')->group(function () {
         Route::get('/dashboard', [CourierController::class, 'dashboard'])->name('dashboard');
         Route::post('/toggle-online', [CourierController::class, 'toggleOnline'])->name('toggle-online');
+        Route::get('/available-orders', [CourierController::class, 'availableOrders'])->name('available-orders');
+        Route::get('/events', [CourierController::class, 'streamEvents'])->name('events');
         Route::get('/orders/{order}', [CourierController::class, 'showOrder'])->name('order.show');
         Route::post('/orders/{order}/accept', [CourierController::class, 'acceptOrder'])->name('order.accept');
         Route::post('/orders/{order}/decline', [CourierController::class, 'declineOrder'])->name('order.decline');
@@ -109,77 +113,96 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/orders/{order}/location', [CourierController::class, 'updateOrderLocation'])->name('order.location');
     });
 
-    // Admin
+    // ─── Admin ────────────────────────────────────────────────────────────────
     Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
 
+        // Dashboard — accessible to every admin role
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
-        // Orders
-        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
-        Route::post('/orders/{order}/confirm', [AdminOrderController::class, 'confirm'])->name('orders.confirm');
-        Route::post('/orders/{order}/start-preparing', [AdminOrderController::class, 'startPreparing'])->name('orders.start-preparing');
-        Route::post('/orders/{order}/mark-ready', [AdminOrderController::class, 'markReady'])->name('orders.mark-ready');
-        Route::post('/orders/{order}/release-to-couriers', [AdminOrderController::class, 'releaseToCouriers'])->name('orders.release-to-couriers');
-        Route::post('/orders/{order}/recall-from-couriers', [AdminOrderController::class, 'recallFromCouriers'])->name('orders.recall-from-couriers');
-        Route::post('/orders/{order}/refund', [AdminOrderController::class, 'refund'])->name('orders.refund');
-        Route::delete('/orders/{order}', [AdminOrderController::class, 'bulkDelete'])->name('orders.destroy');
+        // ── Subadmin management (super admin only) ──────────────────────────
+        Route::middleware(['superadmin'])->group(function () {
+            Route::get('/subadmins', [SubadminController::class, 'index'])->name('subadmins.index');
+            Route::post('/subadmins', [SubadminController::class, 'store'])->name('subadmins.store');
+            Route::put('/subadmins/{user}', [SubadminController::class, 'update'])->name('subadmins.update');
+            Route::patch('/subadmins/{user}/status', [SubadminController::class, 'toggleStatus'])->name('subadmins.toggle-status');
+            Route::delete('/subadmins/{user}', [SubadminController::class, 'destroy'])->name('subadmins.destroy');
+            Route::post('/subadmins/{user}/promote', [SubadminController::class, 'promote'])->name('subadmins.promote');
+            Route::post('/subadmins/{user}/demote', [SubadminController::class, 'demote'])->name('subadmins.demote');
+        });
 
-        // Burger Review
-        Route::get('/burger-review', [App\Http\Controllers\Admin\BurgerReviewController::class, 'index'])->name('burger-review.index');
-        Route::post('/burger-review/{burger}/approve', [App\Http\Controllers\Admin\BurgerReviewController::class, 'approve'])->name('burger-review.approve');
-        Route::post('/burger-review/{burger}/reject', [App\Http\Controllers\Admin\BurgerReviewController::class, 'reject'])->name('burger-review.reject');
+        // ── Orders ──────────────────────────────────────────────────────────
+        Route::middleware(['permission:orders'])->group(function () {
+            Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+            Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+            Route::post('/orders/{order}/confirm', [AdminOrderController::class, 'confirm'])->name('orders.confirm');
+            Route::post('/orders/{order}/start-preparing', [AdminOrderController::class, 'startPreparing'])->name('orders.start-preparing');
+            Route::post('/orders/{order}/mark-ready', [AdminOrderController::class, 'markReady'])->name('orders.mark-ready');
+            Route::post('/orders/{order}/release-to-couriers', [AdminOrderController::class, 'releaseToCouriers'])->name('orders.release-to-couriers');
+            Route::post('/orders/{order}/recall-from-couriers', [AdminOrderController::class, 'recallFromCouriers'])->name('orders.recall-from-couriers');
+            Route::post('/orders/{order}/refund', [AdminOrderController::class, 'refund'])->name('orders.refund');
+            Route::delete('/orders/{order}', [AdminOrderController::class, 'bulkDelete'])->name('orders.destroy');
+        });
 
-        // Menu - Categories
-        Route::get('/menu/categories', [MenuCategoryController::class, 'index'])->name('menu.categories.index');
-        Route::get('/menu/categories/create', [MenuCategoryController::class, 'create'])->name('menu.categories.create');
-        Route::post('/menu/categories', [MenuCategoryController::class, 'store'])->name('menu.categories.store');
-        Route::get('/menu/categories/{category}/edit', [MenuCategoryController::class, 'edit'])->name('menu.categories.edit');
-        Route::put('/menu/categories/{category}', [MenuCategoryController::class, 'update'])->name('menu.categories.update');
-        Route::delete('/menu/categories/{category}', [MenuCategoryController::class, 'destroy'])->name('menu.categories.destroy');
-        Route::post('/menu/categories/update-order', [MenuCategoryController::class, 'updateOrder'])->name('menu.categories.update-order');
+        // ── Menu (categories, items, addons) ────────────────────────────────
+        Route::middleware(['permission:menu'])->group(function () {
+            Route::get('/menu/categories', [MenuCategoryController::class, 'index'])->name('menu.categories.index');
+            Route::get('/menu/categories/create', [MenuCategoryController::class, 'create'])->name('menu.categories.create');
+            Route::post('/menu/categories', [MenuCategoryController::class, 'store'])->name('menu.categories.store');
+            Route::get('/menu/categories/{category}/edit', [MenuCategoryController::class, 'edit'])->name('menu.categories.edit');
+            Route::put('/menu/categories/{category}', [MenuCategoryController::class, 'update'])->name('menu.categories.update');
+            Route::delete('/menu/categories/{category}', [MenuCategoryController::class, 'destroy'])->name('menu.categories.destroy');
+            Route::post('/menu/categories/update-order', [MenuCategoryController::class, 'updateOrder'])->name('menu.categories.update-order');
 
-        // Menu - Items
-        Route::get('/menu/items', [MenuItemController::class, 'index'])->name('menu.items.index');
-        Route::get('/menu/items/create', [MenuItemController::class, 'create'])->name('menu.items.create');
-        Route::post('/menu/items', [MenuItemController::class, 'store'])->name('menu.items.store');
-        Route::get('/menu/items/{item}/edit', [MenuItemController::class, 'edit'])->name('menu.items.edit');
-        Route::post('/menu/items/{item}', [MenuItemController::class, 'update'])->name('menu.items.update');
-        Route::delete('/menu/items/{item}', [MenuItemController::class, 'destroy'])->name('menu.items.destroy');
-        Route::post('/menu/items/update-order', [MenuItemController::class, 'updateOrder'])->name('menu.items.update-order');
+            Route::get('/menu/items', [MenuItemController::class, 'index'])->name('menu.items.index');
+            Route::get('/menu/items/create', [MenuItemController::class, 'create'])->name('menu.items.create');
+            Route::post('/menu/items', [MenuItemController::class, 'store'])->name('menu.items.store');
+            Route::get('/menu/items/{item}/edit', [MenuItemController::class, 'edit'])->name('menu.items.edit');
+            Route::post('/menu/items/{item}', [MenuItemController::class, 'update'])->name('menu.items.update');
+            Route::delete('/menu/items/{item}', [MenuItemController::class, 'destroy'])->name('menu.items.destroy');
+            Route::post('/menu/items/update-order', [MenuItemController::class, 'updateOrder'])->name('menu.items.update-order');
 
-        // Ingredients
-        Route::get('/ingredients', [App\Http\Controllers\Admin\IngredientController::class, 'index'])->name('ingredients.index');
-        Route::get('/ingredients/create', [App\Http\Controllers\Admin\IngredientController::class, 'create'])->name('ingredients.create');
-        Route::post('/ingredients', [App\Http\Controllers\Admin\IngredientController::class, 'store'])->name('ingredients.store');
-        Route::get('/ingredients/{ingredient}/edit', [App\Http\Controllers\Admin\IngredientController::class, 'edit'])->name('ingredients.edit');
-        Route::put('/ingredients/{ingredient}', [App\Http\Controllers\Admin\IngredientController::class, 'update'])->name('ingredients.update');
-        Route::delete('/ingredients/{ingredient}', [App\Http\Controllers\Admin\IngredientController::class, 'destroy'])->name('ingredients.destroy');
-        Route::post('/ingredients/{ingredient}/toggle', [App\Http\Controllers\Admin\IngredientController::class, 'toggleAvailability'])->name('ingredients.toggle');
+            Route::get('/addons', [AddonItemController::class, 'index'])->name('addons.index');
+            Route::post('/addons', [AddonItemController::class, 'store'])->name('addons.store');
+            Route::put('/addons/{addonItem}', [AddonItemController::class, 'update'])->name('addons.update');
+            Route::delete('/addons/{addonItem}', [AddonItemController::class, 'destroy'])->name('addons.destroy');
+            Route::post('/addons/{addonItem}/toggle', [AddonItemController::class, 'toggle'])->name('addons.toggle');
+        });
 
-        // Reviews
-        Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews.index');
-        Route::post('/reviews/{review}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('reviews.approve');
-        Route::post('/reviews/{review}/reject', [\App\Http\Controllers\Admin\ReviewController::class, 'reject'])->name('reviews.reject');
-        Route::delete('/reviews/{review}', [\App\Http\Controllers\Admin\ReviewController::class, 'destroy'])->name('reviews.destroy');
+        // ── Burger (ingredients, burger review) ─────────────────────────────
+        Route::middleware(['permission:burger'])->group(function () {
+            Route::get('/ingredients', [\App\Http\Controllers\Admin\IngredientController::class, 'index'])->name('ingredients.index');
+            Route::get('/ingredients/create', [\App\Http\Controllers\Admin\IngredientController::class, 'create'])->name('ingredients.create');
+            Route::post('/ingredients', [\App\Http\Controllers\Admin\IngredientController::class, 'store'])->name('ingredients.store');
+            Route::get('/ingredients/{ingredient}/edit', [\App\Http\Controllers\Admin\IngredientController::class, 'edit'])->name('ingredients.edit');
+            Route::put('/ingredients/{ingredient}', [\App\Http\Controllers\Admin\IngredientController::class, 'update'])->name('ingredients.update');
+            Route::delete('/ingredients/{ingredient}', [\App\Http\Controllers\Admin\IngredientController::class, 'destroy'])->name('ingredients.destroy');
+            Route::post('/ingredients/{ingredient}/toggle', [\App\Http\Controllers\Admin\IngredientController::class, 'toggleAvailability'])->name('ingredients.toggle');
 
-        // Announcements
-        Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
-        Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
-        Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update'])->name('announcements.update');
-        Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
-        Route::post('/announcements/{announcement}/toggle', [AnnouncementController::class, 'toggle'])->name('announcements.toggle');
+            Route::get('/burger-review', [\App\Http\Controllers\Admin\BurgerReviewController::class, 'index'])->name('burger-review.index');
+            Route::post('/burger-review/{burger}/approve', [\App\Http\Controllers\Admin\BurgerReviewController::class, 'approve'])->name('burger-review.approve');
+            Route::post('/burger-review/{burger}/reject', [\App\Http\Controllers\Admin\BurgerReviewController::class, 'reject'])->name('burger-review.reject');
+        });
 
-        // Users
-        Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
-        Route::post('/users/{user}/toggle-courier', [\App\Http\Controllers\Admin\UserController::class, 'toggleCourier'])->name('users.toggle-courier');
+        // ── Users & customer reviews ─────────────────────────────────────────
+        Route::middleware(['permission:users'])->group(function () {
+            Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+            Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+            Route::post('/users/{user}/toggle-courier', [\App\Http\Controllers\Admin\UserController::class, 'toggleCourier'])->name('users.toggle-courier');
 
-        // Addons
-        Route::get('/addons', [AddonItemController::class, 'index'])->name('addons.index');
-        Route::post('/addons', [AddonItemController::class, 'store'])->name('addons.store');
-        Route::put('/addons/{addonItem}', [AddonItemController::class, 'update'])->name('addons.update');
-        Route::delete('/addons/{addonItem}', [AddonItemController::class, 'destroy'])->name('addons.destroy');
-        Route::post('/addons/{addonItem}/toggle', [AddonItemController::class, 'toggle'])->name('addons.toggle');
+            Route::get('/reviews', [\App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('reviews.index');
+            Route::post('/reviews/{review}/approve', [\App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('reviews.approve');
+            Route::post('/reviews/{review}/reject', [\App\Http\Controllers\Admin\ReviewController::class, 'reject'])->name('reviews.reject');
+            Route::delete('/reviews/{review}', [\App\Http\Controllers\Admin\ReviewController::class, 'destroy'])->name('reviews.destroy');
+        });
+
+        // ── Announcements ────────────────────────────────────────────────────
+        Route::middleware(['permission:announcements'])->group(function () {
+            Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+            Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+            Route::put('/announcements/{announcement}', [AnnouncementController::class, 'update'])->name('announcements.update');
+            Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+            Route::post('/announcements/{announcement}/toggle', [AnnouncementController::class, 'toggle'])->name('announcements.toggle');
+        });
     });
 });
 

@@ -3,7 +3,7 @@
 
     <!-- ───── OTSUSTAMINE — kaart taustal + popup all ───── -->
     <template v-if="phase === 'deciding'">
-      <!-- Taustakaart (staatilne, ainult preview) -->
+      <!-- Taustakaart (staatilna, ainult preview) -->
       <div ref="previewMapContainer" class="flex-1 w-full" style="min-height: 0;"></div>
 
       <!-- Popup — tuleb alt üles -->
@@ -26,13 +26,8 @@
                 <Flame :size="18" class="text-orange-400" />
               </div>
               <div>
-<<<<<<< HEAD
                 <p class="text-xs text-gray-500 uppercase tracking-widest">{{ t('courier.new_order') }}</p>
                 <p class="font-mono font-bold text-[#D2691E] text-base">{{ order.order_number }}</p>
-=======
-                <p class="text-xs text-gray-500 uppercase tracking-widest">Uus tellimus</p>
-                <p class="font-mono font-bold text-orange-500 text-base">{{ order.order_number }}</p>
->>>>>>> e0ae186cf1e287ceba4f35122c64eb4b2b0ed45f
               </div>
             </div>
             <p class="text-2xl font-bold text-white">{{ Number(order.total_amount).toFixed(2) }}€</p>
@@ -69,25 +64,16 @@
             <button
               @click="declineOrder"
               :disabled="deciding"
-<<<<<<< HEAD
-              class="py-4 rounded-2xl font-bold text-base transition bg-white/6 hover:bg-white/12 border border-white/10 text-gray-300 disabled:opacity-50"
-            >{{ t('courier.decline') }}</button>
-=======
               class="py-4 rounded-2xl font-bold text-base transition bg-white/6 hover:bg-white/12 border border-white/10 text-gray-300 disabled:opacity-50 flex items-center justify-center gap-2"
-            ><X :size="16" /> Keeldun</button>
->>>>>>> e0ae186cf1e287ceba4f35122c64eb4b2b0ed45f
+            ><X :size="16" /> {{ t('courier.decline') }}</button>
             <button
               @click="acceptOrder"
               :disabled="deciding"
               class="py-4 rounded-2xl font-bold text-base transition disabled:opacity-50 flex items-center justify-center gap-2"
               style="background: linear-gradient(135deg, #16a34a, #15803d); color: white;"
             >
-<<<<<<< HEAD
-              {{ deciding ? '...' : t('courier.accept') }}
-=======
-              <span v-if="!deciding" class="flex items-center gap-2"><Check :size="16" /> Võtan vastu</span>
+              <span v-if="!deciding" class="flex items-center gap-2"><Check :size="16" /> {{ t('courier.accept') }}</span>
               <span v-else>...</span>
->>>>>>> e0ae186cf1e287ceba4f35122c64eb4b2b0ed45f
             </button>
           </div>
 
@@ -105,26 +91,16 @@
           <Star :size="28" class="absolute -top-2 -right-4 text-yellow-400 fill-yellow-400 animate-spin" style="animation-duration:3s" />
         </div>
         <div class="space-y-2 mt-4">
-<<<<<<< HEAD
           <h2 class="text-3xl font-black text-white">{{ t('courier.delivered.title') }}</h2>
           <p class="text-green-400 font-semibold text-lg">{{ t('courier.delivered.sub') }}</p>
           <p class="text-gray-400 text-sm mt-2">{{ t('orders.courier.order') }} <span class="font-mono text-[#D2691E] font-bold">{{ order.order_number }}</span> {{ t('courier.delivered.msg') }}</p>
-=======
-          <h2 class="text-3xl font-black text-white">Tarne lõpetatud!</h2>
-          <p class="text-green-400 font-semibold text-lg">Suurepärane töö</p>
-          <p class="text-gray-400 text-sm mt-2">Tellimus <span class="font-mono text-orange-500 font-bold">{{ order.order_number }}</span> on edukalt kohale toimetatud.</p>
->>>>>>> e0ae186cf1e287ceba4f35122c64eb4b2b0ed45f
         </div>
         <div class="w-20 h-1 rounded-full mt-2" style="background: linear-gradient(90deg, #16a34a, #4ade80)"></div>
         <button
           @click="closeDelivered"
           class="mt-4 px-8 py-3 rounded-2xl font-bold text-white text-base transition hover:opacity-90 inline-flex items-center gap-2"
           style="background: linear-gradient(135deg, #374151, #1f2937); border: 1px solid rgba(255,255,255,0.1);">
-<<<<<<< HEAD
-          {{ t('courier.close') }}
-=======
-          <X :size="16" /> Sulge
->>>>>>> e0ae186cf1e287ceba4f35122c64eb4b2b0ed45f
+          <X :size="16" /> {{ t('courier.close') }}
         </button>
       </div>
     </template>
@@ -132,15 +108,9 @@
     <!-- ───── KEELDUTUD ───── -->
     <template v-else-if="phase === 'declined'">
       <div class="flex-1 flex flex-col items-center justify-center px-5 text-center gap-4">
-<<<<<<< HEAD
         <div class="text-6xl mb-2">👋</div>
         <h2 class="text-2xl font-bold">{{ t('courier.declined.title') }}</h2>
         <p class="text-gray-400 text-sm">{{ t('courier.declined.sub') }}<br>{{ t('courier.declined.sub2') }}</p>
-=======
-        <CheckCircle2 :size="64" class="text-zinc-600 mb-2" />
-        <h2 class="text-2xl font-bold">Tellimus edastatud</h2>
-        <p class="text-gray-400 text-sm">Keeldusid tellimuse vastuvõtmisest.<br>Restoran leiab teise kulleri.</p>
->>>>>>> e0ae186cf1e287ceba4f35122c64eb4b2b0ed45f
       </div>
     </template>
 
@@ -173,13 +143,8 @@
 
           <!-- GPS otsib -->
           <div v-if="!isTracking && !stopped && !gpsError" class="flex items-center gap-2 px-4 py-2 bg-blue-900/30 border-t border-blue-700/20">
-<<<<<<< HEAD
-            <span class="text-sm animate-pulse">📡</span>
-            <p class="text-xs text-blue-300">{{ t('courier.gps.searching') }}</p>
-=======
             <Wifi :size="14" class="text-blue-400 animate-pulse flex-shrink-0" />
-            <p class="text-xs text-blue-300">GPS asukoha otsimine...</p>
->>>>>>> e0ae186cf1e287ceba4f35122c64eb4b2b0ed45f
+            <p class="text-xs text-blue-300">{{ t('courier.gps.searching') }}</p>
           </div>
           <!-- GPS viga -->
           <div v-if="gpsError" class="flex items-center gap-2 px-4 py-2 bg-red-900/30 border-t border-red-700/20">
@@ -249,22 +214,14 @@
                 style="background: linear-gradient(135deg, #16a34a, #15803d); color: white; box-shadow: 0 0 24px rgba(22,163,74,0.5);"
               >
                 <span v-if="!markingDelivered" class="flex items-center justify-center gap-2">
-<<<<<<< HEAD
-                  {{ t('courier.arrive') }}
-=======
-                  <Home :size="20" /> Olen kohal — tarne lõpetatud
->>>>>>> e0ae186cf1e287ceba4f35122c64eb4b2b0ed45f
+                  <Home :size="20" /> {{ t('courier.arrive') }}
                 </span>
                 <span v-else>...</span>
               </button>
             </div>
 
             <div v-if="stopped && phase !== 'delivered'" class="text-center mt-3">
-<<<<<<< HEAD
-              <p class="text-sm text-gray-400">{{ t('courier.stopped') }}</p>
-=======
-              <p class="text-sm text-gray-400 flex items-center justify-center gap-1.5"><Check :size="14" class="text-green-500" /> Jälgimine peatatud</p>
->>>>>>> e0ae186cf1e287ceba4f35122c64eb4b2b0ed45f
+              <p class="text-sm text-gray-400 flex items-center justify-center gap-1.5"><Check :size="14" class="text-green-500" /> {{ t('courier.stopped') }}</p>
             </div>
           </div>
         </div>
@@ -277,13 +234,10 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
-<<<<<<< HEAD
+import { AlertTriangle, Check, Flame, Home, MapPin, Star, Wifi, X } from 'lucide-vue-next';
 import { useI18n } from '@/composables/useI18n';
 
 const { t } = useI18n();
-=======
-import { AlertTriangle, Check, CheckCircle2, Flame, Home, MapPin, Star, Wifi, X } from 'lucide-vue-next';
->>>>>>> e0ae186cf1e287ceba4f35122c64eb4b2b0ed45f
 
 interface OrderItem {
   burger_name: string;
@@ -692,10 +646,20 @@ const initPreviewMap = async () => {
 };
 
 onMounted(() => {
-  if (props.order.delivery_lat && props.order.delivery_lng) {
-    setTimeout(() => initPreviewMap(), 50);
+  // Resolve initial phase from the server-provided status so we never
+  // show the accept/decline popup for an order already claimed.
+  if (props.order.status === 'picked_up') {
+    phase.value = 'tracking';
+    setTimeout(() => startTracking(), 100);
+  } else if (props.order.status === 'delivered') {
+    phase.value = 'delivered';
   }
+  // else: awaiting_courier → 'deciding' is already the default
+
   if (phase.value === 'deciding') {
+    if (props.order.delivery_lat && props.order.delivery_lng) {
+      setTimeout(() => initPreviewMap(), 50);
+    }
     decidingPoll = setInterval(() => {
       router.reload({ only: ['order'] });
     }, 3000);

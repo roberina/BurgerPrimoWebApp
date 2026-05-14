@@ -7,6 +7,9 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Middleware\TrustProxies;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,8 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->alias([
-            'admin'   => \App\Http\Middleware\EnsureUserIsAdmin::class,
-            'courier' => \App\Http\Middleware\EnsureUserIsCourier::class,
+            'admin'      => \App\Http\Middleware\EnsureUserIsAdmin::class,
+            'courier'    => \App\Http\Middleware\EnsureUserIsCourier::class,
+            'permission' => \App\Http\Middleware\CheckAdminPermission::class,
+            'superadmin' => \App\Http\Middleware\EnsureSuperAdmin::class,
         ]);
 
         $middleware->web(append: [
@@ -31,5 +36,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
+            if ($request->header('X-Inertia')) {
+                return Inertia::render('Admin/AccessDenied', [
+                    'message' => $e->getMessage() ?: 'Access denied.',
+                ])->toResponse($request)->setStatusCode(403);
+            }
+        });
     })->create();

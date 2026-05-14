@@ -11,13 +11,28 @@ class UserController extends Controller
 {
     public function index(): Response
     {
-        $users = User::select('id', 'name', 'email', 'is_admin', 'is_courier', 'created_at')
+        $users = User::select('id', 'name', 'email', 'is_admin', 'admin_role', 'admin_permissions', 'is_active', 'is_courier', 'created_at')
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('Admin/Users/Index', [
-            'users' => $users,
-        ]);
+        $data = ['users' => $users];
+
+        if (auth()->user()->isSuperAdmin()) {
+            $data['validPermissions'] = ['users', 'menu', 'burger', 'announcements', 'orders'];
+        }
+
+        return Inertia::render('Admin/Users/Index', $data);
+    }
+
+    public function destroy(User $user)
+    {
+        if ($user->is_admin) {
+            abort(403, 'Admin accounts cannot be deleted here.');
+        }
+
+        $user->delete();
+
+        return redirect()->back()->with('success', "{$user->name} kustutatud.");
     }
 
     public function toggleCourier(User $user)

@@ -26,6 +26,7 @@ const confirmModal = reactive({ show: false, title: '', message: '', confirmLabe
 const rejectModal = reactive({ show: false, orderId: null as number | null, reason: '' });
 const courierLinkModal = reactive({ show: false, link: '' });
 const copiedLink = ref(false);
+const newOrderNotifications = ref<{ id: number; orderNumber: string; dismissed: boolean }[]>([]);
 
 const openConfirmModal = (opts: Omit<typeof confirmModal, 'show'>) => {
   Object.assign(confirmModal, { show: true, ...opts });
@@ -177,9 +178,18 @@ const refreshOrders = () => {
   router.reload({
     only: ['orders'],
     onSuccess: (p: any) => {
-      const newPendingCount = p.props.orders.data.filter((o: Order) => o.status === 'pending_confirmation').length;
+      const updatedOrders: Order[] = p.props.orders.data;
+      const newPendingOrders = updatedOrders.filter((o: Order) => o.status === 'pending_confirmation');
+      const newPendingCount = newPendingOrders.length;
+
       if (newPendingCount > previousOrderCount.value) {
         playNotificationSound();
+        const knownIds = newOrderNotifications.value.map(n => n.id);
+        newPendingOrders.forEach(o => {
+          if (!knownIds.includes(o.id)) {
+            newOrderNotifications.value.push({ id: o.id, orderNumber: o.order_number, dismissed: false });
+          }
+        });
         if ('Notification' in window && Notification.permission === 'granted') {
           new Notification('Uus tellimus!', {
             body: `${newPendingCount} uut tellimust ootab kinnitamist`,
@@ -188,11 +198,26 @@ const refreshOrders = () => {
           });
         }
       }
+
+      // dismiss notifications for orders that are no longer pending
+      newOrderNotifications.value = newOrderNotifications.value.filter(n =>
+        updatedOrders.some(o => o.id === n.id && o.status === 'pending_confirmation')
+      );
+
       previousOrderCount.value = newPendingCount;
       isRefreshing.value = false;
     },
     onError: () => { isRefreshing.value = false; },
   });
+};
+
+const dismissOrderNotification = (id: number) => {
+  newOrderNotifications.value = newOrderNotifications.value.filter(n => n.id !== id);
+};
+
+const confirmOrderWithNotification = (orderId: number) => {
+  confirmOrder(orderId);
+  dismissOrderNotification(orderId);
 };
 
 const requestNotificationPermission = () => {
@@ -299,6 +324,49 @@ const deliveryIcon = (method?: string) =>
           </div>
         </div>
       </Transition>
+    </Teleport>
+
+    <!-- New order notifications -->
+    <Teleport to="body">
+      <div class="fixed top-4 right-4 z-[200] flex flex-col gap-2 pointer-events-none" style="max-width:320px">
+        <TransitionGroup
+          enter-active-class="transition ease-out duration-300"
+          enter-from-class="opacity-0 translate-x-4 scale-95"
+          enter-to-class="opacity-100 translate-x-0 scale-100"
+          leave-active-class="transition ease-in duration-200"
+          leave-from-class="opacity-100 translate-x-0 scale-100"
+          leave-to-class="opacity-0 translate-x-4 scale-95"
+        >
+          <div
+            v-for="notif in newOrderNotifications"
+            :key="notif.id"
+            class="pointer-events-auto bg-[#18181b] border-2 border-orange-500/50 rounded-xl shadow-2xl shadow-black/60 overflow-hidden"
+          >
+            <div class="px-4 py-3 flex items-start gap-3">
+              <div class="w-8 h-8 rounded-full bg-orange-500/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Bell :size="16" class="text-orange-400" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-orange-400">Uus tellimus!</p>
+                <p class="text-xs text-zinc-400 mt-0.5">Tellimus #{{ notif.orderNumber }} ootab kinnitamist</p>
+              </div>
+              <button @click="dismissOrderNotification(notif.id)" class="text-zinc-600 hover:text-zinc-400 transition flex-shrink-0">
+                <X :size="14" />
+              </button>
+            </div>
+            <div class="px-4 pb-3 flex gap-2">
+              <button
+                @click="setFilter('pending_confirmation'); dismissOrderNotification(notif.id)"
+                class="flex-1 py-1.5 rounded-md bg-orange-600/20 hover:bg-orange-600 border border-orange-600/30 hover:border-orange-600 text-orange-400 hover:text-white text-xs font-semibold transition"
+              >Vaata</button>
+              <button
+                @click="dismissOrderNotification(notif.id)"
+                class="px-3 py-1.5 rounded-md border border-[#3f3f46] text-zinc-500 hover:text-zinc-300 text-xs font-medium transition"
+              >Sule</button>
+            </div>
+          </div>
+        </TransitionGroup>
+      </div>
     </Teleport>
 
     <!-- Auto-refresh bar -->
@@ -514,7 +582,7 @@ const deliveryIcon = (method?: string) =>
 
               <div class="mt-3 flex gap-2">
                 <button
-                  @click="confirmOrder(order.id)"
+                  @click="confirmOrderWithNotification(order.id)"
                   class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-md text-sm font-semibold transition flex items-center justify-center gap-1.5"
                 >
                   <Check :size="16" />
@@ -598,10 +666,10 @@ const deliveryIcon = (method?: string) =>
                 </button>
                 <button
                   @click="openRejectModal(order.id)"
-                  class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-2 rounded-md text-xs font-medium transition flex items-center justify-center"
-                  title="Tagasilükka ja tagasta"
+                  class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-2 rounded-md text-xs font-medium transition flex items-center justify-center gap-1"
+                  title="Tühista tellimus"
                 >
-                  <X :size="13" />
+                  <X :size="13" /> Tühista
                 </button>
               </div>
             </div>
@@ -645,12 +713,11 @@ const deliveryIcon = (method?: string) =>
                   <Bike :size="13" /> Saada kullerile
                 </button>
                 <button
-                  v-else
                   @click="openRejectModal(order.id)"
-                  class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-2 rounded-md text-xs font-medium transition flex items-center justify-center"
-                  title="Tagasilükka ja tagasta"
+                  class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-3 py-2 rounded-md text-xs font-medium transition flex items-center justify-center gap-1"
+                  title="Tühista tellimus"
                 >
-                  <X :size="13" />
+                  <X :size="13" /> Tühista
                 </button>
               </div>
             </div>
@@ -769,7 +836,12 @@ const deliveryIcon = (method?: string) =>
                 </div>
               </div>
 
-              <p class="text-xs text-zinc-500 text-center">Kuller on teel — toimetamine kliendi kinnitab</p>
+              <div class="flex items-center justify-center gap-2 py-2 px-3 rounded-md bg-[#09090b] border border-[#27272a]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <p class="text-xs text-zinc-600">Kuller on teel — haldamine lukus</p>
+              </div>
             </div>
           </div>
         </div>

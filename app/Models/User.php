@@ -20,6 +20,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_admin',
+        'admin_role',
+        'admin_permissions',
+        'is_active',
         'is_courier',
         'courier_online',
     ];
@@ -48,12 +52,28 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'is_admin' => 'boolean',
-            'is_courier' => 'boolean',
-            'courier_online' => 'boolean',
+            'email_verified_at'  => 'datetime',
+            'password'           => 'hashed',
+            'is_admin'           => 'boolean',
+            'is_active'          => 'boolean',
+            'admin_permissions'  => 'array',
+            'is_courier'         => 'boolean',
+            'courier_online'     => 'boolean',
         ];
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_admin && $this->admin_role === 'superadmin';
+    }
+
+    public function hasAdminPermission(string $permission): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return in_array($permission, $this->admin_permissions ?? [], true);
     }
 
     // ADD THESE RELATIONSHIPS:

@@ -21,7 +21,18 @@ import {
 } from 'lucide-vue-next';
 
 const page = usePage();
-const user = computed(() => page.props.auth?.user);
+const user = computed(() => page.props.auth?.user as any);
+const adminRole = computed(() => page.props.adminRole as string | null);
+const adminPermissions = computed(() => (page.props.adminPermissions as string[]) ?? []);
+
+const isSuperAdmin = computed(() => adminRole.value === 'superadmin');
+
+const can = (permission: string | null) => {
+  if (isSuperAdmin.value) return true;
+  if (!permission) return true;
+  return adminPermissions.value.includes(permission);
+};
+
 const sidebarOpen = ref(false);
 const currentPath = computed(() => window.location.pathname);
 
@@ -31,33 +42,54 @@ const isActive = (path: string, exact = false) =>
 interface NavChild { title: string; url: string; icon: any; active: () => boolean }
 interface NavItem  { title: string; icon: any; url?: string; active?: () => boolean; children?: NavChild[] }
 
-const navigation: NavItem[] = [
-  { title: 'Ülevaade',   url: '/admin/dashboard', icon: LayoutDashboard, active: () => isActive('/admin/dashboard', true) },
-  { title: 'Tellimused', url: '/admin/orders',    icon: ShoppingBag,     active: () => isActive('/admin/orders') },
-  {
-    title: 'Menüü', icon: Package,
-    children: [
-      { title: 'Kategooriad', url: '/admin/menu/categories', icon: FolderOpen,      active: () => isActive('/admin/menu/categories') },
-      { title: 'Tooted',      url: '/admin/menu/items',      icon: Package,         active: () => isActive('/admin/menu/items') },
-      { title: 'Lisandid',    url: '/admin/addons',          icon: UtensilsCrossed, active: () => isActive('/admin/addons') },
-    ],
-  },
-  {
-    title: 'Burger', icon: ChefHat,
-    children: [
-      { title: 'Koostisosad', url: '/admin/ingredients',   icon: ChefHat,       active: () => isActive('/admin/ingredients') },
-      { title: 'Ülevaatus',   url: '/admin/burger-review', icon: ClipboardList, active: () => isActive('/admin/burger-review') },
-    ],
-  },
-  {
-    title: 'Kliendid', icon: Users,
-    children: [
-      { title: 'Kasutajad',  url: '/admin/users',   icon: Users, active: () => isActive('/admin/users') },
-      { title: 'Arvustused', url: '/admin/reviews', icon: Star,  active: () => isActive('/admin/reviews') },
-    ],
-  },
-  { title: 'Teadaanded', url: '/admin/announcements', icon: Megaphone, active: () => isActive('/admin/announcements') },
-];
+const navigation = computed<NavItem[]>(() => {
+  const items: NavItem[] = [];
+
+  if (isSuperAdmin.value) {
+    items.push({ title: 'Ülevaade', url: '/admin/dashboard', icon: LayoutDashboard, active: () => isActive('/admin/dashboard', true) });
+  }
+
+  if (can('orders')) {
+    items.push({ title: 'Tellimused', url: '/admin/orders', icon: ShoppingBag, active: () => isActive('/admin/orders') });
+  }
+
+  if (can('menu')) {
+    items.push({
+      title: 'Menüü', icon: Package,
+      children: [
+        { title: 'Kategooriad', url: '/admin/menu/categories', icon: FolderOpen,      active: () => isActive('/admin/menu/categories') },
+        { title: 'Tooted',      url: '/admin/menu/items',      icon: Package,         active: () => isActive('/admin/menu/items') },
+        { title: 'Lisandid',    url: '/admin/addons',          icon: UtensilsCrossed, active: () => isActive('/admin/addons') },
+      ],
+    });
+  }
+
+  if (can('burger')) {
+    items.push({
+      title: 'Burger', icon: ChefHat,
+      children: [
+        { title: 'Koostisosad', url: '/admin/ingredients',   icon: ChefHat,       active: () => isActive('/admin/ingredients') },
+        { title: 'Ülevaatus',   url: '/admin/burger-review', icon: ClipboardList, active: () => isActive('/admin/burger-review') },
+      ],
+    });
+  }
+
+  if (can('users')) {
+    items.push({
+      title: 'Kliendid', icon: Users,
+      children: [
+        { title: 'Kasutajad',  url: '/admin/users',   icon: Users, active: () => isActive('/admin/users') },
+        { title: 'Arvustused', url: '/admin/reviews', icon: Star,  active: () => isActive('/admin/reviews') },
+      ],
+    });
+  }
+
+  if (can('announcements')) {
+    items.push({ title: 'Teadaanded', url: '/admin/announcements', icon: Megaphone, active: () => isActive('/admin/announcements') });
+  }
+
+  return items;
+});
 
 const NAV_STORAGE_KEY = 'admin_nav_open_groups';
 
@@ -66,15 +98,14 @@ const getInitialOpenGroups = (): Record<string, boolean> => {
     const stored = sessionStorage.getItem(NAV_STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Ensure current active group is always open even if stored as closed
-      navigation.filter(item => item.children).forEach(item => {
+      navigation.value.filter(item => item.children).forEach(item => {
         if (item.children!.some(c => c.active())) parsed[item.title] = true;
       });
       return parsed;
     }
   } catch {}
   return Object.fromEntries(
-    navigation
+    navigation.value
       .filter(item => item.children)
       .map(item => [item.title, item.children!.some(c => c.active())])
   );
@@ -198,7 +229,6 @@ const closeSidebar  = () => { sidebarOpen.value = false; };
               />
             </button>
 
-            <!-- Children -->
             <div v-show="openGroups[item.title]" class="mt-0.5 ml-3 pl-3 border-l border-[#3f3f46] space-y-0.5">
               <Link
                 v-for="child in item.children"
@@ -229,7 +259,14 @@ const closeSidebar  = () => { sidebarOpen.value = false; };
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-xs font-medium text-zinc-100 truncate">{{ user?.name || 'Admin' }}</p>
-            <p class="text-[10px] text-zinc-500 truncate">{{ user?.email }}</p>
+            <p class="text-[10px] text-zinc-500 truncate">
+              <span
+                :class="[
+                  'inline-block mr-1 px-1 rounded text-[9px] font-semibold',
+                  isSuperAdmin ? 'bg-orange-600/20 text-orange-400' : 'bg-zinc-700 text-zinc-400',
+                ]"
+              >{{ isSuperAdmin ? 'Super Admin' : 'Subadmin' }}</span>
+            </p>
           </div>
         </div>
         <Link
@@ -251,12 +288,10 @@ const closeSidebar  = () => { sidebarOpen.value = false; };
 
     <!-- Main Content -->
     <div class="lg:pl-56">
-      <!-- Page Header -->
       <header class="bg-zinc-900 border-b border-[#27272a] px-4 lg:px-6 py-4 mt-14 lg:mt-0">
         <slot name="header" />
       </header>
 
-      <!-- Page Content -->
       <main class="p-4 lg:p-6">
         <slot />
       </main>
