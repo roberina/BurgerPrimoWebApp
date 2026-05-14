@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import { Head } from '@inertiajs/vue3'
 import { useToast } from '@/composables/useToast'
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, ChefHat, Leaf, Droplets, Package, Wheat, Flame } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, ChefHat, Leaf, Droplets, Package, Wheat, Flame, LayoutGrid, X } from 'lucide-vue-next'
 
 const { success, error } = useToast()
 
@@ -24,15 +24,59 @@ interface Props {
 const props = defineProps<Props>()
 
 const categoryMeta: Record<string, { label: string; icon: any; statKey: keyof Props['stats'] }> = {
-  buns:       { label: 'Saiakesed',    icon: Wheat,    statKey: 'buns' },
-  patties:    { label: 'Lihakotletid', icon: Flame,    statKey: 'patties' },
+  patties:    { label: 'Pihvid', icon: Flame,    statKey: 'patties' },
   vegetables: { label: 'Köögiviljad',  icon: Leaf,     statKey: 'vegetables' },
-  sauces:     { label: 'Kastmed',      icon: Droplets, statKey: 'sauces' },
-  extras:     { label: 'Lisandid',     icon: Package,  statKey: 'extras' },
+  sauces:     { label: 'Kastmed ja lisandid',      icon: Droplets, statKey: 'sauces' },
+  extras:     { label: 'Juust',     icon: Package,  statKey: 'extras' },
 }
 
-const activeCategory = ref<string>(Object.keys(props.ingredients)[0] ?? 'buns')
+// ── Filters (multi-select) ────────────────────────────────────────────────────
+const selectedCategories = ref<Set<string>>(new Set())
 
+const toggleCategory = (key: string) => {
+  const s = new Set(selectedCategories.value)
+  if (s.has(key)) s.delete(key)
+  else s.add(key)
+  selectedCategories.value = s
+  selectedIds.value = new Set()
+}
+const clearCategories = () => {
+  selectedCategories.value = new Set()
+  selectedIds.value = new Set()
+}
+const isAllFilter = computed(() => selectedCategories.value.size === 0)
+const showCategoryBadge = computed(() => selectedCategories.value.size !== 1)
+
+const allItems = computed(() => Object.values(props.ingredients).flat())
+const activeItems = computed(() =>
+  isAllFilter.value
+    ? allItems.value
+    : allItems.value.filter(i => selectedCategories.value.has(i.category))
+)
+
+// ── Row selection (bulk) ──────────────────────────────────────────────────────
+const selectedIds = ref<Set<number>>(new Set())
+
+const toggleSelect = (id: number) => {
+  const s = new Set(selectedIds.value)
+  if (s.has(id)) s.delete(id)
+  else s.add(id)
+  selectedIds.value = s
+}
+const isAllSelected = computed(() =>
+  activeItems.value.length > 0 && activeItems.value.every(i => selectedIds.value.has(i.id))
+)
+const isIndeterminate = computed(() =>
+  !isAllSelected.value && activeItems.value.some(i => selectedIds.value.has(i.id))
+)
+const toggleSelectAll = () => {
+  const s = new Set(selectedIds.value)
+  if (isAllSelected.value) activeItems.value.forEach(i => s.delete(i.id))
+  else activeItems.value.forEach(i => s.add(i.id))
+  selectedIds.value = s
+}
+
+// ── Modals ────────────────────────────────────────────────────────────────────
 const modal = reactive({ show: false, title: '', message: '', onConfirm: () => {} })
 const openModal = (opts: Omit<typeof modal, 'show'>) => Object.assign(modal, { show: true, ...opts })
 
@@ -45,6 +89,20 @@ const deleteIngredient = (id: number, name: string) => openModal({
     onError: () => error('Kustutamine ebaõnnestus'),
   }),
 })
+
+const bulkDelete = () => {
+  const count = selectedIds.value.size
+  openModal({
+    title: `Kustuta ${count} koostisosa`,
+    message: `${count} valitud koostisosa kustutatakse jäädavalt.`,
+    onConfirm: () => router.delete('/admin/ingredients/bulk', {
+      data: { ids: [...selectedIds.value] },
+      preserveScroll: true,
+      onSuccess: () => { success(`${count} koostisosa kustutatud`); selectedIds.value = new Set() },
+      onError: () => error('Kustutamine ebaõnnestus'),
+    }),
+  })
+}
 
 const toggle = (id: number) => router.post(`/admin/ingredients/${id}/toggle`, {}, {
   preserveScroll: true,
@@ -73,7 +131,7 @@ const formatPrice = (price: number) => price === 0 ? 'Tasuta' : `+€${Number(pr
       </div>
     </template>
 
-    <!-- Delete modal -->
+    <!-- Confirm modal -->
     <Teleport to="body">
       <Transition enter-active-class="transition-opacity duration-150" enter-from-class="opacity-0" enter-to-class="opacity-100">
         <div v-if="modal.show" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="modal.show = false">
@@ -104,40 +162,98 @@ const formatPrice = (price: number) => price === 0 ? 'Tasuta' : `+€${Number(pr
       </div>
     </div>
 
-    <!-- Category tabs -->
+    <!-- Category filters (multi-select) -->
     <div class="flex gap-1 mb-5 overflow-x-auto pb-1">
+      <button
+        @click="clearCategories"
+        :class="['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-shrink-0', isAllFilter ? 'bg-orange-500/15 text-orange-400' : 'bg-[#18181b] border border-[#27272a] text-zinc-400 hover:text-zinc-100 hover:bg-[#27272a]']"
+      >
+        <LayoutGrid :size="13" />
+        Kõik
+        <span :class="['inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold', isAllFilter ? 'bg-orange-500/20 text-orange-300' : 'bg-[#27272a] text-zinc-600']">
+          {{ stats.total }}
+        </span>
+      </button>
       <button
         v-for="(meta, key) in categoryMeta"
         :key="key"
-        @click="activeCategory = key"
-        :class="['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-shrink-0', activeCategory === key ? 'bg-orange-500/15 text-orange-400' : 'bg-[#18181b] border border-[#27272a] text-zinc-400 hover:text-zinc-100 hover:bg-[#27272a]']"
+        @click="toggleCategory(key)"
+        :class="['inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex-shrink-0', selectedCategories.has(key) ? 'bg-orange-500/15 text-orange-400 border border-orange-500/30' : 'bg-[#18181b] border border-[#27272a] text-zinc-400 hover:text-zinc-100 hover:bg-[#27272a]']"
       >
         <component :is="meta.icon" :size="13" />
         {{ meta.label }}
-        <span :class="['inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold', activeCategory === key ? 'bg-orange-500/20 text-orange-300' : 'bg-[#27272a] text-zinc-600']">
-          {{ ingredients[activeCategory]?.length ?? 0 }}
+        <span :class="['inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-semibold', selectedCategories.has(key) ? 'bg-orange-500/20 text-orange-300' : 'bg-[#27272a] text-zinc-600']">
+          {{ ingredients[key]?.length ?? 0 }}
         </span>
       </button>
     </div>
 
+    <!-- Bulk action bar -->
+    <Transition
+      enter-active-class="transition-all duration-150 ease-out"
+      enter-from-class="opacity-0 -translate-y-1"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition-all duration-100 ease-in"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-1"
+    >
+      <div v-if="selectedIds.size > 0" class="flex items-center justify-between gap-3 mb-3 px-3 py-2 bg-[#1c1c1f] border border-[#3f3f46] rounded-lg">
+        <span class="text-xs text-zinc-400">
+          <span class="font-semibold text-zinc-100">{{ selectedIds.size }}</span> valitud
+        </span>
+        <div class="flex items-center gap-2">
+          <button
+            @click="selectedIds = new Set()"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs text-zinc-500 hover:text-zinc-200 transition-colors rounded-md hover:bg-[#27272a]"
+          >
+            <X :size="11" /> Tühista valik
+          </button>
+          <button
+            @click="bulkDelete"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-md transition-colors"
+          >
+            <Trash2 :size="12" /> Kustuta valitud
+          </button>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Table -->
     <div class="bg-[#18181b] border border-[#27272a] rounded-lg overflow-hidden">
       <div class="grid grid-cols-12 px-4 py-2.5 border-b border-[#27272a] text-xs font-medium text-zinc-500">
-        <div class="col-span-5">Nimi</div>
+        <div class="col-span-1 flex items-center">
+          <input
+            type="checkbox"
+            :checked="isAllSelected"
+            :indeterminate="isIndeterminate"
+            @change="toggleSelectAll"
+            class="w-3.5 h-3.5 rounded border-[#3f3f46] bg-[#27272a] accent-orange-500 cursor-pointer"
+          />
+        </div>
+        <div class="col-span-4">Nimi</div>
         <div class="col-span-3">Hind</div>
         <div class="col-span-2">Staatus</div>
         <div class="col-span-2 text-right">Tegevus</div>
       </div>
 
-      <div v-if="ingredients[activeCategory]?.length > 0" class="divide-y divide-[#27272a]">
+      <div v-if="activeItems.length > 0" class="divide-y divide-[#27272a]">
         <div
-          v-for="item in ingredients[activeCategory]"
+          v-for="item in activeItems"
           :key="item.id"
           class="grid grid-cols-12 items-center px-4 py-3 hover:bg-[#27272a]/30 transition-colors"
-          :class="!item.is_available ? 'opacity-50' : ''"
+          :class="[!item.is_available ? 'opacity-50' : '', selectedIds.has(item.id) ? 'bg-orange-500/5' : '']"
         >
-          <div class="col-span-5">
-            <span class="text-sm font-medium text-zinc-100">{{ item.name }}</span>
+          <div class="col-span-1 flex items-center">
+            <input
+              type="checkbox"
+              :checked="selectedIds.has(item.id)"
+              @change="toggleSelect(item.id)"
+              class="w-3.5 h-3.5 rounded border-[#3f3f46] bg-[#27272a] accent-orange-500 cursor-pointer"
+            />
+          </div>
+          <div class="col-span-4 flex items-center gap-2 min-w-0">
+            <span class="text-sm font-medium text-zinc-100 truncate">{{ item.name }}</span>
+            <span v-if="showCategoryBadge" class="flex-shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#27272a] text-zinc-500">{{ categoryMeta[item.category]?.label ?? item.category }}</span>
           </div>
           <div class="col-span-3">
             <span :class="item.price === 0 ? 'text-zinc-500' : 'text-orange-400 font-medium'" class="text-sm">{{ formatPrice(item.price) }}</span>

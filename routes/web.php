@@ -177,6 +177,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/ingredients', [\App\Http\Controllers\Admin\IngredientController::class, 'store'])->name('ingredients.store');
             Route::get('/ingredients/{ingredient}/edit', [\App\Http\Controllers\Admin\IngredientController::class, 'edit'])->name('ingredients.edit');
             Route::put('/ingredients/{ingredient}', [\App\Http\Controllers\Admin\IngredientController::class, 'update'])->name('ingredients.update');
+            Route::delete('/ingredients/bulk', [\App\Http\Controllers\Admin\IngredientController::class, 'bulkDestroy'])->name('ingredients.bulk-destroy');
             Route::delete('/ingredients/{ingredient}', [\App\Http\Controllers\Admin\IngredientController::class, 'destroy'])->name('ingredients.destroy');
             Route::post('/ingredients/{ingredient}/toggle', [\App\Http\Controllers\Admin\IngredientController::class, 'toggleAvailability'])->name('ingredients.toggle');
 
