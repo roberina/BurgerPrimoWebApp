@@ -103,6 +103,22 @@ class IngredientController extends Controller
     }
 
     /**
+     * Bulk delete ingredients
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $validated = $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'integer|exists:ingredients,id',
+        ]);
+
+        Ingredient::whereIn('id', $validated['ids'])->delete();
+
+        return redirect()->route('admin.ingredients.index')
+            ->with('success', count($validated['ids']) . ' koostisosa kustutatud.');
+    }
+
+    /**
      * Toggle ingredient availability
      */
     public function toggleAvailability(Ingredient $ingredient)

@@ -23,16 +23,6 @@
 
     <div class="bb-root">
 
-      <!-- ── HEADER ── -->
-      <header class="bb-header">
-        <div class="bb-header-inner">
-          <p class="bb-eyebrow">{{ t('bb.eyebrow') }}</p>
-          <h1 class="bb-title">{{ t('bb.title') }}</h1>
-          <p class="bb-sub">{{ t('bb.sub') }}</p>
-        </div>
-        <div class="bb-header-line" aria-hidden="true"></div>
-      </header>
-
       <!-- ── LAYOUT ── -->
       <div id="bb-builder" class="bb-layout">
 
@@ -237,8 +227,10 @@
         <!-- RIGHT: ingredient picker -->
         <main class="bb-main">
 
+          <p class="bb-intro">{{ t('bb.intro') }}</p>
+
           <!-- Patties -->
-          <div class="bb-section" v-if="normalizedIngredients['pitav']?.length" style="--step-color:rgba(139,69,19,0.6)">
+          <div class="bb-section" v-if="normalizedIngredients['patties']?.length" style="--step-color:rgba(139,69,19,0.6)">
             <div class="bb-sect-head">
               <span class="bb-step-num">01</span>
               <div class="bb-sect-text">
@@ -247,15 +239,15 @@
               </div>
             </div>
             <div class="bb-cards">
-              <button v-for="ing in normalizedIngredients['pitav']" :key="ing.id"
-                class="bb-card" :class="{ 'bb-card--on': isSelected('pitav', ing.id) }"
+              <button v-for="ing in normalizedIngredients['patties']" :key="ing.id"
+                class="bb-card" :class="{ 'bb-card--on': isSelected('patties', ing.id) }"
                 @click="togglePatty(ing.id)">
                 <span class="bb-card-ico">🥩</span>
                 <span class="bb-card-body">
                   <span class="bb-card-name">{{ ing.name }}</span>
                   <span class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</span>
                 </span>
-                <span v-if="isSelected('pitav', ing.id)" class="bb-card-check">
+                <span v-if="isSelected('patties', ing.id)" class="bb-card-check">
                   <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>
                 </span>
               </button>
@@ -263,7 +255,7 @@
           </div>
 
           <!-- Vegetables -->
-          <div class="bb-section" v-if="normalizedIngredients['salat']?.length">
+          <div class="bb-section" v-if="normalizedIngredients['vegetables']?.length">
             <div class="bb-sect-head">
               <span class="bb-step-num">02</span>
               <div class="bb-sect-text">
@@ -272,15 +264,15 @@
               </div>
             </div>
             <div class="bb-cards">
-              <button v-for="ing in normalizedIngredients['salat']" :key="ing.id"
-                class="bb-card" :class="{ 'bb-card--on': isSelected('salat', ing.id) }"
-                @click="toggleMulti('salat', ing.id)">
+              <button v-for="ing in normalizedIngredients['vegetables']" :key="ing.id"
+                class="bb-card" :class="{ 'bb-card--on': isSelected('vegetables', ing.id) }"
+                @click="toggleMulti('vegetables', ing.id)">
                 <span class="bb-card-ico">🥬</span>
                 <span class="bb-card-body">
                   <span class="bb-card-name">{{ ing.name }}</span>
                   <span class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</span>
                 </span>
-                <span v-if="isSelected('salat', ing.id)" class="bb-card-check">
+                <span v-if="isSelected('vegetables', ing.id)" class="bb-card-check">
                   <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>
                 </span>
               </button>
@@ -288,7 +280,7 @@
           </div>
 
           <!-- Sauces -->
-          <div class="bb-section" v-if="normalizedIngredients['lisand']?.length">
+          <div class="bb-section" v-if="normalizedIngredients['sauces']?.length">
             <div class="bb-sect-head">
               <span class="bb-step-num">03</span>
               <div class="bb-sect-text">
@@ -297,23 +289,23 @@
               </div>
             </div>
             <div class="bb-cards">
-              <button v-for="ing in normalizedIngredients['lisand']" :key="ing.id"
-                class="bb-card" :class="{ 'bb-card--on': isSelected('lisand', ing.id) }"
-                @click="toggleMulti('lisand', ing.id)">
+              <button v-for="ing in normalizedIngredients['sauces']" :key="ing.id"
+                class="bb-card" :class="{ 'bb-card--on': isSelected('sauces', ing.id) }"
+                @click="toggleMulti('sauces', ing.id)">
                 <span class="bb-card-ico">🫙</span>
                 <span class="bb-card-body">
                   <span class="bb-card-name">{{ ing.name }}</span>
                   <span class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</span>
                 </span>
-                <span v-if="isSelected('lisand', ing.id)" class="bb-card-check">
+                <span v-if="isSelected('sauces', ing.id)" class="bb-card-check">
                   <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>
                 </span>
               </button>
             </div>
           </div>
 
-          <!-- Cheese -->
-          <div class="bb-section" v-if="normalizedIngredients['juust']?.length">
+          <!-- Extras (cheese etc.) -->
+          <div class="bb-section" v-if="normalizedIngredients['extras']?.length">
             <div class="bb-sect-head">
               <span class="bb-step-num">04</span>
               <div class="bb-sect-text">
@@ -322,15 +314,15 @@
               </div>
             </div>
             <div class="bb-cards">
-              <button v-for="ing in normalizedIngredients['juust']" :key="ing.id"
-                class="bb-card" :class="{ 'bb-card--on': isSelected('juust', ing.id) }"
-                @click="toggleMulti('juust', ing.id)">
+              <button v-for="ing in normalizedIngredients['extras']" :key="ing.id"
+                class="bb-card" :class="{ 'bb-card--on': isSelected('extras', ing.id) }"
+                @click="toggleMulti('extras', ing.id)">
                 <span class="bb-card-ico">🧀</span>
                 <span class="bb-card-body">
                   <span class="bb-card-name">{{ ing.name }}</span>
                   <span class="bb-card-price">{{ Number(ing.price).toFixed(2) }}€</span>
                 </span>
-                <span v-if="isSelected('juust', ing.id)" class="bb-card-check">
+                <span v-if="isSelected('extras', ing.id)" class="bb-card-check">
                   <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6l3 3 5-5"/></svg>
                 </span>
               </button>
@@ -437,17 +429,17 @@ const getAllIngredients = () => Object.values(normalizedIngredients.value).flat(
 const burgerName = ref('');
 const editingBurgerId = ref<number|null>(null);
 const selectedIngredients = ref<Record<string, SelectedIngredient[]>>({
-  'vöi': [], 'pitav': [], 'salat': [], 'lisand': [], 'juust': [],
+  buns: [], patties: [], vegetables: [], sauces: [], extras: [],
 });
 
 const isSelected = (cat: string, id: number) =>
   selectedIngredients.value[cat]?.some(i => i.id === id) ?? false;
 
 const togglePatty = (id: number) => {
-  const arr = selectedIngredients.value['pitav'] ?? [];
+  const arr = selectedIngredients.value['patties'] ?? [];
   const idx = arr.findIndex(i => i.id === id);
-  if (idx >= 0) selectedIngredients.value['pitav'] = arr.filter(i => i.id !== id);
-  else if (arr.length < 2) selectedIngredients.value['pitav'] = [...arr, { id, quantity: 1 }];
+  if (idx >= 0) selectedIngredients.value['patties'] = arr.filter(i => i.id !== id);
+  else if (arr.length < 2) selectedIngredients.value['patties'] = [...arr, { id, quantity: 1 }];
 };
 const toggleMulti = (cat: string, id: number) => {
   const arr = selectedIngredients.value[cat] ?? [];
@@ -474,7 +466,7 @@ const canAct      = computed(() => canSave.value && (isEditing.value || props.ca
 
 const categoryColor = (cat: string) => {
   const map: Record<string, string> = {
-    'vöi': '#D4822E', 'pitav': '#8B4513', 'salat': '#4CAF50', 'lisand': '#FDD835', 'juust': '#F9A825',
+    buns: '#D4822E', patties: '#8B4513', vegetables: '#4CAF50', sauces: '#FDD835', extras: '#F9A825',
   };
   return map[cat] ?? '#666';
 };
@@ -488,7 +480,7 @@ const getAllSelected = (): SelectedIngredient[] => {
 const resetForm = () => {
   burgerName.value = '';
   editingBurgerId.value = null;
-  selectedIngredients.value = { 'vöi': [], 'pitav': [], 'salat': [], 'lisand': [], 'juust': [] };
+  selectedIngredients.value = { buns: [], patties: [], vegetables: [], sauces: [], extras: [] };
 };
 
 const saveBurger = (submitForReview = false) => {
@@ -524,7 +516,7 @@ const deleteBurger = (id: number) => router.delete(`/burger-builder/${id}`, { pr
 const loadBurger = (burger: CustomBurger) => {
   burgerName.value = burger.name;
   editingBurgerId.value = burger.id;
-  selectedIngredients.value = { 'vöi': [], 'pitav': [], 'salat': [], 'lisand': [], 'juust': [] };
+  selectedIngredients.value = { buns: [], patties: [], vegetables: [], sauces: [], extras: [] };
   burger.ingredients.forEach(ing => {
     const cat = ing.category;
     if (selectedIngredients.value[cat]) selectedIngredients.value[cat].push({ id: ing.id, quantity: ing.pivot.quantity });
@@ -543,10 +535,10 @@ interface SL { t:string; y:number; h:number; c:string; s:string; }
 
 function mkL(): SL[] {
   const out: SL[] = []
-  const li = selectedIngredients.value['lisand']??[]
-  const sa = selectedIngredients.value['salat']??[]
-  const ju = selectedIngredients.value['juust']??[]
-  const pi = selectedIngredients.value['pitav']??[]
+  const li = selectedIngredients.value['sauces']??[]
+  const sa = selectedIngredients.value['vegetables']??[]
+  const ju = selectedIngredients.value['extras']??[]
+  const pi = selectedIngredients.value['patties']??[]
   const push = (t:string,h:number,c:string,s:string) => out.push({t,y:0,h,c,s})
   if(pi.length>=2){
     push('p',22,pC(pi[0]),pS())
@@ -633,43 +625,20 @@ onMounted(async () => {});
 * { box-sizing: border-box; }
 
 /* ── Root ── */
-.bb-root { background: #080808; color: #e0e0e0; min-height: 100vh; }
-
-/* ── Header ── */
-.bb-header {
-  padding: 5rem 2.5rem 3.5rem;
-  position: relative;
-  background: linear-gradient(to bottom, rgba(210,105,30,.04) 0%, transparent 100%);
-}
-@media (max-width: 768px) { .bb-header { padding: 3rem 1.25rem 2.5rem; } }
-.bb-header-inner { max-width: 1320px; margin: 0 auto; }
-.bb-eyebrow {
-  display: inline-flex; align-items: center; gap: .5rem;
-  font-size: .62rem; font-weight: 800; letter-spacing: .2em; text-transform: uppercase;
-  color: #D2691E; background: rgba(210,105,30,.08); border: 1px solid rgba(210,105,30,.18);
-  padding: .3rem .875rem; border-radius: 99px; margin-bottom: 1.25rem;
-}
-.bb-title {
-  font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900;
-  letter-spacing: -.03em; line-height: 1.05;
-  color: #fff; margin-bottom: .6rem;
-}
-.bb-sub { font-size: .9rem; color: #404040; }
-.bb-header-line {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,.06) 20%, rgba(255,255,255,.06) 80%, transparent);
-}
+.bb-root { background: #080808; color: #e0e0e0; min-height: 100vh; padding-top: 5rem; }
+@media (max-width: 1024px) { .bb-root { padding-top: 4rem; } }
 
 /* ── Layout ── */
-.bb-layout { display: grid; grid-template-columns: 360px 1fr; min-height: calc(100vh - 280px); }
+.bb-layout { display: grid; grid-template-columns: 360px 1fr; min-height: calc(100vh - 5rem); }
+@media (max-width: 1024px) { .bb-layout { min-height: calc(100vh - 4rem); } }
 @media (max-width: 960px) { .bb-layout { grid-template-columns: 1fr; } }
 
 /* ── Aside (left sticky panel) ── */
 .bb-aside {
   background: linear-gradient(to bottom, #0d0d0d 0%, #0a0a0a 100%);
   border-right: 1px solid rgba(255,255,255,.05);
-  position: sticky; top: 0;
-  height: 100vh; overflow: hidden;
+  position: sticky; top: 5rem;
+  height: calc(100vh - 5rem); overflow: hidden;
   box-shadow: inset -1px 0 0 rgba(210,105,30,.04);
 }
 @media (max-width: 960px) { .bb-aside { position: static; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,.05); } }
@@ -682,6 +651,9 @@ onMounted(async () => {});
 }
 .bb-aside-inner::-webkit-scrollbar { display: none; }
 @media (max-width: 960px) { .bb-aside-inner { height: auto; overflow: visible; padding: 1.5rem 1.25rem; } }
+@media (max-width: 1024px) {
+  .bb-aside { top: 4rem; height: calc(100vh - 4rem); }
+}
 
 /* Name pill */
 .bb-preview-top { display: flex; }
@@ -691,7 +663,7 @@ onMounted(async () => {});
   padding: .3rem 1rem; border-radius: 99px;
   max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.bb-name-pill--ghost { color: #2a2a2a; background: transparent; border-color: rgba(255,255,255,.05); }
+.bb-name-pill--ghost { color: #b8b8b8d3; background: transparent; border-color: rgba(255,255,255,.05); }
 
 /* Visual (burger SVG) */
 .bb-visual {
@@ -709,17 +681,17 @@ onMounted(async () => {});
   padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.03);
 }
 .bb-ing-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.bb-ing-name { flex: 1; font-size: .8rem; color: #606060; }
+.bb-ing-name { flex: 1; font-size: .8rem; color: #b8b8b8d3; }
 .bb-ing-qty { font-size: .68rem; color: #383838; }
 .bb-ing-price { font-size: .8rem; color: #D2691E; font-weight: 700; min-width: 40px; text-align: right; }
-.bb-ing-empty { font-size: .78rem; color: #282828; font-style: italic; padding: .25rem 0; }
+.bb-ing-empty { font-size: .78rem; color: #b8b8b8d3; font-style: italic; padding: .25rem 0; }
 
 /* Total bar */
 .bb-total-bar {
   display: flex; justify-content: space-between; align-items: baseline;
   border-top: 1px solid rgba(255,255,255,.05); padding-top: 1rem;
 }
-.bb-total-lbl { font-size: .6rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #323232; }
+.bb-total-lbl { font-size: .6rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: #b8b8b8d3; }
 .bb-total-val { font-size: 2rem; font-weight: 900; color: #D2691E; line-height: 1; letter-spacing: -.02em; }
 
 /* Saved burgers panel */
@@ -762,6 +734,12 @@ onMounted(async () => {});
 .bb-sb--red { border-color: rgba(239,68,68,.12) !important; color: #363636 !important; }
 .bb-sb--red:hover { color: #dc2626 !important; background: rgba(239,68,68,.05) !important; border-color: rgba(239,68,68,.28) !important; }
 
+/* ── Intro text ── */
+.bb-intro {
+  font-size: .82rem; color: #b8b8b8d3; line-height: 1.6;
+  margin-bottom: -.75rem;
+}
+
 /* ── Main (right content) ── */
 .bb-main {
   padding: 3rem 3.5rem 6rem;
@@ -792,7 +770,7 @@ onMounted(async () => {});
 .bb-sect-text { display: flex; flex-direction: column; gap: .2rem; padding-top: .3rem; flex: 1; }
 .bb-sect-title { font-size: 1rem; font-weight: 700; color: #d0d0d0; letter-spacing: -.01em; }
 .bb-sect-hint {
-  font-size: .63rem; color: #303030; letter-spacing: .06em; text-transform: uppercase;
+  font-size: .63rem; color: #b8b8b8d3; letter-spacing: .06em; text-transform: uppercase;
 }
 
 /* ── Ingredient cards ── */
