@@ -12,7 +12,9 @@
         <meta name="apple-mobile-web-app-title" content="Burger Primo" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="theme-color" content="#cb8732" />
+        @production
         <link rel="manifest" href="/build/manifest.webmanifest" />
+        @endproduction
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>

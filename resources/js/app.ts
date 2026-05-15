@@ -48,7 +48,7 @@ initializeTheme();
 // Register service worker + handle push subscriptions
 let _swRegistration: ServiceWorkerRegistration | null = null;
 
-if ('serviceWorker' in navigator) {
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     navigator.serviceWorker.register('/build/sw.js').then(async (registration) => {
         _swRegistration = registration;
 
