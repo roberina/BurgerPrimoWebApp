@@ -14,7 +14,7 @@ interface User {
 }
 
 const page = usePage()
-const user      = computed(() => page.props.auth?.user as User | null)
+const user      = computed(() => page.props.auth?.user as unknown as User | null)
 const cartCount = computed(() => (page.props as any).cartCount as number ?? 0)
 const { t } = useI18n()
 
