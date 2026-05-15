@@ -91,6 +91,7 @@ interface Order {
   status: string;
   created_at: string;
   customer_notes?: string | null;
+  cancellation_reason?: string | null;
   delivery_method?: string;
   items: OrderItem[];
   courier_token?: string | null;
@@ -875,6 +876,10 @@ const deliveryIcon = (method?: string) =>
             </div>
             <p class="text-xs text-zinc-500">{{ order.user.name }}</p>
             <p class="text-base font-bold text-zinc-400 mt-2">€{{ Number(order.total_amount).toFixed(2) }}</p>
+            <div v-if="order.cancellation_reason && ['cancelled', 'refunded'].includes(order.status)" class="mt-3 bg-red-950/40 border border-red-800/30 rounded-md p-2.5">
+              <p class="text-[10px] font-semibold text-red-400 uppercase mb-1">Tühistamise põhjus</p>
+              <p class="text-xs text-zinc-300">"{{ order.cancellation_reason }}"</p>
+            </div>
           </div>
         </div>
       </div>

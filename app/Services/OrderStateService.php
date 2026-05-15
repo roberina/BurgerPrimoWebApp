@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class OrderStateService
@@ -187,7 +186,7 @@ class OrderStateService
     /**
      * Customer cancel: pending_confirmation|confirmed → cancelled (refund if paid).
      */
-    public function cancel(Order $order, int $customerId): void
+    public function cancel(Order $order, int $customerId, string $reason = ''): void
     {
         if (!in_array($order->status, [self::PENDING_CONFIRMATION, self::CONFIRMED])) {
             throw new \RuntimeException("Cannot cancel order in status: {$order->status}");
@@ -206,6 +205,10 @@ class OrderStateService
             }
         }
 
-        $this->transition($order, self::CANCELLED, $customerId, 'customer');
+        if ($reason) {
+            $order->update(['cancellation_reason' => $reason]);
+        }
+
+        $this->transition($order, self::CANCELLED, $customerId, 'customer', [], $reason ?: null);
     }
 }

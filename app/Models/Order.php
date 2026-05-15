@@ -28,6 +28,7 @@ class Order extends Model
         'status',
         'customer_notes',
         'admin_notes',
+        'cancellation_reason',
         'confirmed_at',
         'confirmed_by',
         'delivery_method',

@@ -55,19 +55,32 @@ class OrderController extends Controller
 
         $order->load(['items', 'confirmedBy']);
 
+        if (in_array($order->status, ['cancelled', 'refunded'])) {
+            $order->loadMissing('statusHistory');
+            $cancelEntry = $order->statusHistory
+                ->whereIn('to_status', ['cancelled', 'refunded'])
+                ->sortByDesc('created_at')
+                ->first();
+            $order->setAttribute('cancelled_from_status', $cancelEntry?->from_status);
+        }
+
         return Inertia::render('Orders/Show', [
             'order' => $order->makeHidden(['courier_token']),
         ]);
     }
 
-    public function cancel(Order $order)
+    public function cancel(Order $order, Request $request)
     {
         if ($order->user_id !== auth()->id()) {
             abort(403, 'Unauthorized');
         }
 
+        $validated = $request->validate([
+            'reason' => 'required|string|max:500',
+        ]);
+
         try {
-            $this->state->cancel($order, auth()->id());
+            $this->state->cancel($order, auth()->id(), $validated['reason']);
         } catch (\RuntimeException $e) {
             return redirect()->back()->with('error', 'Tellimust ei saa enam tühistada.');
         }

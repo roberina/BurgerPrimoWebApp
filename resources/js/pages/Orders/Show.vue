@@ -4,8 +4,8 @@
 
     <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
 
-      <!-- ───── KOHALE TOIMETATUD ───── -->
-      <template v-if="order.status === 'delivered'">
+      <!-- ───── KOHALE TOIMETATUD (delivery only) ───── -->
+      <template v-if="order.status === 'delivered' && isDeliveryOrder">
         <div class="flex flex-col items-center justify-center py-20 text-center gap-6">
           <!-- Animatsioon -->
           <div class="relative">
@@ -106,19 +106,29 @@
 
       </template>
 
-      <!-- ───── TAVALINE VAADE (kõik muud staatused) ───── -->
-      <template v-else-if="order.status !== 'delivered'">
+      <!-- ───── TAVALINE VAADE (kõik muud staatused + pickup completed) ───── -->
+      <template v-else>
 
-      <!-- Success / Status Banner -->
-      <div class="mb-8 rounded-2xl p-5 sm:p-8 text-center"
-           :class="order.status === 'completed'
-             ? 'bg-green-900/20 border border-green-800/50'
-             : 'bg-green-900/20 border border-green-800/50'">
+      <!-- Banner: cancelled -->
+      <div v-if="isCancelled" class="mb-8 rounded-2xl p-5 sm:p-8 text-center bg-red-900/20 border border-red-800/50">
+        <div class="text-6xl mb-4">❌</div>
+        <h1 class="text-2xl sm:text-3xl font-bold mb-2 text-red-400">{{ t('order.show.cancelled') }}</h1>
+        <p class="text-gray-400">{{ t('order.show.number') }}
+          <span class="font-mono font-bold text-[#D2691E]">{{ order.order_number }}</span>
+        </p>
+      </div>
+      <!-- Banner: active/pending orders -->
+      <div v-else-if="order.status !== 'delivered'" class="mb-8 rounded-2xl p-5 sm:p-8 text-center bg-green-900/20 border border-green-800/50">
         <div class="text-6xl mb-4">✅</div>
         <h1 class="text-2xl sm:text-3xl font-bold mb-2">{{ t('order.show.submitted') }}</h1>
         <p class="text-gray-400">{{ t('order.show.number') }}
           <span class="font-mono font-bold text-[#D2691E]">{{ order.order_number }}</span>
         </p>
+      </div>
+      <!-- Compact header for completed pickup orders -->
+      <div v-else class="mb-6 flex items-center gap-3">
+        <h1 class="text-xl font-bold text-white">{{ t('order.show.number') }} <span class="font-mono text-[#D2691E]">{{ order.order_number }}</span></h1>
+        <span class="px-2.5 py-1 rounded-full bg-green-900/30 text-green-400 text-xs font-semibold">{{ t('order.step.completed') }}</span>
       </div>
 
       <!-- Order Card -->
@@ -156,7 +166,7 @@
               <div
                 v-if="i < statusSteps.length - 1"
                 class="h-0.5 flex-1 sm:mb-4 transition-all"
-                :class="isStepDone(step.key) ? 'bg-[#D2691E]' : 'bg-[#1a1a1a]'"
+                :class="isStepDone(step.key) && !isCancelled ? 'bg-[#D2691E]' : isCancelled && isStepDone(step.key) ? 'bg-[#D2691E]/30' : 'bg-[#1a1a1a]'"
               ></div>
             </div>
           </div>
@@ -204,8 +214,8 @@
         </div>
       </div>
 
-      <!-- Auto refresh notice -->
-      <p class="text-center text-xs text-gray-600 mt-4">
+      <!-- Auto refresh notice — only while order is still active -->
+      <p v-if="order.status !== 'delivered'" class="text-center text-xs text-gray-600 mt-4">
         {{ t('order.show.auto_refresh') }}
       </p>
 
@@ -226,7 +236,7 @@
         </Link>
       </div>
 
-      </template><!-- /v-else -->
+      </template>
 
     </main>
 
@@ -308,6 +318,7 @@ interface Order {
   delivery_lng?: number | null;
   delivery_address?: string | null;
   delivery_method?: string | null;
+  cancelled_from_status?: string | null;
 }
 
 interface Props {
@@ -361,13 +372,30 @@ const statusSteps = computed(() => {
 
 const statusOrder = ['pending_confirmation', 'confirmed', 'preparing', 'ready', 'awaiting_courier', 'picked_up', 'delivered', 'cancelled', 'refunded'];
 
+const isCancelled = computed(() =>
+  props.order.status === 'cancelled' || props.order.status === 'refunded'
+);
+
 const isStepDone = (stepKey: string): boolean => {
+  if (isCancelled.value) {
+    const fromStatus = props.order.cancelled_from_status;
+    if (!fromStatus) return false;
+    const cancelledAtIndex = statusOrder.indexOf(fromStatus);
+    const stepIndex = statusOrder.indexOf(stepKey);
+    return stepIndex < cancelledAtIndex;
+  }
   const currentIndex = statusOrder.indexOf(props.order.status);
   const stepIndex = statusOrder.indexOf(stepKey);
   return stepIndex <= currentIndex;
 };
 
 const getStepClass = (stepKey: string): string => {
+  if (isCancelled.value) {
+    const fromStatus = props.order.cancelled_from_status;
+    if (stepKey === fromStatus) return 'bg-red-700 text-white';
+    if (isStepDone(stepKey)) return 'bg-[#D2691E]/30 text-[#D2691E]';
+    return 'bg-[#1a1a1a] text-gray-600';
+  }
   if (props.order.status === stepKey) return 'bg-[#D2691E] text-white';
   if (isStepDone(stepKey)) return 'bg-[#D2691E]/30 text-[#D2691E]';
   return 'bg-[#1a1a1a] text-gray-600';

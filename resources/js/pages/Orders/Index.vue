@@ -28,9 +28,22 @@
                   <p class="text-sm text-gray-400 mt-0.5">{{ modal.message }}</p>
                 </div>
               </div>
+              <div v-if="modal.requireReason" class="mt-4">
+                <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{{ t('orders.cancel.reason.label') }} <span class="text-red-400">*</span></label>
+                <textarea
+                  v-model="cancelReason"
+                  :placeholder="t('orders.cancel.reason.placeholder')"
+                  rows="3"
+                  class="w-full bg-[#0d0d0d] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 resize-none focus:outline-none focus:border-red-500/50 transition"
+                />
+              </div>
               <div class="flex gap-3 mt-6">
-                <button @click="modal.show = false" class="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition font-semibold text-sm cursor-pointer">{{ t('orders.modal.cancel') }}</button>
-                <button @click="modal.onConfirm(); modal.show = false" :class="modal.type === 'danger' ? 'bg-red-600 hover:bg-red-500' : 'bg-linear-to-r from-[#D2691E] to-[#B8571A]'" class="flex-1 py-3 rounded-xl font-bold text-sm text-white transition-all shadow-lg cursor-pointer">{{ modal.confirmLabel }}</button>
+                <button @click="modal.show = false; cancelReason = ''" class="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition font-semibold text-sm cursor-pointer">{{ t('orders.modal.cancel') }}</button>
+                <button
+                  @click="modal.onConfirm(); modal.show = false"
+                  :disabled="modal.requireReason && !cancelReason.trim()"
+                  :class="[modal.type === 'danger' ? 'bg-red-600 hover:bg-red-500' : 'bg-linear-to-r from-[#D2691E] to-[#B8571A]', modal.requireReason && !cancelReason.trim() ? 'opacity-40 cursor-not-allowed pointer-events-none' : '']"
+                  class="flex-1 py-3 rounded-xl font-bold text-sm text-white transition-all shadow-lg cursor-pointer">{{ modal.confirmLabel }}</button>
               </div>
             </div>
           </div>
@@ -188,8 +201,10 @@ const props = defineProps<Props>();
 const { t } = useI18n();
 const selectedOrders = ref<number[]>([]);
 
-const modal = reactive({ show: false, type: 'danger' as 'danger'|'warning', title: '', message: '', confirmLabel: '', onConfirm: () => {} });
-const openModal = (opts: Omit<typeof modal, 'show'>) => { Object.assign(modal, { show: true, ...opts }); };
+const cancelReason = ref('')
+const modal = reactive({ show: false, type: 'danger' as 'danger'|'warning', title: '', message: '', confirmLabel: '', requireReason: false, onConfirm: () => {} });
+type ModalOpts = { type: 'danger'|'warning'; title: string; message: string; confirmLabel: string; onConfirm: () => void; requireReason?: boolean }
+const openModal = (opts: ModalOpts) => { Object.assign(modal, { show: true, requireReason: false, ...opts }); };
 
 const hasActiveOrders = computed(() => props.orders.some(o => ['pending_confirmation','confirmed','preparing','ready','awaiting_courier','picked_up'].includes(o.status)));
 const deliveringOrder = computed(() => props.orders.find(o => o.status === 'picked_up') ?? null);
@@ -203,6 +218,7 @@ const toggleOrderSelection = (id: number) => {
 };
 
 const confirmDeleteSelected = () => {
+  if (selectedOrders.value.length === 0) return;
   const count = selectedOrders.value.length;
   openModal({ type: 'danger', title: t('orders.modal.delete.title'), message: t('orders.modal.delete.msg').replace('{count}', String(count)), confirmLabel: t('orders.modal.delete.confirm'),
     onConfirm: () => {
@@ -216,11 +232,12 @@ const confirmDeleteSelected = () => {
 };
 
 const confirmCancel = (orderId: number) => {
-  openModal({ type: 'danger', title: t('orders.modal.cancel.title'), message: t('orders.modal.cancel.msg'), confirmLabel: t('orders.btn.cancel'),
+  cancelReason.value = ''
+  openModal({ type: 'danger', title: t('orders.modal.cancel.title'), message: t('orders.modal.cancel.msg'), confirmLabel: t('orders.btn.cancel'), requireReason: true,
     onConfirm: () => {
-      router.post(`/orders/${orderId}/cancel` as any, {}, {
+      router.post(`/orders/${orderId}/cancel` as any, { reason: cancelReason.value }, {
         preserveScroll: true,
-        onSuccess: () => success(t('toast.order.cancelled')),
+        onSuccess: () => { cancelReason.value = ''; success(t('toast.order.cancelled')); },
         onError: () => error(t('toast.order.cancel.error')),
       });
     },
