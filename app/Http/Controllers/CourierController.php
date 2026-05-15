@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Services\OrderStateService;
+use App\Services\PushNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,7 +13,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class CourierController extends Controller
 {
-    public function __construct(private OrderStateService $state) {}
+    public function __construct(
+        private OrderStateService $state,
+        private PushNotificationService $push,
+    ) {}
 
     public function toggleOnline(): JsonResponse
     {
@@ -144,6 +148,15 @@ class CourierController extends Controller
             return response()->json(['success' => false, 'message' => 'Tellimus on juba teise kulleri poolt võetud.'], 409);
         }
 
+        try {
+            $this->push->sendToUser(
+                $order->user_id,
+                'Kuller on teel',
+                "Tellimus {$order->order_number} on peale võetud ja teel sinu juurde!",
+                '/orders/' . $order->id
+            );
+        } catch (\Throwable) {}
+
         return response()->json(['success' => true]);
     }
 
@@ -182,6 +195,15 @@ class CourierController extends Controller
         } catch (\RuntimeException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
+
+        try {
+            $this->push->sendToUser(
+                $order->user_id,
+                'Tellimus kätte toimetatud',
+                "Tellimus {$order->order_number} on kohale toimetatud. Naudi oma sööki!",
+                '/orders/' . $order->id
+            );
+        } catch (\Throwable) {}
 
         return response()->json(['success' => true]);
     }

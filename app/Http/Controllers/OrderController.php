@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CustomBurger;
 use App\Models\Order;
 use App\Services\OrderStateService;
+use App\Services\PushNotificationService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,7 +15,10 @@ class OrderController extends Controller
 {
     use AuthorizesRequests;
 
-    public function __construct(private OrderStateService $state) {}
+    public function __construct(
+        private OrderStateService $state,
+        private PushNotificationService $push,
+    ) {}
 
     const ORDER_HISTORY_LIMIT = 10;
 
@@ -271,6 +275,14 @@ class OrderController extends Controller
         }
 
         $order->update(['total_amount' => $totalAmount]);
+
+        try {
+            $this->push->sendToAdmins(
+                'Uus tellimus',
+                "Tellimus {$order->order_number} – €" . number_format($totalAmount, 2),
+                '/admin/orders/' . $order->id
+            );
+        } catch (\Throwable) {}
 
         return redirect()->route('orders.show', $order)
             ->with('success', 'Tellimus esitatud! Tellimuse number: ' . $order->order_number);

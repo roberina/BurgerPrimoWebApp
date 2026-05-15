@@ -62,6 +62,15 @@ class OrderController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
 
+        try {
+            $this->push->sendToUser(
+                $order->user_id,
+                'Tellimus kinnitatud',
+                "Tellimus {$order->order_number} on kinnitatud ja valmistamiseks järjekorras.",
+                '/orders/' . $order->id
+            );
+        } catch (\Throwable) {}
+
         return redirect()->back()->with('success', 'Tellimus kinnitatud.');
     }
 
@@ -73,6 +82,15 @@ class OrderController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
 
+        try {
+            $this->push->sendToUser(
+                $order->user_id,
+                'Tellimust valmistatakse',
+                "Tellimus {$order->order_number} on köögis valmistamisel.",
+                '/orders/' . $order->id
+            );
+        } catch (\Throwable) {}
+
         return redirect()->back()->with('success', 'Valmistamine alustatud.');
     }
 
@@ -83,6 +101,15 @@ class OrderController extends Controller
         } catch (\RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
+
+        try {
+            $this->push->sendToUser(
+                $order->user_id,
+                'Tellimus on valmis',
+                "Tellimus {$order->order_number} on valmis ja ootab kullerit.",
+                '/orders/' . $order->id
+            );
+        } catch (\Throwable) {}
 
         return redirect()->back()->with('success', 'Tellimus on valmis.');
     }
@@ -124,6 +151,15 @@ class OrderController extends Controller
         } catch (\RuntimeException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
+
+        try {
+            $this->push->sendToUser(
+                $order->user_id,
+                'Tellimus kätte toimetatud',
+                "Tellimus {$order->order_number} on kohale toimetatud. Naudi oma sööki!",
+                '/orders/' . $order->id
+            );
+        } catch (\Throwable) {}
 
         return redirect()->back()->with('success', 'Tellimus märgitud lõpetatuks.');
     }
