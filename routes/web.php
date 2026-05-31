@@ -47,6 +47,10 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('/dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
 Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
 Route::get('/menu/{slug}', [MenuController::class, 'category'])->name('menu.category');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
