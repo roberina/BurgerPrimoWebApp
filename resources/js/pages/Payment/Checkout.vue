@@ -209,7 +209,7 @@ onMounted(async () => {
   document.head.appendChild(stripeScript);
 
   stripeScript.onload = () => {
-    // @ts-expect-error
+    // @ts-expect-error Stripe loaded from CDN script tag
     stripe = Stripe(props.stripePublicKey);
     mountCardElement();
   };

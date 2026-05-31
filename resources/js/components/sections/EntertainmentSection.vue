@@ -29,7 +29,7 @@ let touchX = 0
 const onTouchStart = (e: TouchEvent) => { touchX = e.touches[0].clientX }
 const onTouchEnd   = (e: TouchEvent) => {
   const d = touchX - e.changedTouches[0].clientX
-  if (Math.abs(d) > 40) d > 0 ? next() : prev()
+  if (Math.abs(d) > 40) { if (d > 0) next(); else prev() }
 }
 
 const featureListRef = ref<HTMLElement | null>(null)
@@ -66,13 +66,13 @@ onUnmounted(() => clearInterval(timer))
       <div class="glass px-6 py-12 md:px-12 md:py-14">
 
         <div class="text-center mb-12 space-y-4">
-          <div :ref="(el) => badgeRef = el as any" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/12 bg-white/6 text-gray-300 text-xs font-bold uppercase tracking-[0.22em]">
+          <div :ref="(el) => { badgeRef = el as any }" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/12 bg-white/6 text-gray-300 text-xs font-bold uppercase tracking-[0.22em]">
             {{ t('ent.badge') }}
           </div>
-          <h2 :ref="(el) => headingRef = el as any" class="text-3xl md:text-5xl font-bold text-white">
+          <h2 :ref="(el) => { headingRef = el as any }" class="text-3xl md:text-5xl font-bold text-white">
             {{ t('ent.heading') }} <span class="text-[#D2691E]">{{ t('ent.heading.accent') }}</span>
           </h2>
-          <p :ref="(el) => subRef = el as any" class="text-gray-400 text-base max-w-xl mx-auto">
+          <p :ref="(el) => { subRef = el as any }" class="text-gray-400 text-base max-w-xl mx-auto">
             {{ t('ent.sub') }}
           </p>
         </div>
@@ -80,7 +80,7 @@ onUnmounted(() => clearInterval(timer))
         <div class="grid md:grid-cols-2 gap-10 lg:gap-16 items-center">
 
           <div
-            :ref="(el) => imgRef = el as any"
+            :ref="(el) => { imgRef = el as any }"
             class="relative rounded-2xl overflow-hidden aspect-[4/3] bg-black/40 border border-white/8 shadow-2xl shadow-black/50"
           >
             <div class="relative w-full h-full" @touchstart="onTouchStart" @touchend="onTouchEnd">
@@ -102,7 +102,7 @@ onUnmounted(() => clearInterval(timer))
             </div>
           </div>
 
-          <div :ref="(el) => textRef = el as any" class="space-y-6">
+          <div :ref="(el) => { textRef = el as any }" class="space-y-6">
             <div>
               <h3 class="text-2xl md:text-3xl font-bold text-[#F5DEB3] mb-3">{{ t('ent.table.title') }}</h3>
               <p class="text-gray-400 text-sm leading-relaxed">
@@ -119,7 +119,7 @@ onUnmounted(() => clearInterval(timer))
               </li>
             </ul>
 
-            <div :ref="(el) => priceRef = el as any" class="glass-card p-5 hover:border-[#D2691E]/25 transition-colors duration-300 relative overflow-hidden">
+            <div :ref="(el) => { priceRef = el as any }" class="glass-card p-5 hover:border-[#D2691E]/25 transition-colors duration-300 relative overflow-hidden">
               <div class="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none shimmer" />
               <div class="flex items-center gap-3 mb-4">
                 <div>
