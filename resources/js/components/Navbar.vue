@@ -27,6 +27,7 @@ const mounted        = ref(false)
 
 const activeAnchor = ref<string | null>(null)
 const isHomePage   = computed(() => page.url === '/')
+const goBack       = () => history.back()
 
 const homeDropdownItems = computed(() => [
   { label: t('nav.popular'),       anchor: 'popular'       },
@@ -151,6 +152,17 @@ const vClickOutside = {
 
         <!-- Left: Logo + delivery (desktop) / Logo + hamburger (mobile) -->
         <div class="flex items-center justify-between w-full lg:w-auto lg:justify-start lg:gap-2.5">
+          <div class="flex items-center gap-1">
+          <button
+            v-if="!isHomePage"
+            @click="goBack"
+            :title="t('nav.back')"
+            class="p-2 rounded-xl text-gray-500 hover:text-white hover:bg-white/6 transition-all cursor-pointer shrink-0"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
           <Link href="/" class="group flex items-center gap-2.5 shrink-0">
             <picture>
               <source srcset="/img/Logo45-small.webp" type="image/webp" />
@@ -160,6 +172,7 @@ const vClickOutside = {
               Burger <span class="text-[#D2691E] transition-all duration-300 group-hover:text-[#E87E32]">Primo</span>
             </span>
           </Link>
+          </div>
           <div class="hidden lg:flex items-center gap-2.5">
             <div class="w-px h-5 bg-white/8" />
             <a href="https://wolt.com/en/est/kuressaare/restaurant/primo-burger" target="_blank" rel="noopener"

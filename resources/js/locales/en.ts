@@ -1,4 +1,5 @@
 const en: Record<string, string> = {
+    'nav.back':            'Back',
     'nav.home':            'Home',
     'nav.popular':         'Popular',
     'nav.entertainment':   'Entertainment',

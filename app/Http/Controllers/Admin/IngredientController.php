@@ -53,6 +53,7 @@ class IngredientController extends Controller
             'name_en'      => 'nullable|string|max:255',
             'category'     => 'required|in:buns,patties,vegetables,sauces,extras',
             'price'        => 'required|numeric|min:0|max:99.99',
+            'image'        => 'nullable|string|max:64',
             'is_available' => 'boolean',
         ]);
 
@@ -82,6 +83,7 @@ class IngredientController extends Controller
             'name_en'      => 'nullable|string|max:255',
             'category'     => 'required|in:buns,patties,vegetables,sauces,extras',
             'price'        => 'required|numeric|min:0|max:99.99',
+            'image'        => 'nullable|string|max:64',
             'is_available' => 'boolean',
         ]);
 

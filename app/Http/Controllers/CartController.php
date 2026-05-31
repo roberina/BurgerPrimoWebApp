@@ -111,18 +111,23 @@ class CartController extends Controller
 
     $cart = session()->get('cart', []);
 
-    $cartId = 'burger_' . $burger->id . '_' . time();
+    $cartId = 'burger_' . $burger->id;
 
-    $cart[$cartId] = [
-        'type' => 'custom_burger',
-        'burger_id' => $burger->id,
-        'quantity' => $validated['quantity'],
-        'subtotal' => $burger->total_price * $validated['quantity'],
-    ];
+    if (isset($cart[$cartId])) {
+        $cart[$cartId]['quantity'] += $validated['quantity'];
+        $cart[$cartId]['subtotal'] = $burger->total_price * $cart[$cartId]['quantity'];
+    } else {
+        $cart[$cartId] = [
+            'type' => 'custom_burger',
+            'burger_id' => $burger->id,
+            'quantity' => $validated['quantity'],
+            'subtotal' => $burger->total_price * $validated['quantity'],
+        ];
+    }
 
     session()->put('cart', $cart);
 
-    return redirect()->route('cart.index')->with('success', 'Burger lisatud ostukorvi!');
+    return back()->with('success', 'Burger lisatud ostukorvi!');
 }
 
     /**

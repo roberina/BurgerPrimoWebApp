@@ -123,9 +123,18 @@
 
           <!-- Peamine juhis -->
           <div class="flex items-stretch bg-[#1a2b3c]" style="min-height:80px">
-            <!-- Pöörde ikoon -->
-            <div class="w-20 bg-[#0f1e2e] flex items-center justify-center flex-shrink-0">
-              <div v-html="currentManeuverSvg" class="text-white w-12 h-12"></div>
+            <!-- Pöörde ikoon + tagasi nupp -->
+            <div class="w-20 bg-[#0f1e2e] flex flex-col items-center justify-center shrink-0 gap-2">
+              <button
+                @click="() => history.back()"
+                class="w-9 h-9 rounded-xl bg-white/8 hover:bg-white/16 border border-white/12 flex items-center justify-center text-gray-300 transition active:scale-95"
+                aria-label="Tagasi"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <div v-html="currentManeuverSvg" class="text-white w-8 h-8"></div>
             </div>
             <!-- Kaugus + tänav -->
             <div class="flex-1 flex flex-col justify-center px-4 py-2 min-w-0">

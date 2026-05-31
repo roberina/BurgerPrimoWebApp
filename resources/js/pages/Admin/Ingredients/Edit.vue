@@ -36,6 +36,18 @@
         </div>
 
         <div>
+          <label for="image" class="block text-sm font-semibold text-white mb-2">
+            Burgerivaate välimus
+            <span class="text-xs text-gray-500 font-normal ml-1">— kuidas see koostisosa burgeri SVG-s välja näeb</span>
+          </label>
+          <select id="image" v-model="form.image" class="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-600 transition">
+            <option value="">Vaikimisi (nime järgi)</option>
+            <option v-for="opt in imageOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+          </select>
+          <p v-if="form.errors.image" class="text-red-500 text-sm mt-1">{{ form.errors.image }}</p>
+        </div>
+
+        <div>
           <label for="price" class="block text-sm font-semibold text-white mb-2">Hind</label>
           <input id="price" v-model.number="form.price" type="number" step="0.01" min="0" max="99.99" required class="w-full bg-[#0a0a0a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-orange-600 transition" />
           <p v-if="form.errors.price" class="text-red-500 text-sm mt-1">{{ form.errors.price }}</p>
@@ -58,6 +70,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { ArrowLeft } from 'lucide-vue-next';
@@ -68,6 +81,7 @@ interface Ingredient {
   name_en: string | null;
   category: string;
   price: number;
+  image: string | null;
   is_available: boolean;
 }
 
@@ -82,6 +96,7 @@ const form = useForm({
   name_en: props.ingredient.name_en || '',
   category: props.ingredient.category,
   price: props.ingredient.price,
+  image: props.ingredient.image || '',
   is_available: props.ingredient.is_available,
 });
 
@@ -95,4 +110,36 @@ const categories = [
   { value: 'sauces',     label: 'Kastmed ja lisandid' },
   { value: 'extras',     label: 'Juust' },
 ];
+
+const imageOptionsByCategory: Record<string, { value: string; label: string }[]> = {
+  patties: [
+    { value: 'beef',    label: '🟤 Veiseliha (tumepruun)' },
+    { value: 'chicken', label: '🟡 Kana (helepruun)' },
+    { value: 'vegan',   label: '🟢 Vegan (roheline)' },
+    { value: 'grilled', label: '⚫ Grill (tumem)' },
+  ],
+  vegetables: [
+    { value: 'tomato',   label: '🔴 Tomat (punane)' },
+    { value: 'cucumber', label: '🟢 Kurk (roheline)' },
+    { value: 'onion',    label: '⭕ Sibul (läbipaistev)' },
+    { value: 'avocado',  label: '🥑 Avokado (oliiviroheline)' },
+    { value: 'lettuce',  label: '🥬 Salat (heleroheline)' },
+  ],
+  sauces: [
+    { value: 'ketchup',  label: '🔴 Ketšup (punane)' },
+    { value: 'mayo',     label: '⬜ Majonees (valge)' },
+    { value: 'bbq',      label: '⚫ BBQ (tumepunane)' },
+    { value: 'chipotle', label: '🟠 Chipotle (oranž-pruun)' },
+    { value: 'bacon',    label: '🥓 Peekon (tumepunane)' },
+    { value: 'egg',      label: '🟡 Muna (kollane)' },
+    { value: 'mustard',  label: '🟡 Sinep (tumekollane)' },
+  ],
+  extras: [
+    { value: 'cheddar',    label: '🧀 Cheddar (oranž)' },
+    { value: 'mozzarella', label: '⬜ Mozzarella (valge)' },
+    { value: 'blue',       label: '🔵 Sinine juust (sinakashall)' },
+  ],
+};
+
+const imageOptions = computed(() => imageOptionsByCategory[form.category] ?? []);
 </script>

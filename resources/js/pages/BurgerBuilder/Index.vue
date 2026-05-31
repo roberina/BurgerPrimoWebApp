@@ -222,7 +222,7 @@
             <div v-if="customBurgers?.length > 0" class="bb-saved">
               <p class="bb-saved-lbl">{{ t('bb.saved') }}</p>
               <div class="bb-saved-list">
-                <div v-for="burger in customBurgers" :key="burger.id" class="bb-saved-item">
+                <div v-for="burger in customBurgers" :key="burger.id" class="bb-saved-item" @click="loadBurger(burger)">
                   <div class="bb-saved-meta">
                     <div class="bb-saved-row">
                       <span class="bb-saved-name">{{ burger.name }}</span>
@@ -230,10 +230,7 @@
                     </div>
                     <span class="bb-saved-price">{{ Number(burger.total_price).toFixed(2) }}€</span>
                   </div>
-                  <div class="bb-saved-actions">
-                    <button @click="loadBurger(burger)" class="bb-sb" :title="t('bb.edit.btn')">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </button>
+                  <div class="bb-saved-actions" @click.stop>
                     <button v-if="burger.status === 'approved'" @click="quickOrder(burger)" class="bb-sb bb-sb--green" :title="t('bb.order.btn')">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                     </button>
@@ -249,10 +246,6 @@
             </div>
 
           <!-- Mobile CTA -->
-          <button class="bb-start-btn" @click="scrollToIngredients">
-            Alusta koostamist
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
-          </button>
 
           </div>
         </aside>
@@ -543,7 +536,8 @@ const statusLabel = (status: string) => ({ draft: t('bb.status.draft'), pending:
 
 const quickOrder = (burger: CustomBurger) => {
   router.post('/cart/add', { burger_id: burger.id, quantity: 1 } as any, {
-    onSuccess: () => router.visit('/cart'),
+    preserveScroll: true,
+    onSuccess: () => success('Lisatud korvi! ✓'),
     onError: () => error('Korvi lisamine ebaõnnestus'),
   });
 };
@@ -583,50 +577,55 @@ function mkL(): SL[] {
   const push = (t:string,h:number,c:string,s:string) => out.push({t,y:0,h,c,s})
   if(pi.length>=2){
     push('p',22,pC(pi[0]),pS())
-    ju.forEach(x=>{const n=gn(x.id);push('c',16,cC(n),cS(n))})
-    sa.forEach(x=>{const n=gn(x.id);const[t,h,c,s]=vD(n);push(t,h,c,s)})
-    li.forEach(x=>{const n=gn(x.id);push('s',12,sC(n),sS(n))})
+    ju.forEach(x=>{const n=gn(x.id);const k=gik(x.id);push('c',16,cC(n,k),cS(n))})
+    sa.forEach(x=>{const n=gn(x.id);const k=gik(x.id);const[t,h,c,s]=vD(n,k);push(t,h,c,s)})
+    li.forEach(x=>{const n=gn(x.id);const k=gik(x.id);push('s',12,sC(n,k),sS(n))})
     push('p',22,pC(pi[1]),pS())
   } else if(pi.length===1){
     push('p',22,pC(pi[0]),pS())
-    ju.forEach(x=>{const n=gn(x.id);push('c',16,cC(n),cS(n))})
-    sa.forEach(x=>{const n=gn(x.id);const[t,h,c,s]=vD(n);push(t,h,c,s)})
-    li.forEach(x=>{const n=gn(x.id);push('s',12,sC(n),sS(n))})
+    ju.forEach(x=>{const n=gn(x.id);const k=gik(x.id);push('c',16,cC(n,k),cS(n))})
+    sa.forEach(x=>{const n=gn(x.id);const k=gik(x.id);const[t,h,c,s]=vD(n,k);push(t,h,c,s)})
+    li.forEach(x=>{const n=gn(x.id);const k=gik(x.id);push('s',12,sC(n,k),sS(n))})
   } else {
-    ju.forEach(x=>{const n=gn(x.id);push('c',16,cC(n),cS(n))})
-    sa.forEach(x=>{const n=gn(x.id);const[t,h,c,s]=vD(n);push(t,h,c,s)})
-    li.forEach(x=>{const n=gn(x.id);push('s',12,sC(n),sS(n))})
+    ju.forEach(x=>{const n=gn(x.id);const k=gik(x.id);push('c',16,cC(n,k),cS(n))})
+    sa.forEach(x=>{const n=gn(x.id);const k=gik(x.id);const[t,h,c,s]=vD(n,k);push(t,h,c,s)})
+    li.forEach(x=>{const n=gn(x.id);const k=gik(x.id);push('s',12,sC(n,k),sS(n))})
   }
   let y = START_Y + BUN_DOME + RIM_H + GAP
   for(const l of out){ l.y=y; y+=l.h+GAP }
   return out
 }
 function gn(id:number):string{ return getAllIngredients().find(i=>i.id===id)?.name?.toLowerCase()??'' }
+function gik(id:number):string{ return getAllIngredients().find(i=>i.id===id)?.image??'' }
 function pC(item:{id:number}):string{
-  const n=gn(item.id)
-  if(n.includes('kana'))  return '#A87040'
-  if(n.includes('vegan')) return '#607830'
-  if(n.includes('grill')) return '#5E1E08'
-  if(n.includes('veise')) return '#8A3418'
+  const k=gik(item.id); const n=gn(item.id)
+  if(k==='chicken'||n.includes('kana'))  return '#A87040'
+  if(k==='vegan'  ||n.includes('vegan')) return '#607830'
+  if(k==='grilled'||n.includes('grill')) return '#5E1E08'
+  if(k==='beef'   ||n.includes('veise')) return '#8A3418'
   return '#8C3C16'
 }
 function pS():string{return '#1C0402'}
-function cC(n:string):string{if(n.includes('mozzarella'))return '#F5EEE0';if(n.includes('blue'))return '#A8B8C8';return '#E8A40E'}
+function cC(n:string,k=''):string{
+  if(k==='mozzarella'||n.includes('mozzarella'))return '#F5EEE0'
+  if(k==='blue'      ||n.includes('blue'))      return '#A8B8C8'
+  return '#E8A40E'
+}
 function cS(n:string):string{if(n.includes('mozzarella'))return '#CCBCA0';if(n.includes('blue'))return '#687899';return '#A07208'}
-function vD(n:string):[string,number,string,string]{
-  if(n.includes('tomat'))return ['t',20,'#C01008','#700404']
-  if(n.includes('kurk')) return ['k',16,'#559018','#185808']
-  if(n.includes('sibul')||n.includes('kastrull'))return ['o',16,'transparent','transparent']
-  if(n.includes('avocado'))return ['a',16,'#6A9818','#2E4E08']
+function vD(n:string,k=''):[string,number,string,string]{
+  if(k==='tomato'  ||n.includes('tomat'))                   return ['t',20,'#C01008','#700404']
+  if(k==='cucumber'||n.includes('kurk'))                    return ['k',16,'#559018','#185808']
+  if(k==='onion'   ||n.includes('sibul')||n.includes('kastrull'))return ['o',16,'transparent','transparent']
+  if(k==='avocado' ||n.includes('avocado'))                 return ['a',16,'#6A9818','#2E4E08']
   return ['l',20,'#389A0C','#145C08']
 }
-function sC(n:string):string{
-  if(n.includes('ketšup'))  return '#BE1808'
-  if(n.includes('majonees'))return '#F2F2E4'
-  if(n.includes('bbq'))     return '#5C1208'
-  if(n.includes('chipotle'))return '#9C2608'
-  if(n.includes('peekon'))  return '#A41C1C'
-  if(n.includes('muna'))    return '#D8B218'
+function sC(n:string,k=''):string{
+  if(k==='ketchup' ||n.includes('ketšup'))  return '#BE1808'
+  if(k==='mayo'    ||n.includes('majonees'))return '#F2F2E4'
+  if(k==='bbq'     ||n.includes('bbq'))     return '#5C1208'
+  if(k==='chipotle'||n.includes('chipotle'))return '#9C2608'
+  if(k==='bacon'   ||n.includes('peekon'))  return '#A41C1C'
+  if(k==='egg'     ||n.includes('muna'))    return '#D8B218'
   return '#C49008'
 }
 function sS(n:string):string{
@@ -659,9 +658,6 @@ const seeds = [
   {x:161,d:44, w:6.5,h:3.1,r:16},
 ]
 
-const scrollToIngredients = () => {
-  document.getElementById('bb-main')?.scrollIntoView({ behavior: 'smooth' });
-};
 
 onMounted(async () => {});
 </script>
@@ -749,9 +745,10 @@ onMounted(async () => {});
   display: flex; align-items: center; gap: .4rem;
   background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.05); border-radius: 10px;
   padding: .5rem .5rem .5rem .75rem;
-  transition: border-color .15s;
+  transition: border-color .15s, background .15s;
+  cursor: pointer;
 }
-.bb-saved-item:hover { border-color: rgba(255,255,255,.08); }
+.bb-saved-item:hover { border-color: rgba(210,105,30,.28); background: rgba(210,105,30,.04); }
 .bb-saved-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .1rem; }
 .bb-saved-row { display: flex; align-items: center; gap: .35rem; }
 .bb-saved-name { font-size: .78rem; font-weight: 600; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
@@ -931,35 +928,21 @@ onMounted(async () => {});
 .bb-save-btns { display: grid; grid-template-columns: 1fr 1.6fr; gap: .6rem; }
 .bb-btn-ghost {
   background: transparent; border: 1px solid rgba(255,255,255,.08); color: #b8b8b8d3;
-  padding: .9rem 1rem; border-radius: 12px; font-size: .83rem; font-weight: 600;
-  cursor: pointer; transition: all .15s;
+  padding: 1.1rem 1rem; border-radius: 14px; font-size: .88rem; font-weight: 600;
+  cursor: pointer; transition: all .15s; min-height: 52px;
 }
 .bb-btn-ghost:hover:not(:disabled) { border-color: rgba(255,255,255,.14); color: #787878; background: rgba(255,255,255,.03); }
 .bb-btn-ghost:disabled { opacity: .4; cursor: not-allowed; }
 .bb-btn-primary {
   background: linear-gradient(135deg, #C85A14, #D97020); color: #fff; border: none;
-  padding: .9rem 1.1rem; border-radius: 12px; font-size: .87rem; font-weight: 800;
-  cursor: pointer; transition: all .18s;
-  display: flex; align-items: center; justify-content: center; gap: .45rem;
+  padding: 1.1rem 1.25rem; border-radius: 14px; font-size: .92rem; font-weight: 800;
+  cursor: pointer; transition: all .18s; min-height: 52px;
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
   box-shadow: 0 4px 20px rgba(210,105,30,.25);
 }
 .bb-btn-primary:hover:not(:disabled) { background: linear-gradient(135deg, #D86520, #E07830); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(210,105,30,.35); }
 .bb-btn-primary:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
 
-/* ── Mobile start CTA ── */
-.bb-start-btn {
-  display: none;
-}
-@media (max-width: 960px) {
-  .bb-start-btn {
-    display: flex; align-items: center; justify-content: center; gap: .5rem;
-    width: 100%; background: linear-gradient(135deg, #C85A14, #D97020); color: #fff; border: none;
-    padding: .85rem 1.25rem; border-radius: 12px; font-size: .9rem; font-weight: 700;
-    cursor: pointer; transition: all .18s;
-    box-shadow: 0 4px 20px rgba(210,105,30,.3);
-  }
-  .bb-start-btn:hover { background: linear-gradient(135deg, #D86520, #E07830); box-shadow: 0 6px 24px rgba(210,105,30,.4); }
-}
 
 /* ── Toast notifications ── */
 .bb-toasts { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: .4rem; pointer-events: none; }
