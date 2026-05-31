@@ -34,6 +34,6 @@ class LoginResponse implements LoginResponseContract
             return redirect()->intended('/admin/dashboard');
         }
 
-        return redirect()->intended('/');
+        return redirect()->intended(config('fortify.home'));
     }
 }
