@@ -145,34 +145,34 @@
         <div class="p-4 sm:p-6 space-y-6">
 
           <!-- Status progress indicator -->
-          <div class="flex items-center gap-1">
+          <div class="flex items-start gap-1">
             <div
               v-for="(step, i) in statusSteps"
               :key="step.key"
-              class="flex items-center gap-1 flex-1"
+              class="flex items-start gap-1 flex-1"
             >
               <div class="flex flex-col items-center flex-1">
                 <div
                   class="w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all"
                   :class="getStepClass(step.key)"
                 >
-                  <svg v-if="isStepDone(step.key)" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg v-if="isStepDone(step.key)" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                   </svg>
                   <span v-else>{{ i + 1 }}</span>
                 </div>
-                <p class="hidden sm:block text-xs text-gray-500 mt-1 text-center leading-tight">{{ step.label }}</p>
+                <p class="hidden md:block text-xs text-gray-500 mt-1 text-center leading-tight">{{ step.label }}</p>
               </div>
               <div
                 v-if="i < statusSteps.length - 1"
-                class="h-0.5 flex-1 sm:mb-4 transition-all"
+                class="h-0.5 flex-1 mt-3.5 sm:mt-4 md:mt-4 transition-all"
                 :class="isStepDone(step.key) && !isCancelled ? 'bg-[#D2691E]' : isCancelled && isStepDone(step.key) ? 'bg-[#D2691E]/30' : 'bg-[#1a1a1a]'"
               ></div>
             </div>
           </div>
-          <!-- Mobile step label -->
-          <p class="sm:hidden text-xs text-center text-[#D2691E] font-semibold mt-1">
-            {{ statusSteps.find(s => s.key === order.status)?.label ?? statusSteps[statusSteps.length - 1]?.label }}
+          <!-- Mobile: current step name only -->
+          <p class="md:hidden text-xs text-center text-[#D2691E] font-semibold mt-2">
+            {{ mobileStepLabel }}
           </p>
 
           <!-- Items -->
@@ -389,6 +389,10 @@ const isStepDone = (stepKey: string): boolean => {
   return stepIndex <= currentIndex;
 };
 
+const displayStatus = computed(() =>
+  props.order.status === 'awaiting_courier' ? 'picked_up' : props.order.status
+);
+
 const getStepClass = (stepKey: string): string => {
   if (isCancelled.value) {
     const fromStatus = props.order.cancelled_from_status;
@@ -396,10 +400,15 @@ const getStepClass = (stepKey: string): string => {
     if (isStepDone(stepKey)) return 'bg-[#D2691E]/30 text-[#D2691E]';
     return 'bg-[#1a1a1a] text-gray-600';
   }
-  if (props.order.status === stepKey) return 'bg-[#D2691E] text-white';
+  if (displayStatus.value === stepKey) return 'bg-[#D2691E] text-white';
   if (isStepDone(stepKey)) return 'bg-[#D2691E]/30 text-[#D2691E]';
   return 'bg-[#1a1a1a] text-gray-600';
 };
+
+const mobileStepLabel = computed(() =>
+  statusSteps.value.find(s => s.key === displayStatus.value)?.label
+    ?? statusSteps.value[statusSteps.value.length - 1]?.label
+);
 
 // Auto-refresh while order is active
 const isActive = computed(() =>

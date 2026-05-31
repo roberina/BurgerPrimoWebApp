@@ -62,18 +62,17 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition
-      enter-active-class="transition duration-300 ease-out"
-      enter-from-class="opacity-0 -translate-y-2"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition duration-200 ease-in"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-2"
-    >
-      <div
-        v-if="!dismissed && announcements.length > 0"
-        class="fixed top-16 lg:top-20 left-0 right-0 z-30 w-full"
+  <Transition
+    enter-active-class="transition duration-300 ease-out"
+    enter-from-class="opacity-0 -translate-y-2"
+    enter-to-class="opacity-100 translate-y-0"
+    leave-active-class="transition duration-200 ease-in"
+    leave-from-class="opacity-100 translate-y-0"
+    leave-to-class="opacity-0 -translate-y-2"
+  >
+    <div
+      v-if="!dismissed && announcements.length > 0"
+      class="fixed top-16 lg:top-20 left-0 right-0 z-40 w-full"
         :style="{ backgroundColor: active().bg_color, color: active().text_color }"
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false"
@@ -86,7 +85,7 @@ onUnmounted(() => {
             v-if="announcements.length > 1"
             @click="prev"
             :aria-label="t('aria.prev')"
-            class="flex-shrink-0 hover:opacity-70 transition p-0.5 rounded"
+            class="flex-shrink-0 hover:opacity-70 transition p-0.5 rounded cursor-pointer"
           >
             <ChevronLeft :size="18" />
           </button>
@@ -104,7 +103,7 @@ onUnmounted(() => {
             v-if="announcements.length > 1"
             @click="next"
             :aria-label="t('aria.next')"
-            class="flex-shrink-0 hover:opacity-70 transition p-0.5 rounded"
+            class="flex-shrink-0 hover:opacity-70 transition p-0.5 rounded cursor-pointer"
           >
             <ChevronRight :size="18" />
           </button>
@@ -128,7 +127,7 @@ onUnmounted(() => {
 
           <button
             @click="dismiss"
-            class="flex-shrink-0 hover:opacity-70 transition p-1 rounded hover:bg-black/10"
+            class="flex-shrink-0 hover:opacity-70 transition p-1 rounded hover:bg-black/10 cursor-pointer"
             aria-label="Sulge"
           >
             <X :size="16" />
@@ -147,7 +146,7 @@ onUnmounted(() => {
               v-if="announcements.length > 1"
               @click="prev"
               :aria-label="t('aria.prev')"
-              class="shrink-0 hover:opacity-70 transition p-0.5 rounded"
+              class="shrink-0 hover:opacity-70 transition p-0.5 rounded cursor-pointer"
             >
               <ChevronLeft :size="22" />
             </button>
@@ -156,13 +155,13 @@ onUnmounted(() => {
               v-if="announcements.length > 1"
               @click="next"
               :aria-label="t('aria.next')"
-              class="shrink-0 hover:opacity-70 transition p-0.5 rounded"
+              class="shrink-0 hover:opacity-70 transition p-0.5 rounded cursor-pointer"
             >
               <ChevronRight :size="22" />
             </button>
             <button
               @click="dismiss"
-              class="shrink-0 hover:opacity-70 transition p-1 rounded hover:bg-black/10"
+              class="shrink-0 hover:opacity-70 transition p-1 rounded hover:bg-black/10 cursor-pointer"
               aria-label="Sulge"
             >
               <X :size="20" />
@@ -188,6 +187,5 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+  </Transition>
 </template>

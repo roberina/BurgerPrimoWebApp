@@ -36,9 +36,17 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        // Get cart count from session
+        // Get cart count and total from session
         $cart = session()->get('cart', []);
         $cartCount = count($cart);
+        $cartTotal = 0;
+        foreach ($cart as $item) {
+            if (isset($item['subtotal'])) {
+                $cartTotal += (float) $item['subtotal'];
+            } elseif (isset($item['total_price'])) {
+                $cartTotal += (float) $item['total_price'] * ($item['quantity'] ?? 1);
+            }
+        }
 
         return array_merge(parent::share($request), [
             'auth' => [
@@ -50,6 +58,7 @@ class HandleInertiaRequests extends Middleware
                 'courier_link' => fn () => $request->session()->get('courier_link'),
             ],
             'cartCount'        => $cartCount,
+            'cartTotal'        => $cartTotal,
             'deliveryStatus'   => fn () => $this->getDeliveryStatus(),
             'adminRole'        => fn () => $request->user()?->admin_role,
             'adminPermissions' => fn () => $request->user()?->admin_permissions ?? [],

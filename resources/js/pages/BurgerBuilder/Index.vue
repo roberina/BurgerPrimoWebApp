@@ -19,6 +19,33 @@
           </div>
         </TransitionGroup>
       </div>
+
+      <!-- Delete confirm dialog -->
+      <Transition name="modal">
+        <div v-if="deleteConfirm.show" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="deleteConfirm.show = false">
+          <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="deleteConfirm.show = false" />
+          <div class="relative bg-[#121212] border border-[#1a1a1a] rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+            <div class="h-0.5 bg-linear-to-r from-transparent via-red-500 to-transparent" />
+            <div class="p-6">
+              <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 rounded-xl bg-red-500/15 text-red-400 flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold text-white">{{ t('bb.delete.confirm.title') }}</h3>
+                  <p class="text-sm text-gray-400 mt-0.5">{{ t('bb.delete.confirm.msg') }}</p>
+                </div>
+              </div>
+              <div class="flex gap-3 mt-6">
+                <button @click="deleteConfirm.show = false" class="flex-1 py-3 rounded-xl border border-white/10 text-gray-300 hover:bg-white/5 transition-colors font-semibold text-sm cursor-pointer">{{ t('bb.cancel') }}</button>
+                <button @click="confirmDelete" class="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-500 font-bold text-sm text-white transition-all shadow-lg cursor-pointer">{{ t('bb.delete.btn') }}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
     </Teleport>
 
     <div class="bb-root">
@@ -389,10 +416,12 @@
       </div>
     </div>
   </MainLayout>
+  <StickyCart />
 </template>
 
 <script setup lang="ts">
 import MainLayout from '@/layouts/MainLayout.vue';
+import StickyCart from '@/components/StickyCart.vue';
 import { Head } from '@inertiajs/vue3';
 import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
@@ -518,7 +547,13 @@ const quickOrder = (burger: CustomBurger) => {
     onError: () => error('Korvi lisamine ebaõnnestus'),
   });
 };
-const deleteBurger = (id: number) => router.delete(`/burger-builder/${id}`, { preserveScroll: true });
+const deleteConfirm = ref<{ show: boolean; id: number | null }>({ show: false, id: null });
+const deleteBurger = (id: number) => { deleteConfirm.value = { show: true, id }; };
+const confirmDelete = () => {
+  if (deleteConfirm.value.id === null) return;
+  router.delete(`/burger-builder/${deleteConfirm.value.id}`, { preserveScroll: true });
+  deleteConfirm.value.show = false;
+};
 const loadBurger = (burger: CustomBurger) => {
   burgerName.value = burger.name;
   editingBurgerId.value = burger.id;
@@ -651,7 +686,7 @@ onMounted(async () => {});
   height: calc(100vh - 5rem); overflow: hidden;
   box-shadow: inset -1px 0 0 rgba(210,105,30,.04);
 }
-@media (max-width: 960px) { .bb-aside { position: static; height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,.05); } }
+@media (max-width: 960px) { .bb-aside { position: static; height: auto; overflow: visible; border-right: none; border-bottom: 1px solid rgba(255,255,255,.05); } }
 
 .bb-aside-inner {
   height: 100%; overflow-y: auto;
@@ -660,9 +695,9 @@ onMounted(async () => {});
   scrollbar-width: none;
 }
 .bb-aside-inner::-webkit-scrollbar { display: none; }
-@media (max-width: 960px) { .bb-aside-inner { height: auto; overflow: visible; padding: 1.5rem 1.25rem; } }
-@media (max-width: 480px) { .bb-aside-inner { padding: 1rem; gap: 1rem; } }
-@media (max-width: 1024px) {
+@media (max-width: 960px) { .bb-aside-inner { height: auto; overflow: visible; padding: 1.25rem 1rem; gap: .875rem; } }
+@media (max-width: 480px) { .bb-aside-inner { padding: 1rem; gap: .75rem; } }
+@media (min-width: 961px) and (max-width: 1024px) {
   .bb-aside { top: 4rem; height: calc(100vh - 4rem); }
 }
 
@@ -683,8 +718,8 @@ onMounted(async () => {});
   background: radial-gradient(ellipse at 50% 85%, rgba(210,105,30,.07) 0%, transparent 65%);
   border-radius: 16px; min-height: 180px;
 }
-@media (max-width: 960px) { .bb-visual { min-height: auto; padding: .5rem 0; } }
-@media (max-width: 960px) { .bb-visual svg { width: 160px !important; } }
+@media (max-width: 960px) { .bb-visual { min-height: auto; padding: .375rem 0; } }
+@media (max-width: 960px) { .bb-visual svg { width: 140px !important; } }
 
 /* Ingredient list */
 .bb-ing-list { display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,.05); padding-top: .875rem; }
@@ -758,8 +793,8 @@ onMounted(async () => {});
   display: flex; flex-direction: column; gap: 3rem;
 }
 @media (max-width: 1100px) { .bb-main { padding: 2.5rem 2rem 5rem; } }
-@media (max-width: 768px)  { .bb-main { padding: 2rem 1.25rem 4rem; gap: 2.5rem; } }
-@media (max-width: 480px)  { .bb-main { padding: 1.25rem 1rem 2.5rem; gap: 1.5rem; } }
+@media (max-width: 768px)  { .bb-main { padding: 2rem 1.25rem 7rem; gap: 2.5rem; } }
+@media (max-width: 480px)  { .bb-main { padding: 1.25rem 1rem 7rem; gap: 1.5rem; } }
 
 /* ── Section ── */
 .bb-section {

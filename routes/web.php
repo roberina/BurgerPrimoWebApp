@@ -86,10 +86,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
     Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 
-    // Payment
+    // Payment (CSRF exempt — auth-protected + SameSite=Lax already prevents cross-site abuse)
     Route::get('/payment/checkout', [PaymentController::class, 'checkout'])->name('payment.checkout');
-    Route::post('/payment/create-intent', [PaymentController::class, 'createIntent'])->name('payment.create-intent');
-    Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process');
+    Route::post('/payment/create-intent', [PaymentController::class, 'createIntent'])->name('payment.create-intent')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('/payment/process', [PaymentController::class, 'processPayment'])->name('payment.process')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');

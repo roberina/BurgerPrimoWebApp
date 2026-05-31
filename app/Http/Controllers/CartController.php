@@ -68,6 +68,17 @@ class CartController extends Controller
             }
         }
         
+        // Remove invalid entries (e.g. deleted burgers) so the navbar count stays accurate
+        $validIds = collect($cartItems)->pluck('id')->all();
+        $cleanCart = collect($cart)->filter(function ($item) use ($validIds) {
+            if (isset($item['burger_id'])) return in_array($item['burger_id'], $validIds);
+            if (isset($item['menu_item_id'])) return in_array($item['id'] ?? null, $validIds);
+            return false;
+        })->values()->all();
+        if (count($cleanCart) !== count($cart)) {
+            session()->put('cart', $cleanCart);
+        }
+
         return Inertia::render('Cart/Index', [
             'cartItems' => $cartItems,
             'total' => $total,

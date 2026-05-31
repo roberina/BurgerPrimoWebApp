@@ -92,7 +92,7 @@ function scrollTo(id: string) {
           </Link>
           <button
             @click="scrollTo('popular')"
-            class="btn-magnetic inline-flex items-center gap-2 px-8 py-4 bg-white/8 border border-white/15 text-white font-semibold rounded-2xl text-sm uppercase tracking-wider"
+            class="btn-magnetic inline-flex items-center gap-2 px-8 py-4 bg-white/8 border border-white/15 text-white font-semibold rounded-2xl text-sm uppercase tracking-wider cursor-pointer"
           >
             {{ t('hero.cta.popular') }}
           </button>
@@ -102,12 +102,14 @@ function scrollTo(id: string) {
     </div>
 
     <!-- Scroll indicator -->
-    <div class="hero-scroll absolute bottom-7 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 z-10">
-      <span class="text-[9px] tracking-[0.35em] uppercase">{{ t('hero.scroll') }}</span>
-      <div class="relative w-px h-9 overflow-hidden bg-white/10 rounded-full">
-        <div class="absolute top-0 left-0 w-full bg-[#D2691E] rounded-full" style="height:40%; animation: scroll-line 1.8s ease-in-out infinite;" />
+    <button @click="scrollTo('popular')" aria-label="Scroll down" class="hero-scroll absolute bottom-7 left-1/2 -translate-x-1/2 z-10 cursor-pointer bg-transparent border-0 p-0">
+      <div class="flex flex-col items-center gap-2 text-white/30 hero-hop">
+        <span class="text-[9px] tracking-[0.35em] uppercase">{{ t('hero.scroll') }}</span>
+        <div class="relative w-px h-9 overflow-hidden bg-white/10 rounded-full">
+          <div class="absolute top-0 left-0 w-full bg-[#D2691E] rounded-full" style="height:40%; animation: scroll-line 1.8s ease-in-out infinite;" />
+        </div>
       </div>
-    </div>
+    </button>
 
   </section>
 </template>
@@ -119,5 +121,12 @@ function scrollTo(id: string) {
   71%  { top: -40%;  opacity: 0; }
   80%  { top: -40%;  opacity: 0.3; }
   100% { top: -40%;  opacity: 1; }
+}
+@keyframes hero-hop {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+.hero-hop {
+  animation: hero-hop 1.5s ease-in-out infinite;
 }
 </style>

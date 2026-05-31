@@ -116,7 +116,7 @@ function submitContact() {
                     <p class="text-5xl mb-5 animate-bob inline-block">🎉</p>
                     <p class="text-green-400 font-bold text-xl">{{ t('contact.form.sent') }}</p>
                     <p class="text-gray-400 text-sm mt-2">{{ t('contact.form.sent.sub') }}</p>
-                    <button @click="submitState = 'idle'" class="mt-6 px-6 py-2.5 text-sm bg-white/6 text-gray-400 rounded-xl hover:bg-white/10 transition-all font-semibold">{{ t('contact.form.new') }}</button>
+                    <button @click="submitState = 'idle'" class="mt-6 px-6 py-2.5 text-sm bg-white/6 text-gray-400 rounded-xl hover:bg-white/10 transition-all font-semibold cursor-pointer">{{ t('contact.form.new') }}</button>
                   </div>
                 </Transition>
 
@@ -157,7 +157,7 @@ function submitContact() {
                     <textarea v-model="form.message" required rows="4" :placeholder="t('contact.form.msg.ph')" @focus="focusedField = 'message'" @blur="focusedField = null" class="primo-input w-full px-4 py-3 text-sm bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-700 resize-none" />
                   </div>
 
-                  <button type="submit" :disabled="isSubmitting" class="btn-magnetic w-full py-4 text-sm bg-[#D2691E] text-white font-bold rounded-xl hover:bg-[#B8511A] transition-all shadow-lg shadow-[#D2691E]/15 disabled:opacity-40 flex items-center justify-center gap-2.5">
+                  <button type="submit" :disabled="isSubmitting" class="btn-magnetic w-full py-4 text-sm bg-[#D2691E] text-white font-bold rounded-xl hover:bg-[#B8511A] transition-all shadow-lg shadow-[#D2691E]/15 disabled:opacity-40 flex items-center justify-center gap-2.5 cursor-pointer">
                     <svg v-if="isSubmitting" class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
                     <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                     {{ isSubmitting ? t('contact.form.sending') : t('contact.form.submit') }}

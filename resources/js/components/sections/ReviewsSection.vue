@@ -134,9 +134,9 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
               </div>
             </div>
           </div>
-          <button v-if="total > 1" @click="prevSlide" aria-label="Eelmine arvustus" class="absolute -left-3 top-1/2 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
-          <button v-if="total > 1" @click="nextSlide" aria-label="Järgmine arvustus" class="absolute -right-3 top-1/2 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></button>
-          <div class="flex justify-center gap-1.5 mt-4"><button v-for="(_, i) in displayReviews" :key="i" @click="reviewSlide = i" :aria-label="`Arvustus ${i + 1}`" :aria-current="reviewSlide === i ? 'true' : undefined" class="h-1.5 rounded-full transition-all duration-300" :class="reviewSlide === i ? 'w-5 bg-[#D2691E]' : 'w-1.5 bg-white/20'" /></div>
+          <button v-if="total > 1" @click="prevSlide" aria-label="Eelmine arvustus" class="absolute -left-3 top-1/2 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg></button>
+          <button v-if="total > 1" @click="nextSlide" aria-label="Järgmine arvustus" class="absolute -right-3 top-1/2 -translate-y-1/2 bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center z-10 hover:bg-[#D2691E] transition-all cursor-pointer"><svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></button>
+          <div class="flex justify-center gap-1.5 mt-4"><button v-for="(_, i) in displayReviews" :key="i" @click="reviewSlide = i" :aria-label="`Arvustus ${i + 1}`" :aria-current="reviewSlide === i ? 'true' : undefined" class="h-1.5 rounded-full transition-all duration-300 cursor-pointer" :class="reviewSlide === i ? 'w-5 bg-[#D2691E]' : 'w-1.5 bg-white/20'" /></div>
         </div>
       </div>
     </template>
@@ -150,8 +150,8 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
       <button
         @click="reviewModalOpen = true"
         :disabled="alreadySubmitted"
-        class="btn-magnetic group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl text-sm font-bold transition-all duration-250"
-        :class="alreadySubmitted ? 'bg-black/40 text-gray-600 cursor-not-allowed border border-white/8' : 'bg-[#D2691E]/12 border border-[#D2691E]/35 text-[#D2691E] hover:bg-[#D2691E] hover:text-white hover:border-[#D2691E]'"
+        class="btn-magnetic group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl text-sm font-bold transition-all duration-250 cursor-pointer"
+        :class="alreadySubmitted ? 'bg-black/40 text-gray-600 cursor-not-allowed! border border-white/8' : 'bg-[#D2691E]/12 border border-[#D2691E]/35 text-[#D2691E] hover:bg-[#D2691E] hover:text-white hover:border-[#D2691E]'"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-200 group-hover:rotate-12" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         {{ alreadySubmitted ? t('reviews.cta.sent') : t('reviews.cta') }}
@@ -166,7 +166,7 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
             <div v-if="reviewModalOpen" class="relative z-10 w-full max-w-sm glass rounded-3xl overflow-hidden">
               <div class="h-0.5 bg-gradient-to-r from-transparent via-[#D2691E] to-transparent" />
               <div class="p-6">
-                <button @click="closeModal" class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full text-gray-600 hover:text-white hover:bg-white/8 transition-all">
+                <button @click="closeModal" class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full text-gray-600 hover:text-white hover:bg-white/8 transition-all cursor-pointer">
                   <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
                 <Transition enter-active-class="transition duration-400 ease-out" enter-from-class="opacity-0 scale-90" enter-to-class="opacity-100 scale-100">
@@ -190,7 +190,7 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
                     <div>
                       <label class="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">{{ t('reviews.modal.rating') }} <span class="text-[#D2691E]">*</span></label>
                       <div class="flex gap-1">
-                        <button v-for="star in 5" :key="star" type="button" @click="formData.rating = star" @mouseenter="hoveredStar = star" @mouseleave="hoveredStar = 0" class="text-2xl transition-all duration-100 hover:scale-125" :class="star <= (hoveredStar || formData.rating) ? 'text-yellow-400' : 'text-gray-600'">★</button>
+                        <button v-for="star in 5" :key="star" type="button" @click="formData.rating = star" @mouseenter="hoveredStar = star" @mouseleave="hoveredStar = 0" class="text-2xl transition-all duration-100 hover:scale-125 cursor-pointer" :class="star <= (hoveredStar || formData.rating) ? 'text-yellow-400' : 'text-gray-600'">★</button>
                       </div>
                     </div>
                     <div>
@@ -200,7 +200,7 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
                       </div>
                       <textarea v-model="formData.content" required rows="3" maxlength="85" :placeholder="t('reviews.modal.ph.text')" class="primo-input w-full px-4 py-3 text-sm bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-700 resize-none" />
                     </div>
-                    <button type="submit" :disabled="isSubmitting" class="btn-magnetic w-full py-3.5 text-sm bg-[#D2691E] text-white font-bold rounded-xl hover:bg-[#B8511A] transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+                    <button type="submit" :disabled="isSubmitting" class="btn-magnetic w-full py-3.5 text-sm bg-[#D2691E] text-white font-bold rounded-xl hover:bg-[#B8511A] transition-all disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer">
                       <svg v-if="isSubmitting" class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
                       {{ isSubmitting ? t('reviews.modal.sending') : t('reviews.modal.submit') }}
                     </button>
@@ -211,7 +211,7 @@ const closeModal = () => { reviewModalOpen.value = false; submitSuccess.value = 
                     <p class="text-4xl mb-4">✅</p>
                     <p class="text-white font-bold">{{ t('reviews.modal.already') }}</p>
                     <p class="text-gray-400 text-sm mt-2">{{ t('reviews.modal.already.sub') }}</p>
-                    <button @click="closeModal" class="mt-5 w-full py-3 text-sm bg-white/6 text-gray-400 font-semibold rounded-xl hover:bg-white/10 transition-all">{{ t('reviews.modal.close') }}</button>
+                    <button @click="closeModal" class="mt-5 w-full py-3 text-sm bg-white/6 text-gray-400 font-semibold rounded-xl hover:bg-white/10 transition-all cursor-pointer">{{ t('reviews.modal.close') }}</button>
                   </div>
                 </template>
               </div>

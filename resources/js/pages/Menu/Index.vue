@@ -179,6 +179,7 @@
       </main>
     </div>
     <Footer />
+    <StickyCart />
   </div>
 </template>
 
@@ -190,6 +191,7 @@ import Navbar from '@/components/Navbar.vue';
 import Footer from '@/components/Footer.vue';
 import MenuItem from '@/components/Menu/MenuItem.vue';
 import MenuSidebar from '@/components/Menu/MenuSidebar.vue';
+import StickyCart from '@/components/StickyCart.vue';
 import { ChevronDown, ChevronUp } from 'lucide-vue-next';
 
 interface MenuItemData {

@@ -137,6 +137,7 @@ const { t, locale } = useI18n();
 
 const { success, error: showError } = useToast();
 import { router } from '@inertiajs/vue3';
+import axios from 'axios';
 import Navbar from '@/components/Navbar.vue';
 import AddressPickerMap from '@/components/AddressPickerMap.vue';
 
@@ -238,26 +239,13 @@ const handleSubmit = async () => {
 
   try {
     // Create payment intent
-    const intentResponse = await fetch('/payment/create-intent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-      },
-      body: JSON.stringify({
-        delivery_method: deliveryMethod.value,
-        customer_notes: customerNotes.value,
-        delivery_lat: deliveryLat.value,
-        delivery_lng: deliveryLng.value,
-        delivery_address: deliveryAddress.value || null,
-      }),
+    const { data: intentData } = await axios.post('/payment/create-intent', {
+      delivery_method: deliveryMethod.value,
+      customer_notes: customerNotes.value,
+      delivery_lat: deliveryLat.value,
+      delivery_lng: deliveryLng.value,
+      delivery_address: deliveryAddress.value || null,
     });
-
-    const intentData = await intentResponse.json();
-
-    if (!intentResponse.ok) {
-      throw new Error(intentData.error || t('checkout.err.intent'));
-    }
 
     // Confirm payment with Stripe
     const { error, paymentIntent } = await stripe.confirmCardPayment(intentData.clientSecret, {
@@ -272,35 +260,23 @@ const handleSubmit = async () => {
 
     if (paymentIntent.status === 'succeeded') {
       // Process payment on backend
-      const processResponse = await fetch('/payment/process', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-        },
-        body: JSON.stringify({
-          payment_intent_id: paymentIntent.id,
-          delivery_method: deliveryMethod.value,
-          customer_notes: customerNotes.value,
-          delivery_lat: deliveryLat.value,
-          delivery_lng: deliveryLng.value,
-          delivery_address: deliveryAddress.value || null,
-        }),
+      const { data: processData } = await axios.post('/payment/process', {
+        payment_intent_id: paymentIntent.id,
+        delivery_method: deliveryMethod.value,
+        customer_notes: customerNotes.value,
+        delivery_lat: deliveryLat.value,
+        delivery_lng: deliveryLng.value,
+        delivery_address: deliveryAddress.value || null,
       });
-
-      const processData = await processResponse.json();
-
-      if (!processResponse.ok) {
-        throw new Error(processData.error || t('checkout.err.order'));
-      }
 
       // Show success toast and redirect
       success(`${t('toast.payment.success')}${processData.order_number} ${t('toast.payment.success.end')}`);
       router.visit(`/orders/${processData.order_id}`);
     }
   } catch (err: any) {
-    cardError.value = err.message || t('checkout.err.pay');
-    showError(cardError.value);
+    const msg = err.response?.data?.error || err.response?.data?.message || err.message || t('checkout.err.pay');
+    cardError.value = msg;
+    showError(msg);
   } finally {
     processing.value = false;
   }
