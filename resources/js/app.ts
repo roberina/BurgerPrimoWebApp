@@ -74,7 +74,7 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
             ),
         });
         sendSubscriptionToServer(sub);
-    } catch (_) { /* browser blocked */ }
+    } catch { /* browser blocked */ }
     return permission;
 };
 

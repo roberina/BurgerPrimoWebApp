@@ -133,12 +133,14 @@ const addToCart = () => {
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
+      <!-- eslint-disable-next-line vue/require-toggle-inside-transition -->
       <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 cursor-default" @click.self="emit('close')">
         <Transition
           enter-active-class="transition ease-out duration-200"
           enter-from-class="opacity-0 scale-95 translate-y-2"
           enter-to-class="opacity-100 scale-100 translate-y-0"
         >
+          <!-- eslint-disable-next-line vue/require-toggle-inside-transition -->
           <div class="bg-[#121212] rounded-2xl max-w-2xl w-full flex flex-col border border-[#1a1a1a] shadow-2xl" style="max-height: 90vh;">
 
             <!-- Header -->

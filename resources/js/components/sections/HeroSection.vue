@@ -10,7 +10,7 @@ const logoX = ref(0)
 const logoY = ref(0)
 const titleRef = ref<HTMLElement | null>(null)
 
-const { elRef: statRatingRef, displayValue: statRating } = useCountUp(4.8, { decimals: 1, duration: 1400, delay: 300 })
+useCountUp(4.8, { decimals: 1, duration: 1400, delay: 300 })
 
 function onMouseMove(e: MouseEvent) {
   const cx = window.innerWidth / 2

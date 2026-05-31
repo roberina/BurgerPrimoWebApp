@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 
-const props = defineProps<{
+defineProps<{
   modelValue: boolean
 }>()
 

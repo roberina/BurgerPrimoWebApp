@@ -40,7 +40,7 @@ const features = computed(() => [t('ent.feat.1'), t('ent.feat.2')])
 onMounted(() => {
   timer = setInterval(next, 4500)
   if (featureListRef.value) {
-    const items = featureListRef.value.querySelectorAll<HTMLElement>('li')
+    const items = featureListRef.value.querySelectorAll('li') as NodeListOf<HTMLElement>
     items.forEach((el) => {
       el.style.opacity = '0'
       el.style.transform = 'translateX(20px)'

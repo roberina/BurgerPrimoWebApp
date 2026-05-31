@@ -14,7 +14,7 @@ interface Props {
     status?: string;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user as any);

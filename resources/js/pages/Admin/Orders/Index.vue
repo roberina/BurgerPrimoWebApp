@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue';
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import {
   Clock,
@@ -16,16 +16,11 @@ import {
   Bike,
   Copy,
 } from 'lucide-vue-next';
-import { useToast } from '@/composables/useToast';
-
-const { success } = useToast();
 const page = usePage();
-const origin = typeof window !== 'undefined' ? window.location.origin : '';
 
 const confirmModal = reactive({ show: false, title: '', message: '', confirmLabel: 'Kinnita', onConfirm: () => {} });
 const rejectModal = reactive({ show: false, orderId: null as number | null, reason: '' });
 const courierLinkModal = reactive({ show: false, link: '' });
-const copiedLink = ref(false);
 const newOrderNotifications = ref<{ id: number; orderNumber: string; dismissed: boolean }[]>([]);
 
 const openConfirmModal = (opts: Omit<typeof confirmModal, 'show'>) => {
@@ -46,22 +41,6 @@ const submitRejectModal = () => {
   rejectModal.show = false;
 };
 
-const copyLink = async () => {
-  try {
-    await navigator.clipboard.writeText(courierLinkModal.link);
-    copiedLink.value = true;
-    setTimeout(() => (copiedLink.value = false), 2000);
-  } catch {
-    const el = document.createElement('textarea');
-    el.value = courierLinkModal.link;
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-    copiedLink.value = true;
-    setTimeout(() => (copiedLink.value = false), 2000);
-  }
-};
 
 interface User {
   id: number;
@@ -138,7 +117,6 @@ const pendingOrders = computed(() => props.orders.data.filter(o => o.status === 
 const confirmedOrders = computed(() => props.orders.data.filter(o => o.status === 'confirmed'));
 const preparingOrders = computed(() => props.orders.data.filter(o => o.status === 'preparing'));
 const readyOrders = computed(() => props.orders.data.filter(o => o.status === 'ready'));
-const awaitingCourierOrders = computed(() => props.orders.data.filter(o => o.status === 'awaiting_courier'));
 const pickedUpOrders = computed(() => props.orders.data.filter(o => o.status === 'picked_up'));
 
 const playNotificationSound = () => {
@@ -903,10 +881,11 @@ const deliveryIcon = (method?: string) =>
 
     <!-- Pagination -->
     <div v-if="orders.links.length > 3" class="mt-6 flex justify-center gap-1.5">
-      <Link
+      <a
         v-for="link in orders.links"
         :key="link.label"
         :href="link.url || '#'"
+        @click.prevent="link.url && router.visit(link.url)"
         :class="[
           'px-3 py-1.5 rounded-md text-xs font-medium transition',
           link.active ? 'bg-orange-600 text-white' :

@@ -24,7 +24,7 @@ interface Announcement {
   created_at: string
 }
 
-const props = defineProps<{ announcements: Announcement[] }>()
+defineProps<{ announcements: Announcement[] }>()
 const showModal = ref(false)
 const editingId = ref<number | null>(null)
 const modalEl = ref<HTMLElement | null>(null)

@@ -15,7 +15,7 @@ interface MenuItemData {
   is_favorited?: boolean;
 }
 
-const props = defineProps<{
+defineProps<{
   item: MenuItemData;
 }>();
 
@@ -37,6 +37,7 @@ const { t } = useI18n();
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
+      <!-- eslint-disable-next-line vue/require-toggle-inside-transition -->
       <div
         class="fixed inset-0 z-50 flex items-center justify-center p-4 cursor-default"
         style="background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);"
@@ -47,6 +48,7 @@ const { t } = useI18n();
           enter-from-class="opacity-0 translate-y-8 scale-[0.97]"
           enter-to-class="opacity-100 translate-y-0 scale-100"
         >
+          <!-- eslint-disable-next-line vue/require-toggle-inside-transition -->
           <div
             class="relative w-full max-w-md rounded-3xl overflow-hidden flex flex-col cursor-default"
             style="background: #111; border: 1px solid #1e1e1e; box-shadow: 0 32px 80px rgba(0,0,0,0.9);"

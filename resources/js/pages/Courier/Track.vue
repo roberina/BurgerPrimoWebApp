@@ -508,8 +508,6 @@ const fetchRoute = async (lat: number, lng: number) => {
   } catch { /* vaikne */ }
 };
 
-const SAAREMAA = { sw: [57.85, 21.50] as [number, number], ne: [58.75, 23.20] as [number, number] };
-
 
 const makeCourierIcon = () =>
   L.divIcon({

@@ -27,7 +27,13 @@ const mounted        = ref(false)
 
 const activeAnchor = ref<string | null>(null)
 const isHomePage   = computed(() => page.url === '/')
-const goBack       = () => history.back()
+const goBack = () => {
+  if (/^\/orders\/\d+/.test(page.url)) {
+    router.visit('/orders')
+  } else {
+    history.back()
+  }
+}
 
 const homeDropdownItems = computed(() => [
   { label: t('nav.popular'),       anchor: 'popular'       },
@@ -192,7 +198,7 @@ const vClickOutside = {
           <div class="relative" @mouseenter="homeDropOpen = true" @mouseleave="homeDropOpen = false">
             <Link href="/" class="relative px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 group flex items-center gap-1"
               :class="isHomePage ? 'text-white' : 'text-gray-400 hover:text-white'">
-              <span class="relative z-10">{{ t('nav.home') }}<span v-if="isHomePage && !activeAnchor" class="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#D2691E]" /></span>
+              <span class="relative z-10">{{ t('nav.home') }}<span v-if="isHomePage && !activeAnchor" class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#D2691E]" /></span>
               <svg class="w-3 h-3 transition-transform duration-200 relative z-10" :class="{ 'rotate-180': homeDropOpen }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
@@ -263,7 +269,7 @@ const vClickOutside = {
 
             <div class="relative" v-click-outside="closeDropdown">
               <button @click="dropdownOpen = !dropdownOpen" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-white/5 transition-all duration-200 cursor-pointer">
-                <div class="w-7 h-7 bg-gradient-to-br from-[#D2691E] to-[#8B3A00] rounded-full flex items-center justify-center text-white text-xs font-black shadow">{{ user.name.charAt(0).toUpperCase() }}</div>
+                <div class="w-7 h-7 bg-linear-to-br from-[#D2691E] to-[#8B3A00] rounded-full flex items-center justify-center text-white text-xs font-black shadow">{{ user.name.charAt(0).toUpperCase() }}</div>
                 <span class="text-sm font-medium text-gray-400">{{ user.name }}</span>
                 <svg class="h-3 w-3 text-gray-600 transition-transform duration-200" :class="{ 'rotate-180': dropdownOpen }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
@@ -271,7 +277,7 @@ const vClickOutside = {
               </button>
               <Transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 scale-95 translate-y-1" enter-to-class="opacity-100 scale-100 translate-y-0" leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
                 <div v-if="dropdownOpen" class="absolute right-0 mt-2 w-52 bg-[#0d0d0d] border border-white/8 rounded-2xl shadow-2xl shadow-black/70 py-1.5 overflow-hidden">
-                  <div class="h-0.5 bg-gradient-to-r from-transparent via-[#D2691E]/40 to-transparent mb-1" />
+                  <div class="h-0.5 bg-linear-to-r from-transparent via-[#D2691E]/40 to-transparent mb-1" />
                   <Link href="/settings/profile" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                     {{ t('nav.profile') }}

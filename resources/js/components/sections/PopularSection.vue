@@ -76,22 +76,22 @@ const onTouchEnd   = (e: TouchEvent) => {
 
         <!-- Heading -->
         <div class="text-center mb-12 space-y-4">
-          <div :ref="(el) => badgeRef = el as any" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D2691E]/30 bg-[#D2691E]/10 text-[#D2691E] text-xs font-bold uppercase tracking-[0.22em]">
+          <div :ref="(el) => { badgeRef = el as any }" class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#D2691E]/30 bg-[#D2691E]/10 text-[#D2691E] text-xs font-bold uppercase tracking-[0.22em]">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 icon-hover-spin" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
             </svg>
             {{ t('popular.badge') }}
           </div>
-          <h2 :ref="(el) => headingRef = el as any" class="text-3xl md:text-5xl font-bold text-white">
+          <h2 :ref="(el) => { headingRef = el as any }" class="text-3xl md:text-5xl font-bold text-white">
             {{ t('popular.heading') }} <span class="text-[#D2691E]">{{ t('popular.heading.accent') }}</span>
           </h2>
-          <p :ref="(el) => subRef = el as any" class="text-gray-400 text-base max-w-md mx-auto">
+          <p :ref="(el) => { subRef = el as any }" class="text-gray-400 text-base max-w-md mx-auto">
             {{ t('popular.sub') }}
           </p>
         </div>
 
         <!-- Desktop grid -->
-        <div :ref="(el) => containerRef = el as any" class="hidden md:grid md:grid-cols-3 gap-5 mb-10">
+        <div :ref="(el) => { containerRef = el as any }" class="hidden md:grid md:grid-cols-3 gap-5 mb-10">
           <Link
             v-for="item in displayedItems"
             :key="item.id"

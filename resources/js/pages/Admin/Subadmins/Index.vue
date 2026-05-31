@@ -16,7 +16,6 @@ import {
 } from 'lucide-vue-next';
 
 const { success, error } = useToast();
-const page = usePage();
 
 interface Subadmin {
   id: number;
@@ -27,7 +26,7 @@ interface Subadmin {
   created_at: string;
 }
 
-const props = defineProps<{
+defineProps<{
   subadmins: Subadmin[];
   validPermissions: string[];
 }>();
