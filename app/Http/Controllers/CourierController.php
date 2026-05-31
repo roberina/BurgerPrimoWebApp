@@ -43,9 +43,13 @@ class CourierController extends Controller
         ]);
     }
 
-    /** JSON endpoint — polled as fallback when SSE is unavailable. */
+    /** JSON endpoint — polled every 3 s. Release session lock so concurrent POSTs aren't held up. */
     public function availableOrders(): JsonResponse
     {
+        if (session()->isStarted()) {
+            session()->save();
+        }
+
         $orders = Order::where('status', Order::AWAITING_COURIER)
             ->with('items')
             ->orderByDesc('broadcasted_at')

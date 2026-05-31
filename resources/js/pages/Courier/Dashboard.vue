@@ -6,10 +6,10 @@
       <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-black">Kulleri töölaud</h1>
         <div class="flex items-center gap-1.5 text-xs"
-             :class="sseConnected ? 'text-green-500' : 'text-yellow-500'">
+             :class="pollConnected ? 'text-green-500' : 'text-yellow-500'">
           <span class="w-2 h-2 rounded-full animate-pulse"
-                :class="sseConnected ? 'bg-green-500' : 'bg-yellow-500'" />
-          {{ sseConnected ? 'Ühendatud' : 'Ühendan...' }}
+                :class="pollConnected ? 'bg-green-500' : 'bg-yellow-500'" />
+          {{ pollConnected ? 'Ühendatud' : 'Ühendan...' }}
         </div>
       </div>
 
@@ -199,7 +199,7 @@ const props = defineProps<{ orders: Order[]; courierOnline: boolean }>();
 
 const isOnline    = ref(props.courierOnline);
 const toggling    = ref(false);
-const sseConnected = ref(false);
+const pollConnected = ref(false);
 const claiming    = ref<number | null>(null);
 const claimErrorMsg = ref<string | null>(null);
 
@@ -244,11 +244,22 @@ const toggleOnline = async () => {
   try {
     const res = await fetch('/courier/toggle-online', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken() },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
     });
-    const data = await res.json();
-    isOnline.value = data.online;
-  } catch { /* silent */ }
+    if (res.status === 419) {
+      claimErrorMsg.value = 'Sessiooni viga — laadi leht uuesti (F5)';
+      setTimeout(() => { claimErrorMsg.value = null; }, 5000);
+    } else if (!res.ok) {
+      claimErrorMsg.value = `Viga (${res.status}) — proovi uuesti`;
+      setTimeout(() => { claimErrorMsg.value = null; }, 4000);
+    } else {
+      const data = await res.json();
+      isOnline.value = data.online;
+    }
+  } catch {
+    claimErrorMsg.value = 'Ühenduse viga, proovi uuesti';
+    setTimeout(() => { claimErrorMsg.value = null; }, 3500);
+  }
   toggling.value = false;
 };
 
@@ -258,7 +269,7 @@ async function claimOrder(orderId: number) {
   try {
     const res = await fetch(`/courier/orders/${orderId}/accept`, {
       method: 'POST',
-      headers: { 'X-CSRF-TOKEN': csrfToken() },
+      headers: { 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
     });
     if (res.status === 409) {
       const data = await res.json();
@@ -266,7 +277,13 @@ async function claimOrder(orderId: number) {
       availableOrders.value = availableOrders.value.filter(o => o.id !== orderId);
       newOrderIds.value.delete(orderId);
       setTimeout(() => { claimErrorMsg.value = null; }, 3500);
-    } else if (res.ok) {
+    } else if (res.status === 419) {
+      claimErrorMsg.value = 'Sessiooni viga — laadi leht uuesti (F5)';
+      setTimeout(() => { claimErrorMsg.value = null; }, 5000);
+    } else if (!res.ok) {
+      claimErrorMsg.value = `Viga (${res.status}) — proovi uuesti`;
+      setTimeout(() => { claimErrorMsg.value = null; }, 4000);
+    } else {
       router.visit(`/courier/orders/${orderId}`);
     }
   } catch {
@@ -276,73 +293,48 @@ async function claimOrder(orderId: number) {
   claiming.value = null;
 }
 
-// ── SSE ─────────────────────────────────────────────────────────────────────
-let eventSource: EventSource | null = null;
-let refreshInterval: ReturnType<typeof setInterval> | null = null;
+// ── Polling (replaces SSE — avoids holding PHP workers hostage) ──────────────
+let pollInterval: ReturnType<typeof setInterval> | null = null;
+let reloadInterval: ReturnType<typeof setInterval> | null = null;
 
-function connectSSE() {
-  eventSource?.close();
-  eventSource = new EventSource('/courier/events');
-
-  eventSource.onopen = () => { sseConnected.value = true; };
-
-  eventSource.addEventListener('order:new', (e: MessageEvent) => {
-    const order: Order = JSON.parse(e.data);
-    if (!availableOrders.value.find(o => o.id === order.id)) {
-      availableOrders.value.unshift(order);
-      newOrderIds.value = new Set([...newOrderIds.value, order.id]);
-      // Haptic feedback on mobile
-      if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
-      // Clear "new" highlight after 4 s
-      setTimeout(() => {
-        newOrderIds.value = new Set([...newOrderIds.value].filter(id => id !== order.id));
-      }, 4000);
-    }
-  });
-
-  eventSource.addEventListener('order:removed', (e: MessageEvent) => {
-    const { id }: { id: number } = JSON.parse(e.data);
-    availableOrders.value = availableOrders.value.filter(o => o.id !== id);
-    newOrderIds.value = new Set([...newOrderIds.value].filter(i => i !== id));
-  });
-
-  eventSource.onerror = () => {
-    sseConnected.value = false;
-    // EventSource auto-reconnects per spec; we just reflect the status.
-  };
-}
-
-/** Fallback JSON poll — syncs available orders in case SSE misses an event. */
 async function pollAvailableOrders() {
   try {
     const res  = await fetch('/courier/available-orders');
+    if (!res.ok) { pollConnected.value = false; return; }
     const list: Order[] = await res.json();
     const incoming = new Set(list.map(o => o.id));
 
-    // Remove orders no longer available
-    availableOrders.value = availableOrders.value.filter(o => incoming.has(o.id));
-
-    // Add any missing
+    // Detect newly added orders for haptic + highlight
     for (const order of list) {
       if (!availableOrders.value.find(o => o.id === order.id)) {
         availableOrders.value.unshift(order);
+        newOrderIds.value = new Set([...newOrderIds.value, order.id]);
+        if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
+        setTimeout(() => {
+          newOrderIds.value = new Set([...newOrderIds.value].filter(id => id !== order.id));
+        }, 4000);
       }
     }
-  } catch { /* silent */ }
+
+    // Remove orders no longer available
+    availableOrders.value = availableOrders.value.filter(o => incoming.has(o.id));
+    newOrderIds.value = new Set([...newOrderIds.value].filter(id => incoming.has(id)));
+
+    pollConnected.value = true;
+  } catch {
+    pollConnected.value = false;
+  }
 }
 
 onMounted(() => {
-  connectSSE();
-  // 15-second reconciliation poll as safety net
-  refreshInterval = setInterval(() => {
-    pollAvailableOrders();
-    router.reload({ only: ['orders'] });
-  }, 15000);
+  pollAvailableOrders();
+  pollInterval   = setInterval(pollAvailableOrders, 3000);
+  reloadInterval = setInterval(() => router.reload({ only: ['orders'] }), 30000);
 });
 
 onUnmounted(() => {
-  eventSource?.close();
-  if (refreshInterval) clearInterval(refreshInterval);
+  if (pollInterval)   clearInterval(pollInterval);
+  if (reloadInterval) clearInterval(reloadInterval);
 });
 </script>
 

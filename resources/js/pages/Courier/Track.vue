@@ -121,19 +121,24 @@
         <!-- Ülemine navigatsiooniriba -->
         <div class="absolute top-0 left-0 right-0 shadow-2xl" style="z-index:1000">
 
+          <!-- Tagasi nupp rida -->
+          <div class="flex items-center gap-2 bg-[#0f1e2e] px-3 py-2 border-b border-white/6">
+            <button
+              @click="goToDashboard"
+              class="flex items-center gap-1.5 text-sm font-semibold text-gray-400 hover:text-white transition active:scale-95"
+              aria-label="Tagasi töölaudale"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+              Töölaud
+            </button>
+          </div>
+
           <!-- Peamine juhis -->
           <div class="flex items-stretch bg-[#1a2b3c]" style="min-height:80px">
-            <!-- Pöörde ikoon + tagasi nupp -->
-            <div class="w-20 bg-[#0f1e2e] flex flex-col items-center justify-center shrink-0 gap-2">
-              <button
-                @click="() => history.back()"
-                class="w-9 h-9 rounded-xl bg-white/8 hover:bg-white/16 border border-white/12 flex items-center justify-center text-gray-300 transition active:scale-95"
-                aria-label="Tagasi"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
+            <!-- Pöörde ikoon -->
+            <div class="w-20 bg-[#0f1e2e] flex items-center justify-center shrink-0">
               <div v-html="currentManeuverSvg" class="text-white w-8 h-8"></div>
             </div>
             <!-- Kaugus + tänav -->
@@ -145,19 +150,19 @@
 
           <!-- Järgmine juhis -->
           <div v-if="nextNavStep" class="flex items-center gap-2 px-4 py-1.5 bg-[#0f1e2e]/90 backdrop-blur-sm">
-            <span class="text-[10px] text-gray-500 uppercase tracking-widest flex-shrink-0">{{ t('courier.next') }}</span>
-            <div v-html="nextManeuverSvg" class="text-gray-300 w-4 h-4 flex-shrink-0"></div>
+            <span class="text-[10px] text-gray-500 uppercase tracking-widest shrink-0">{{ t('courier.next') }}</span>
+            <div v-html="nextManeuverSvg" class="text-gray-300 w-4 h-4 shrink-0"></div>
             <span class="text-xs text-gray-300 truncate">{{ nextNavStep.name || t('courier.continue') }}</span>
           </div>
 
           <!-- GPS otsib -->
           <div v-if="!isTracking && !stopped && !gpsError" class="flex items-center gap-2 px-4 py-2 bg-blue-900/30 border-t border-blue-700/20">
-            <Wifi :size="14" class="text-blue-400 animate-pulse flex-shrink-0" />
+            <Wifi :size="14" class="text-blue-400 animate-pulse shrink-0" />
             <p class="text-xs text-blue-300">{{ t('courier.gps.searching') }}</p>
           </div>
           <!-- GPS viga -->
           <div v-if="gpsError" class="flex items-center gap-2 px-4 py-2 bg-red-900/30 border-t border-red-700/20">
-            <AlertTriangle :size="14" class="text-red-400 flex-shrink-0" />
+            <AlertTriangle :size="14" class="text-red-400 shrink-0" />
             <p class="text-xs text-red-300">{{ gpsError }}</p>
           </div>
         </div>
@@ -172,7 +177,7 @@
             <!-- Kiirus + ETA + peata -->
             <div class="flex items-center justify-between mb-3">
               <!-- Kiirus -->
-              <div class="bg-[#0f1e2e]/80 rounded-2xl px-4 py-2 text-center min-w-[72px] border border-white/8">
+              <div class="bg-[#0f1e2e]/80 rounded-2xl px-4 py-2 text-center min-w-18 border border-white/8">
                 <div class="text-2xl font-black text-white leading-none">{{ currentSpeedValue }}</div>
                 <div class="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">km/h</div>
               </div>
@@ -194,7 +199,7 @@
 
             <!-- Tellimus info -->
             <div class="flex items-center gap-2 bg-[#0f1e2e]/60 rounded-xl px-4 py-2.5 border border-white/6">
-              <MapPin :size="16" class="text-orange-500 flex-shrink-0" />
+              <MapPin :size="16" class="text-orange-500 shrink-0" />
               <div class="flex-1 min-w-0">
                 <span class="font-mono text-xs text-orange-500 font-bold mr-2">{{ order.order_number }}</span>
                 <span v-if="order.delivery_address" class="text-xs text-gray-400 truncate">{{ order.delivery_address }}</span>
@@ -277,7 +282,11 @@ const csrfToken = (): string =>
   (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '';
 
 const closeDelivered = () => {
-  window.location.href = props.dashboardUrl ?? '/';
+  router.visit(props.dashboardUrl ?? '/courier/dashboard');
+};
+
+const goToDashboard = () => {
+  router.visit(props.dashboardUrl ?? '/courier/dashboard');
 };
 
 // ─── Phase ────────────────────────────────────────────────
